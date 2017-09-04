@@ -13,29 +13,35 @@ public class Vector {
 
 	// create vector from a specified String
 	public Vector(String vector) {
-		this.vector = vector;
+		this.vector = initializeVector(vector);
 	}
 
 	// return the vector as a String
 	public String getVector() {
-		// getVector() code
-		return null;
+		return vector;
 	}
 
 	// return the size of the vector
 	public int getSize() {
-		// getSize() code
-		return -1;
+		return vector.length();
 	}
 
 	// indicate if a string only contains 0s and 1s
 	public static boolean isValid(String vector) {
-		// isValid() code
-		return false;
+		for (int i = 0; i < vector.length(); i++) {
+			String s = Character.toString(vector.charAt(i));
+			if (!s.equals("0") || !s.equals("1")) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	// initialize vector if input is valid
-	public void initializeVector(String vector) {
-		// initializeVector() code
+	public static String initializeVector(String vector) {
+		if (isValid(vector)) {
+			return vector;
+		}
+		return null;
 	}
 }
