@@ -1,6 +1,7 @@
 
 package automata;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /*
@@ -20,7 +21,16 @@ public class Automaton {
 
 	// enter values into the map based on rule number and initial seed
 	public static Map<Integer, Vector> initializeVectorMap(int rule, Vector seed) {
-		// initializeVectorMap() code
-		return null;
+		Map<Integer, Vector> map = new HashMap<Integer, Vector>();
+		Vector successor = Generator.generateSuccessor(rule, seed);
+		int generation = 0;
+
+		map.put(generation, seed);
+		while (generation < seed.getSize()) {
+			generation++;
+			successor = Generator.generateSuccessor(rule, successor);
+			map.put(generation, successor);
+		}
+		return map;
 	}
 }
