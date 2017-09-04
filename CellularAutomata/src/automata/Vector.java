@@ -30,7 +30,7 @@ public class Vector {
 	public static boolean isValid(String vector) {
 		for (int i = 0; i < vector.length(); i++) {
 			String s = Character.toString(vector.charAt(i));
-			if (!s.equals("0") || !s.equals("1")) {
+			if (!s.equals("0") && !s.equals("1")) {
 				return false;
 			}
 		}
