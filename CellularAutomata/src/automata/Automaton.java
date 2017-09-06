@@ -21,16 +21,25 @@ public class Automaton {
 
 	// enter values into the map based on rule number and initial seed
 	public static Map<Integer, Vector> initializeVectorMap(int rule, Vector seed) {
-		Map<Integer, Vector> map = new HashMap<Integer, Vector>();
-		Vector successor = Generator.generateSuccessor(rule, seed);
-		int generation = 0;
+		if (rule > -1 && rule < 256 && seed != null) {
+			Map<Integer, Vector> map = new HashMap<Integer, Vector>();
+			Vector successor = Generator.generateSuccessor(rule, seed);
+			int generation = 0;
 
-		map.put(generation, seed);
-		while (generation < seed.getSize()) {
-			generation++;
-			successor = Generator.generateSuccessor(rule, successor);
-			map.put(generation, successor);
+			map.put(generation, seed);
+			while (generation < seed.getSize() - 1) {
+				generation++;
+				map.put(generation, successor);
+				successor = Generator.generateSuccessor(rule, successor);
+			}
+			return map;
 		}
-		return map;
+		return null;
+	}
+
+	public void displayVectorMap() {
+		for (Map.Entry<Integer, Vector> entry : map.entrySet()) {
+			System.out.println("Generation " + entry.getKey() + ": " + entry.getValue().getVector());
+		}
 	}
 }
