@@ -10,7 +10,7 @@ import org.junit.Test;
  */
 
 public class VectorTest {
-	// assert true if vector is valid
+	// assert that a string is valid
 	@Test
 	public void testIsValidPositive() {
 		boolean expected = true;
@@ -18,7 +18,7 @@ public class VectorTest {
 		Assert.assertEquals(expected, actual);
 	}
 
-	// assert false if vector is invalid
+	// assert that a string is invalid
 	@Test
 	public void testIsValidNegative() {
 		boolean expected = false;
