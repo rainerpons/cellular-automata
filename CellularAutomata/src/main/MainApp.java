@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -212,6 +213,10 @@ public class MainApp {
 					BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
 					BufferedImage resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
 					automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
+				} else {
+					JOptionPane.showMessageDialog(CAFrame,
+							"Rule number should be an integer \nbetween 0 and 255 (inclusive).", "Rule Number Error",
+							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
