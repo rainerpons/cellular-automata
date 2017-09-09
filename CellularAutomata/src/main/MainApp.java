@@ -1,11 +1,19 @@
 
 package main;
 
+import automata.Automaton;
+import automata.Generator;
+import automata.Vector;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -39,6 +47,7 @@ public class MainApp {
 
 	// initialize the contents of the frame
 	private void initialize() {
+		// initialize the cellular automata frame
 		CAFrame = new JFrame();
 		CAFrame.setResizable(false);
 		CAFrame.setTitle("Cellular Automata");
@@ -51,6 +60,7 @@ public class MainApp {
 		gridBagLayout.rowWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
 		CAFrame.getContentPane().setLayout(gridBagLayout);
 
+		// initialize the display panel
 		JPanel displayPanel = new JPanel();
 		displayPanel.setBorder(BorderFactory.createTitledBorder("Display"));
 		displayPanel.setToolTipText("");
@@ -62,6 +72,11 @@ public class MainApp {
 		gbc_displayPanel.gridy = 0;
 		CAFrame.getContentPane().add(displayPanel, gbc_displayPanel);
 
+		// initialize the automaton label in display panel
+		JLabel automatonLabel = new JLabel();
+		displayPanel.add(automatonLabel);
+
+		// initialize the parameters panel
 		JPanel parametersPanel = new JPanel();
 		parametersPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));
 		GridBagConstraints gbc_parametersPanel = new GridBagConstraints();
@@ -77,6 +92,7 @@ public class MainApp {
 		gbl_parametersPanel.rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		parametersPanel.setLayout(gbl_parametersPanel);
 
+		// initialize the size label in parameters panel
 		JLabel sizeLabel = new JLabel("Size");
 		GridBagConstraints gbc_sizeLabel = new GridBagConstraints();
 		gbc_sizeLabel.gridwidth = 2;
@@ -86,18 +102,21 @@ public class MainApp {
 		gbc_sizeLabel.gridy = 0;
 		parametersPanel.add(sizeLabel, gbc_sizeLabel);
 
-		JSlider ruleSlider = new JSlider(JSlider.HORIZONTAL, 8, 16, 12);
-		GridBagConstraints gbc_ruleSlider = new GridBagConstraints();
-		gbc_ruleSlider.gridwidth = 2;
-		gbc_ruleSlider.anchor = GridBagConstraints.NORTH;
-		gbc_ruleSlider.insets = new Insets(0, 0, 5, 0);
-		gbc_ruleSlider.gridx = 0;
-		gbc_ruleSlider.gridy = 1;
-		parametersPanel.add(ruleSlider, gbc_ruleSlider);
-		ruleSlider.setMajorTickSpacing(16);
-		ruleSlider.setMinorTickSpacing(8);
-		ruleSlider.setPaintTicks(true);
+		// initialize the size slider in parameters panel
+		JSlider sizeSlider = new JSlider(JSlider.HORIZONTAL, 4, 32, 8);
+		GridBagConstraints gbc_sizeSlider = new GridBagConstraints();
+		gbc_sizeSlider.gridwidth = 2;
+		gbc_sizeSlider.anchor = GridBagConstraints.NORTH;
+		gbc_sizeSlider.insets = new Insets(0, 0, 5, 0);
+		gbc_sizeSlider.gridx = 0;
+		gbc_sizeSlider.gridy = 1;
+		parametersPanel.add(sizeSlider, gbc_sizeSlider);
+		sizeSlider.setMinorTickSpacing(1);
+		sizeSlider.setMajorTickSpacing(7);
+		sizeSlider.setPaintTicks(true);
+		sizeSlider.setSnapToTicks(true);
 
+		// initialize the speed label in parameters panel
 		JLabel speedLabel = new JLabel("Speed");
 		GridBagConstraints gbc_speedLabel = new GridBagConstraints();
 		gbc_speedLabel.gridwidth = 2;
@@ -107,10 +126,12 @@ public class MainApp {
 		gbc_speedLabel.gridy = 2;
 		parametersPanel.add(speedLabel, gbc_speedLabel);
 
-		JSlider speedSlider = new JSlider(SwingConstants.HORIZONTAL, 8, 16, 12);
+		// initialize the speed slider in parameters panel
+		JSlider speedSlider = new JSlider(SwingConstants.HORIZONTAL, 1, 11, 5);
 		speedSlider.setPaintTicks(true);
-		speedSlider.setMinorTickSpacing(8);
-		speedSlider.setMajorTickSpacing(16);
+		speedSlider.setMinorTickSpacing(1);
+		speedSlider.setMajorTickSpacing(5);
+		speedSlider.setSnapToTicks(true);
 		GridBagConstraints gbc_speedSlider = new GridBagConstraints();
 		gbc_speedSlider.gridwidth = 2;
 		gbc_speedSlider.insets = new Insets(0, 0, 5, 0);
@@ -119,6 +140,7 @@ public class MainApp {
 		gbc_speedSlider.gridy = 3;
 		parametersPanel.add(speedSlider, gbc_speedSlider);
 
+		// initialize the rule label in parameters panel
 		JLabel ruleLabel = new JLabel("Rule number");
 		GridBagConstraints gbc_ruleLabel = new GridBagConstraints();
 		gbc_ruleLabel.insets = new Insets(0, 0, 5, 5);
@@ -126,7 +148,9 @@ public class MainApp {
 		gbc_ruleLabel.gridy = 4;
 		parametersPanel.add(ruleLabel, gbc_ruleLabel);
 
+		// initialize the rule text area in parameters panel
 		JTextField ruleTextArea = new JTextField();
+		ruleTextArea.setText("30");
 		GridBagConstraints gbc_ruleTextArea = new GridBagConstraints();
 		gbc_ruleTextArea.insets = new Insets(0, 0, 5, 0);
 		gbc_ruleTextArea.fill = GridBagConstraints.BOTH;
@@ -134,6 +158,7 @@ public class MainApp {
 		gbc_ruleTextArea.gridy = 4;
 		parametersPanel.add(ruleTextArea, gbc_ruleTextArea);
 
+		// initialize the seed label in parameters panel
 		JLabel seedLabel = new JLabel("Seed type");
 		GridBagConstraints gbc_seedLabel = new GridBagConstraints();
 		gbc_seedLabel.insets = new Insets(0, 0, 0, 5);
@@ -141,14 +166,17 @@ public class MainApp {
 		gbc_seedLabel.gridy = 5;
 		parametersPanel.add(seedLabel, gbc_seedLabel);
 
-		@SuppressWarnings("rawtypes")
-		JComboBox seedComboBox = new JComboBox();
+		// initialize the seed combo box in parameters panel
+		String[] seedTypes = {"Uniform", "Sparse", "Alternating"};
+		@SuppressWarnings({"rawtypes", "unchecked"})
+		JComboBox seedComboBox = new JComboBox(seedTypes);
 		GridBagConstraints gbc_seedComboBox = new GridBagConstraints();
 		gbc_seedComboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbc_seedComboBox.gridx = 1;
 		gbc_seedComboBox.gridy = 5;
 		parametersPanel.add(seedComboBox, gbc_seedComboBox);
 
+		// initialize the commands panel
 		JPanel commandsPanel = new JPanel();
 		commandsPanel.setBorder(BorderFactory.createTitledBorder("Commands"));
 		GridBagConstraints gbc_commandsPanel = new GridBagConstraints();
@@ -164,13 +192,36 @@ public class MainApp {
 		gbl_commandsPanel.rowWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
 		commandsPanel.setLayout(gbl_commandsPanel);
 
+		// initialize the display button in commands panel
 		JButton displayButton = new JButton("Display");
+		displayButton.addMouseListener(new MouseAdapter() {
+			@Override public void mouseClicked(MouseEvent e) {
+				int rule = Integer.parseInt(ruleTextArea.getText());
+				if (rule > -1 && rule < 256) {
+					int size = sizeSlider.getValue();
+					String seedType = (String)seedComboBox.getSelectedItem();
+					Vector seed = null;
+					if (seedType.equalsIgnoreCase("uniform")) {
+						seed = Generator.generateSeed(size);
+					} else if (seedType.equalsIgnoreCase("sparse")) {
+						seed = Generator.generateSparseSeed(size);
+					} else if (seedType.equalsIgnoreCase("alternating")) {
+						seed = Generator.generateAlternatingSeed(size);
+					}
+					Map<Integer, Vector> automatonMap = Automaton.initializeVectorMap(rule, seed);
+					BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
+					BufferedImage resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
+					automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
+				}
+			}
+		});
 		GridBagConstraints gbc_displayButton = new GridBagConstraints();
 		gbc_displayButton.insets = new Insets(0, 0, 5, 5);
 		gbc_displayButton.gridx = 0;
 		gbc_displayButton.gridy = 0;
 		commandsPanel.add(displayButton, gbc_displayButton);
 
+		// initialize the save button in commands panel
 		JButton saveButton = new JButton("Save");
 		GridBagConstraints gbc_saveButton = new GridBagConstraints();
 		gbc_saveButton.insets = new Insets(0, 0, 5, 0);
@@ -178,6 +229,7 @@ public class MainApp {
 		gbc_saveButton.gridy = 0;
 		commandsPanel.add(saveButton, gbc_saveButton);
 
+		// initialize the previous button in commands panel
 		JButton previousButton = new JButton("Previous");
 		GridBagConstraints gbc_previousButton = new GridBagConstraints();
 		gbc_previousButton.insets = new Insets(0, 0, 0, 5);
@@ -185,6 +237,7 @@ public class MainApp {
 		gbc_previousButton.gridy = 1;
 		commandsPanel.add(previousButton, gbc_previousButton);
 
+		// initialize the next button in commands panel
 		JButton nextButton = new JButton("Next");
 		GridBagConstraints gbc_nextButton = new GridBagConstraints();
 		gbc_nextButton.gridx = 1;
