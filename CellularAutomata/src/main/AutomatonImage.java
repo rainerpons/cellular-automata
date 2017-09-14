@@ -8,7 +8,7 @@ import java.util.Map;
 import javax.swing.JPanel;
 
 /*
- * AutomatonImage.java 
+ * AutomatonImage.java
  */
 
 @SuppressWarnings("serial") public class AutomatonImage extends JPanel {
