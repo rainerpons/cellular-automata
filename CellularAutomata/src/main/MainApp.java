@@ -12,21 +12,32 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileSystemView;
+
+/*
+ * MainApp.java
+ */
 
 public class MainApp {
-	private Map<Integer, Vector> automatonMap;
+	private BufferedImage resizedAutomatonImage;
 	private JFrame CAFrame;
+	private Vector seed;
+	private int rule;
 
 	// launch the application
 	public static void main(String[] args) {
@@ -197,11 +208,11 @@ public class MainApp {
 		JButton displayButton = new JButton("Display");
 		displayButton.addMouseListener(new MouseAdapter() {
 			@Override public void mouseClicked(MouseEvent e) {
-				int rule = Integer.parseInt(ruleTextArea.getText());
+				rule = Integer.parseInt(ruleTextArea.getText());
 				if (rule > -1 && rule < 256) {
 					int size = sizeSlider.getValue();
 					String seedType = (String)seedComboBox.getSelectedItem();
-					Vector seed = null;
+					seed = null;
 					if (seedType.equalsIgnoreCase("uniform")) {
 						seed = Generator.generateSeed(size);
 					} else if (seedType.equalsIgnoreCase("sparse")) {
@@ -209,9 +220,9 @@ public class MainApp {
 					} else if (seedType.equalsIgnoreCase("alternating")) {
 						seed = Generator.generateAlternatingSeed(size);
 					}
-					automatonMap = Automaton.initializeVectorMap(rule, seed);
+					Map<Integer, Vector> automatonMap = Automaton.initializeVectorMap(rule, seed);
 					BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
-					BufferedImage resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
+					resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
 					automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
 				} else {
 					JOptionPane.showMessageDialog(CAFrame,
@@ -228,6 +239,26 @@ public class MainApp {
 
 		// initialize the save button in commands panel
 		JButton saveButton = new JButton("Save");
+		saveButton.addMouseListener(new MouseAdapter() {
+			@Override public void mouseClicked(MouseEvent e) {
+				JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+				String child = AutomatonImage.getFileName(rule, seed);
+				fileChooser.setSelectedFile(new File(child));
+				int returnValue = fileChooser.showSaveDialog(null);
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					String parent = fileChooser.getCurrentDirectory().getAbsolutePath();
+					try {
+						File file = new File(parent + "/" + child);
+						if (!file.exists()) {
+							file.createNewFile();
+						}
+						ImageIO.write(resizedAutomatonImage, "JPG", file);
+					} catch (IOException ie) {
+						ie.printStackTrace();
+					}
+				}
+			}
+		});
 		GridBagConstraints gbc_saveButton = new GridBagConstraints();
 		gbc_saveButton.gridx = 1;
 		gbc_saveButton.gridy = 0;

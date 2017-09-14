@@ -1,7 +1,6 @@
 
 package main;
 
-import automata.Automaton;
 import automata.Vector;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -13,16 +12,7 @@ import javax.swing.JPanel;
  */
 
 @SuppressWarnings("serial") public class AutomatonImage extends JPanel {
-	// given a rule and a seed, draw a pixel image of an automaton
-	public void paintComponent(int rule, Vector seed) {
-		Map<Integer, Vector> map = Automaton.initializeVectorMap(rule, seed);
-		BufferedImage image = getImageFromMap(map);
-		BufferedImage resizedImage = resizeImage(320, 320, image);
-		Graphics2D graphic = resizedImage.createGraphics();
-		graphic.drawImage(resizedImage, 0, 0, null);
-	}
-
-	// return an image of an automaton given a map
+	// return an image of an automaton given an associative array
 	public static BufferedImage getImageFromMap(Map<Integer, Vector> map) {
 		final int size = map.get(new Integer(0)).getSize();
 		BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
@@ -40,12 +30,17 @@ import javax.swing.JPanel;
 		return image;
 	}
 
-	// return a resized version of a specified image
+	// return a resized version of an image with specified size
 	public static BufferedImage resizeImage(int width, int height, BufferedImage image) {
 		BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphic = resizedImage.createGraphics();
 		graphic.drawImage(image, 0, 0, width, height, null);
 		graphic.dispose();
 		return resizedImage;
+	}
+
+	// return the name of a file given a rule number and initial seed
+	public static String getFileName(int rule, Vector seed) {
+		return "rule" + rule + "_seed" + seed.getVector() + ".jpg";
 	}
 }
