@@ -30,7 +30,7 @@ import javax.swing.JTextField;
 import javax.swing.filechooser.FileSystemView;
 
 /*
- * MainApp.java
+ * MainApp.java 
  */
 
 public class MainApp {
