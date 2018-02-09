@@ -1,11 +1,10 @@
 
-package automata;
+package com.github.rpons17;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /*
- * Automaton.java
  * The Automaton class uses the Vector and Generator classes in order to store
  * associated value pairs (keys hold generation count and values holds vectors)
  */

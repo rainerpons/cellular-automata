@@ -1,8 +1,6 @@
-
-package automata;
+package com.github.rpons17;
 
 /*
- * Vector.java
  * The Vector class represents a neighborhood vector of cells for an elementary
  * cellular automaton with the cell state {0, 1}.
  */

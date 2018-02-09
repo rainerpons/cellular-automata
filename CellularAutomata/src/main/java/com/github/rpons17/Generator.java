@@ -1,8 +1,6 @@
-
-package automata;
+package com.github.rpons17;
 
 /*
- * Generator.java
  * The Generator class provides static methods for generating local update
  * rules, initial seeds, and the successor of an arbitrary vector.
  */

@@ -1,17 +1,12 @@
+package com.github.rpons17;
 
-package main;
-
-import automata.Vector;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import javax.swing.JPanel;
 
-/*
- * AutomatonImage.java 
- */
-
-@SuppressWarnings("serial") public class AutomatonImage extends JPanel {
+@SuppressWarnings("serial")
+public class AutomatonImage extends JPanel {
 	// return an image of an automaton given an associative array
 	public static BufferedImage getImageFromMap(Map<Integer, Vector> map) {
 		final int size = map.get(new Integer(0)).getSize();

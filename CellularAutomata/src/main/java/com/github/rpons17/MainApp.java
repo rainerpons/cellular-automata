@@ -1,9 +1,5 @@
+package com.github.rpons17;
 
-package main;
-
-import automata.Automaton;
-import automata.Generator;
-import automata.Vector;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,10 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileSystemView;
-
-/*
- * MainApp.java 
- */
 
 public class MainApp {
 	private BufferedImage resizedAutomatonImage;
@@ -136,7 +128,8 @@ public class MainApp {
 		// initialize the size slider in parameters panel
 		JSlider sizeSlider = new JSlider(JSlider.HORIZONTAL, 4, 64, 8);
 		sizeSlider.addMouseMotionListener(new MouseMotionAdapter() {
-			@Override public void mouseDragged(MouseEvent e) {
+			@Override
+			public void mouseDragged(MouseEvent e) {
 				currentSizeTextField.setText(Integer.toString(sizeSlider.getValue()));
 			}
 		});
@@ -207,7 +200,8 @@ public class MainApp {
 		// initialize the display button in commands panel
 		JButton displayButton = new JButton("Display");
 		displayButton.addMouseListener(new MouseAdapter() {
-			@Override public void mouseClicked(MouseEvent e) {
+			@Override
+			public void mouseClicked(MouseEvent e) {
 				rule = Integer.parseInt(ruleTextArea.getText());
 				if (rule > -1 && rule < 256) {
 					int size = sizeSlider.getValue();
@@ -226,8 +220,8 @@ public class MainApp {
 					automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
 				} else {
 					JOptionPane.showMessageDialog(CAFrame,
-							"Rule number should be an integer \nbetween 0 and 255 (inclusive).", "Rule Number Error",
-							JOptionPane.ERROR_MESSAGE);
+							"Rule number should be an integer \nbetween 0 and 255 (inclusive).",
+							"Rule Number Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -240,8 +234,10 @@ public class MainApp {
 		// initialize the save button in commands panel
 		JButton saveButton = new JButton("Save");
 		saveButton.addMouseListener(new MouseAdapter() {
-			@Override public void mouseClicked(MouseEvent e) {
-				JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				JFileChooser fileChooser =
+						new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 				String child = AutomatonImage.getFileName(rule, seed);
 				fileChooser.setSelectedFile(new File(child));
 				int returnValue = fileChooser.showSaveDialog(null);
