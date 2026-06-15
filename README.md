@@ -81,6 +81,12 @@ This project uses Google Java Format. The formatter is integrated with Maven and
 $ mvn fmt:format
 ```
 
+To automatically format your code before every commit, you can install the provided Git pre-commit hook by running:
+
+```bash
+$ ./scripts/install-hooks.sh
+```
+
 ## Documentation
 
 If you would like to view documentation for Cellular Automata, the Apache Maven Javadoc plugin in `pom.xml` simplifies the process. From the local repository, run the following command.

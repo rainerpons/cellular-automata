@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo "Formatting Java sources..."
+mvn -q com.coveo:fmt-maven-plugin:2.9:format || exit 1
+
+git add -u

@@ -66,16 +66,7 @@
 					<violationSeverity>warning</violationSeverity>
 					<linkXRef>false</linkXRef>
 				</configuration>
-				<executions>
-					<execution>
-						<id>validate</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+				</plugin>
 
 			<!-- Apache Maven JAR plugin -->
 			<plugin>
