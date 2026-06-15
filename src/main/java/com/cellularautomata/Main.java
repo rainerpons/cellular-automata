@@ -93,20 +93,20 @@ public class Main {
     parametersPanel.setLayout(gblParametersPanel);
 
     // creates the size label in parameters panel
-    JLabel sizeLabel = new JLabel("Size");
     GridBagConstraints gbcSizeLabel = new GridBagConstraints();
     gbcSizeLabel.gridwidth = 2;
     gbcSizeLabel.insets = new Insets(0, 0, 5, 0);
     gbcSizeLabel.gridx = 0;
     gbcSizeLabel.gridy = 0;
+    JLabel sizeLabel = new JLabel("Size");
     parametersPanel.add(sizeLabel, gbcSizeLabel);
 
     // creates the current size label in parameters panel
-    JLabel currentSizeLabel = new JLabel("Current size");
     GridBagConstraints gbcCurrentSizeLabel = new GridBagConstraints();
     gbcCurrentSizeLabel.insets = new Insets(0, 0, 5, 5);
     gbcCurrentSizeLabel.gridx = 0;
     gbcCurrentSizeLabel.gridy = 2;
+    JLabel currentSizeLabel = new JLabel("Current size");
     parametersPanel.add(currentSizeLabel, gbcCurrentSizeLabel);
 
     // creates the current size text field in parameters panel
@@ -142,11 +142,11 @@ public class Main {
     sizeSlider.setSnapToTicks(true);
 
     // creates the rule label in parameters panel
-    JLabel ruleLabel = new JLabel("Rule number");
     GridBagConstraints gbcRuleLabel = new GridBagConstraints();
     gbcRuleLabel.insets = new Insets(0, 0, 5, 5);
     gbcRuleLabel.gridx = 0;
     gbcRuleLabel.gridy = 3;
+    JLabel ruleLabel = new JLabel("Rule number");
     parametersPanel.add(ruleLabel, gbcRuleLabel);
 
     // creates the rule text area in parameters panel
@@ -160,11 +160,11 @@ public class Main {
     parametersPanel.add(ruleTextArea, gbcRuleTextArea);
 
     // creates the seed label in parameters panel
-    JLabel seedLabel = new JLabel("Seed type");
     GridBagConstraints gbcSeedLabel = new GridBagConstraints();
     gbcSeedLabel.insets = new Insets(0, 0, 0, 5);
     gbcSeedLabel.gridx = 0;
     gbcSeedLabel.gridy = 4;
+    JLabel seedLabel = new JLabel("Seed type");
     parametersPanel.add(seedLabel, gbcSeedLabel);
 
     // creates the seed combo box in parameters panel
@@ -260,6 +260,11 @@ public class Main {
     commandsPanel.add(saveButton, gbcSaveButton);
   }
 
+  /**
+   * Main method to run the application.
+   *
+   * @param args command line arguments
+   */
   public static void main(String[] args) {
     EventQueue.invokeLater(
         new Runnable() {
