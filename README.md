@@ -96,6 +96,7 @@ The Javadoc files will be available under the `target/site/apidocs` folder of th
 * [Maven](https://maven.apache.org/) - dependency management
 * [JUnit](https://junit.org/junit4/) - unit testing
 * [Google Java Format](https://github.com/google/google-java-format) - code formatting
+* [Checkstyle](https://checkstyle.org/) - static style analysis
 
 ## License
 
