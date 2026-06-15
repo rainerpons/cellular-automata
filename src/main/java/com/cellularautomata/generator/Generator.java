@@ -8,7 +8,10 @@ import java.util.Random;
  *
  * @author Rainer Pons
  */
-public class Generator {
+public final class Generator {
+  /** Shared random number generator. */
+  private static final Random RANDOM = new Random();
+
   /** Prevents the instantiation of the <code>Generator</code> class. */
   private Generator() {
     throw new IllegalStateException("Generator is a utility class.");
@@ -61,7 +64,7 @@ public class Generator {
   public static Vector generateSparseSeed(int size) {
     String seed = "";
     if (size > 0) {
-      int rand = new Random().nextInt(size);
+      int rand = RANDOM.nextInt(size);
       for (int i = 0; i < rand; i++) {
         seed = seed.concat("0");
       }
