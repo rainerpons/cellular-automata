@@ -103,6 +103,7 @@ The Javadoc files will be available under the `target/site/apidocs` folder of th
 * [JUnit](https://junit.org/junit4/) - unit testing
 * [Google Java Format](https://github.com/google/google-java-format) - code formatting
 * [Checkstyle](https://checkstyle.org/) - static style analysis
+* [SpotBugs](https://spotbugs.github.io/) - static bug analysis
 
 ## License
 

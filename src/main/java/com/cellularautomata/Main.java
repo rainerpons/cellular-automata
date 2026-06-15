@@ -242,10 +242,11 @@ public class Main {
             int returnValue = fileChooser.showSaveDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
               String parent = fileChooser.getCurrentDirectory().getAbsolutePath();
+              File file = new File(parent + "/" + child);
               try {
-                File file = new File(parent + "/" + child);
-                if (!file.exists()) {
-                  file.createNewFile();
+                if (!file.createNewFile()) {
+                  System.err.println(
+                      "Warning: file already exists, overwriting: " + file.getPath());
                 }
                 ImageIO.write(resizedAutomatonImage, "JPG", file);
               } catch (IOException ie) {
