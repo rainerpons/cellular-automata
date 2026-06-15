@@ -1,0 +1,29 @@
+# Maven build output
+target/
+
+# Java compiled files
+*.class
+
+# Packaged artifacts
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+# IDE/editor files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local-only project context
+AGENTS.md
+docs/
