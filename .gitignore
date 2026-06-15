@@ -1,6 +1,9 @@
 # Maven build output
 target/
 
+# JavaDocs
+target/site/apidocs/
+
 # Java compiled files
 *.class
 
