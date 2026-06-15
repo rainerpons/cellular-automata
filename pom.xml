@@ -68,6 +68,21 @@
 				</configuration>
 				</plugin>
 
+			<!-- SpotBugs plugin -->
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.10.2.0</version>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- Apache Maven JAR plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
