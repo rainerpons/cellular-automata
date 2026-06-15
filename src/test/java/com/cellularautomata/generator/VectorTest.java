@@ -70,16 +70,13 @@ public class VectorTest {
     Assert.assertEquals(4, vector.getSize());
   }
 
+  // TODO: Define the intended public behavior for invalid Vector state instead of relying on
+  // null.
+
   /** Asserts that a vector constructed from an invalid state stores a null state. */
   @Test
   public void testVectorConstructorInvalidState() {
     Vector vector = new Vector("01002010");
     Assert.assertNull(vector.getState());
-  }
-
-  /** Asserts that getSize throws when the vector state is invalid. */
-  @Test(expected = NullPointerException.class)
-  public void testGetSizeInvalidState() {
-    new Vector("01002010").getSize();
   }
 }

@@ -163,4 +163,50 @@ public class GeneratorTest {
     Assert.assertEquals(
         "11111111", Generator.generateSuccessor(255, new Vector("00000000")).getState());
   }
+
+  /** Asserts that successor generation preserves the input vector size. */
+  @Test
+  public void testGenerateSuccessorPreservesSize() {
+    Vector singleCell = new Vector("1");
+    Vector alternating = Generator.generateAlternatingSeed(8);
+    Vector sparse = new Vector("000010000");
+
+    Assert.assertEquals(
+        singleCell.getSize(), Generator.generateSuccessor(30, singleCell).getSize());
+    Assert.assertEquals(
+        alternating.getSize(), Generator.generateSuccessor(110, alternating).getSize());
+    Assert.assertEquals(sparse.getSize(), Generator.generateSuccessor(255, sparse).getSize());
+  }
+
+  /** Asserts that an empty input vector produces an empty successor under rule 30. */
+  @Test
+  public void testGenerateSuccessorEmptyVector() {
+    Vector empty = new Vector("");
+    Vector successor = Generator.generateSuccessor(30, empty);
+
+    Assert.assertEquals(0, successor.getSize());
+    Assert.assertEquals("", successor.getState());
+  }
+
+  /** Asserts that rule 30 evolves a known sparse seed through multiple generations. */
+  @Test
+  public void testGenerateSuccessorRule30MultipleGenerations() {
+    String[] expected = {
+      "000010000",
+      "000111000",
+      "001100100",
+      "011011110",
+      "110010001",
+      "101111011",
+      "101000010",
+      "101100111",
+      "101011100"
+    };
+
+    Vector current = new Vector(expected[0]);
+    for (int generation = 1; generation < expected.length; generation++) {
+      current = Generator.generateSuccessor(30, current);
+      Assert.assertEquals(expected[generation], current.getState());
+    }
+  }
 }
