@@ -1,5 +1,7 @@
 # Cellular Automata
 
+[![CI](https://github.com/rainerpons/cellular-automata/actions/workflows/ci.yml/badge.svg)](https://github.com/rainerpons/cellular-automata/actions/workflows/ci.yml)
+
 > Demonstrating how one of the simplest models of computation gives rise to surprisingly complex behavior.
 
 Get an overview of elementary cellular automata [here](https://en.wikipedia.org/wiki/Elementary_cellular_automaton) or learn about the more mathematical side [here](http://mathworld.wolfram.com/ElementaryCellularAutomaton.html). 
