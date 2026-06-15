@@ -7,7 +7,25 @@ on:
     branches: [ master, main ]
 
 jobs:
+  format:
+    name: Check Formatting
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 8
+      uses: actions/setup-java@v4
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Check Formatting
+      run: mvn fmt:check
+
   test:
+    name: Run Tests
+    needs: format
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -22,8 +40,26 @@ jobs:
     - name: Run Tests
       run: mvn test
 
-  package:
+  javadocs:
+    name: Generate JavaDocs
     needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 8
+      uses: actions/setup-java@v4
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Generate JavaDocs
+      run: mvn javadoc:javadoc
+
+  package:
+    name: Package Application
+    needs: javadocs
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
