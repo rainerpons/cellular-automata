@@ -32,6 +32,20 @@
 				<version>3.7.0</version>
 			</plugin>
 
+			<!-- Formatter plugin -->
+			<plugin>
+				<groupId>com.coveo</groupId>
+				<artifactId>fmt-maven-plugin</artifactId>
+				<version>2.9</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- Apache Maven JAR plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

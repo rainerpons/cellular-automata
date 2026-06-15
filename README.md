@@ -73,6 +73,14 @@ Within the same directory, you can run the test command.
 $ mvn test
 ```
 
+### Formatting
+
+This project uses Google Java Format. The formatter is integrated with Maven and checked during CI. You can format the code locally by running:
+
+```bash
+$ mvn fmt:format
+```
+
 ## Documentation
 
 If you would like to view documentation for Cellular Automata, the Apache Maven Javadoc plugin in `pom.xml` simplifies the process. From the local repository, run the following command.
@@ -87,6 +95,7 @@ The Javadoc files will be available under the `target/site/apidocs` folder of th
 
 * [Maven](https://maven.apache.org/) - dependency management
 * [JUnit](https://junit.org/junit4/) - unit testing
+* [Google Java Format](https://github.com/google/google-java-format) - code formatting
 
 ## License
 
