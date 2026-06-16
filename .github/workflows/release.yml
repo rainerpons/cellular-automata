@@ -163,10 +163,10 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.ref_name }}
-          name: Cellular Automata v${{ github.ref_name }}
+          name: Cellular Automata ${{ github.ref_name }}
           artifacts: |
-            release-assets/macos/${APP_NAME}-macos.dmg
-            release-assets/windows/${APP_NAME}-windows.exe
-            release-assets/linux/${APP_NAME}-linux.AppImage
+            release-assets/macos/cellular-automata-macos.dmg
+            release-assets/windows/cellular-automata-windows.exe
+            release-assets/linux/cellular-automata-linux.AppImage
           draft: false
           prerelease: false
