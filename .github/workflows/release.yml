@@ -1,0 +1,169 @@
+name: Release Packages
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+env:
+  APP_NAME: cellular-automata
+  MAIN_CLASS: com.cellularautomata.Main
+
+jobs:
+  build-macos:
+    name: Build macOS package
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build application JAR
+        run: mvn package -DskipTests
+
+      - name: Package macOS installer
+        run: |
+          mkdir -p target/jpackage
+          JAR_FILE=$(ls target/*.jar | head -n 1)
+          jpackage \
+            --type dmg \
+            --dest target/jpackage \
+            --name "${APP_NAME}-macos" \
+            --input target \
+            --main-jar "$(basename "$JAR_FILE")" \
+            --main-class "${MAIN_CLASS}" \
+            --app-version "${GITHUB_REF#refs/tags/}" \
+            --vendor "Rainer Pons"
+          mv target/jpackage/*.dmg target/jpackage/${APP_NAME}-macos.dmg
+
+      - name: Upload macOS package
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-package
+          path: target/jpackage/${APP_NAME}-macos.dmg
+
+  build-windows:
+    name: Build Windows package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build application JAR
+        run: mvn package -DskipTests
+
+      - name: Package Windows installer
+        shell: bash
+        run: |
+          mkdir -p target/jpackage
+          JAR_FILE=$(ls target/*.jar | head -n 1)
+          jpackage \
+            --type exe \
+            --dest target/jpackage \
+            --name "${APP_NAME}-windows" \
+            --input target \
+            --main-jar "$(basename "$JAR_FILE")" \
+            --main-class "${MAIN_CLASS}" \
+            --app-version "${GITHUB_REF#refs/tags/}" \
+            --vendor "Rainer Pons"
+          mv target/jpackage/*.exe target/jpackage/${APP_NAME}-windows.exe
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-package
+          path: target/jpackage/${APP_NAME}-windows.exe
+
+  build-linux:
+    name: Build Linux package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build application JAR
+        run: mvn package -DskipTests
+
+      - name: Install AppImage tool
+        run: |
+          curl -L -o appimagetool.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool.AppImage
+
+      - name: Package Linux AppImage
+        run: |
+          mkdir -p target/jpackage
+          JAR_FILE=$(ls target/*.jar | head -n 1)
+          jpackage \
+            --type app-image \
+            --dest target/jpackage \
+            --name "${APP_NAME}-linux" \
+            --input target \
+            --main-jar "$(basename "$JAR_FILE")" \
+            --main-class "${MAIN_CLASS}" \
+            --app-version "${GITHUB_REF#refs/tags/}" \
+            --vendor "Rainer Pons"
+          ./appimagetool.AppImage target/jpackage/${APP_NAME}-linux target/jpackage/${APP_NAME}-linux.AppImage
+
+      - name: Upload Linux package
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-package
+          path: target/jpackage/${APP_NAME}-linux.AppImage
+
+  release:
+    name: Publish GitHub Release
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download macOS package
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-package
+          path: release-assets/macos
+
+      - name: Download Windows package
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-package
+          path: release-assets/windows
+
+      - name: Download Linux package
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-package
+          path: release-assets/linux
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: Cellular Automata ${{ github.ref_name }}
+          artifacts: |
+            release-assets/macos/${APP_NAME}-macos.dmg
+            release-assets/windows/${APP_NAME}-windows.exe
+            release-assets/linux/${APP_NAME}-linux.AppImage
+          draft: false
+          prerelease: false
