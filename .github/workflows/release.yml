@@ -32,14 +32,15 @@ jobs:
 
       - name: Package macOS installer
         run: |
-          mkdir -p target/jpackage
+          mkdir -p target/jpackage-input target/jpackage
           JAR_FILE=$(ls target/*.jar | head -n 1)
+          cp "$JAR_FILE" target/jpackage-input/
           VERSION_NUM="${VERSION#v}"
           jpackage \
             --type dmg \
             --dest target/jpackage \
             --name "${APP_NAME}-macos" \
-            --input target \
+            --input target/jpackage-input \
             --main-jar "$(basename "$JAR_FILE")" \
             --main-class "${MAIN_CLASS}" \
             --app-version "$VERSION_NUM" \
@@ -71,14 +72,15 @@ jobs:
       - name: Package Windows installer
         shell: bash
         run: |
-          mkdir -p target/jpackage
+          mkdir -p target/jpackage-input target/jpackage
           JAR_FILE=$(ls target/*.jar | head -n 1)
+          cp "$JAR_FILE" target/jpackage-input/
           VERSION_NUM="${VERSION#v}"
           jpackage \
             --type exe \
             --dest target/jpackage \
             --name "${APP_NAME}-windows" \
-            --input target \
+            --input target/jpackage-input \
             --main-jar "$(basename "$JAR_FILE")" \
             --main-class "${MAIN_CLASS}" \
             --app-version "$VERSION_NUM" \
@@ -114,14 +116,15 @@ jobs:
 
       - name: Package Linux AppImage
         run: |
-          mkdir -p target/jpackage
+          mkdir -p target/jpackage-input target/jpackage
           JAR_FILE=$(ls target/*.jar | head -n 1)
+          cp "$JAR_FILE" target/jpackage-input/
           VERSION_NUM="${VERSION#v}"
           jpackage \
             --type app-image \
             --dest target/jpackage \
             --name "${APP_NAME}-linux" \
-            --input target \
+            --input target/jpackage-input \
             --main-jar "$(basename "$JAR_FILE")" \
             --main-class "${MAIN_CLASS}" \
             --app-version "$VERSION_NUM" \
