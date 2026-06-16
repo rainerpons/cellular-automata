@@ -132,3 +132,5 @@ jobs:
             release-assets/linux/cellular-automata-linux.AppImage
           draft: false
           prerelease: false
+          allowUpdates: true
+          replacesArtifacts: true
