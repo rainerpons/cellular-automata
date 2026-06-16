@@ -130,9 +130,14 @@ jobs:
             --app-version "$VERSION_NUM" \
             --vendor "Rainer Pons"
           
-          # Create .desktop file for AppImage
-          mkdir -p target/jpackage/${APP_NAME}-linux/usr/share/applications
-          printf '[Desktop Entry]\nType=Application\nName=Cellular Automata\nExec=cellular-automata\nIcon=cellular-automata\nCategories=Utility;\n' > target/jpackage/${APP_NAME}-linux/usr/share/applications/${APP_NAME}.desktop
+          # Create .desktop file for AppImage at root of AppDir
+          DESKTOP_FILE="target/jpackage/${APP_NAME}-linux/${APP_NAME}.desktop"
+          echo "[Desktop Entry]" > "$DESKTOP_FILE"
+          echo "Type=Application" >> "$DESKTOP_FILE"
+          echo "Name=Cellular Automata" >> "$DESKTOP_FILE"
+          echo "Exec=cellular-automata" >> "$DESKTOP_FILE"
+          echo "Icon=cellular-automata" >> "$DESKTOP_FILE"
+          echo "Categories=Utility;" >> "$DESKTOP_FILE"
           
           ./appimagetool.AppImage target/jpackage/${APP_NAME}-linux target/jpackage/${APP_NAME}-linux.AppImage
 
