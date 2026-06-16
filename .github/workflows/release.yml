@@ -136,7 +136,6 @@ jobs:
           echo "Type=Application" >> "$DESKTOP_FILE"
           echo "Name=Cellular Automata" >> "$DESKTOP_FILE"
           echo "Exec=cellular-automata" >> "$DESKTOP_FILE"
-          echo "Icon=cellular-automata" >> "$DESKTOP_FILE"
           echo "Categories=Utility;" >> "$DESKTOP_FILE"
           
           ./appimagetool.AppImage target/jpackage/${APP_NAME}-linux target/jpackage/${APP_NAME}-linux.AppImage
