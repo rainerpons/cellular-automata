@@ -10,6 +10,7 @@ permissions:
 
 env:
   APP_NAME: cellular-automata
+  APP_DISPLAY_NAME: Cellular Automata
   MAIN_CLASS: com.cellularautomata.Main
   VERSION: ${{ github.ref_name }}
 
@@ -31,26 +32,13 @@ jobs:
         run: mvn verify
 
       - name: Package macOS installer
-        run: |
-          mkdir -p target/jpackage
-          JAR_FILE=$(ls target/*.jar | head -n 1)
-          VERSION_NUM="${VERSION#v}"
-          jpackage \
-            --type dmg \
-            --dest target/jpackage \
-            --name "${APP_NAME}-macos" \
-            --input target \
-            --main-jar "$(basename "$JAR_FILE")" \
-            --main-class "${MAIN_CLASS}" \
-            --app-version "$VERSION_NUM" \
-            --vendor "Rainer Pons"
-          mv target/jpackage/*.dmg target/jpackage/${APP_NAME}-macos.dmg
+        run: bash ./scripts/release/package-macos.sh
 
       - name: Upload macOS package
         uses: actions/upload-artifact@v4
         with:
           name: macos-package
-          path: target/jpackage/${APP_NAME}-macos.dmg
+          path: target/jpackage/${{ env.APP_NAME }}-macos.dmg
 
   build-windows:
     name: Build Windows package
@@ -70,26 +58,13 @@ jobs:
 
       - name: Package Windows installer
         shell: bash
-        run: |
-          mkdir -p target/jpackage
-          JAR_FILE=$(ls target/*.jar | head -n 1)
-          VERSION_NUM="${VERSION#v}"
-          jpackage \
-            --type exe \
-            --dest target/jpackage \
-            --name "${APP_NAME}-windows" \
-            --input target \
-            --main-jar "$(basename "$JAR_FILE")" \
-            --main-class "${MAIN_CLASS}" \
-            --app-version "$VERSION_NUM" \
-            --vendor "Rainer Pons"
-          mv target/jpackage/*.exe target/jpackage/${APP_NAME}-windows.exe
+        run: bash ./scripts/release/package-windows.sh
 
       - name: Upload Windows package
         uses: actions/upload-artifact@v4
         with:
           name: windows-package
-          path: target/jpackage/${APP_NAME}-windows.exe
+          path: target/jpackage/${{ env.APP_NAME }}-windows.exe
 
   build-linux:
     name: Build Linux package
@@ -113,26 +88,13 @@ jobs:
           chmod +x appimagetool.AppImage
 
       - name: Package Linux AppImage
-        run: |
-          mkdir -p target/jpackage
-          JAR_FILE=$(ls target/*.jar | head -n 1)
-          VERSION_NUM="${VERSION#v}"
-          jpackage \
-            --type app-image \
-            --dest target/jpackage \
-            --name "${APP_NAME}-linux" \
-            --input target \
-            --main-jar "$(basename "$JAR_FILE")" \
-            --main-class "${MAIN_CLASS}" \
-            --app-version "$VERSION_NUM" \
-            --vendor "Rainer Pons"
-          ./appimagetool.AppImage target/jpackage/${APP_NAME}-linux target/jpackage/${APP_NAME}-linux.AppImage
+        run: bash ./scripts/release/package-linux.sh
 
       - name: Upload Linux package
         uses: actions/upload-artifact@v4
         with:
           name: linux-package
-          path: target/jpackage/${APP_NAME}-linux.AppImage
+          path: target/jpackage/${{ env.APP_NAME }}-linux.AppImage
 
   release:
     name: Publish GitHub Release
