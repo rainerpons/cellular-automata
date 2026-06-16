@@ -73,12 +73,6 @@ Within the same directory, you can run the test command.
 $ mvn test
 ```
 
-### Releasing
-
-This repository includes a GitHub Actions release workflow at `.github/workflows/release.yml`.
-Pushing a version tag such as `v0.1.0` triggers a release build that packages the application for macOS, Windows, and Linux and attaches the generated assets to a GitHub Release.
-The native packages bundle a Java runtime, so end users can install and run the app without installing Java or Maven.
-
 ### Formatting
 
 This project uses Google Java Format. The formatter is integrated with Maven and checked during CI. You can format the code locally by running:

@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*.*.*'
-  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -12,6 +11,7 @@ permissions:
 env:
   APP_NAME: cellular-automata
   MAIN_CLASS: com.cellularautomata.Main
+  VERSION: ${{ github.ref_name }}
 
 jobs:
   build-macos:
@@ -28,12 +28,13 @@ jobs:
           cache: maven
 
       - name: Build application JAR
-        run: mvn package -DskipTests
+        run: mvn verify
 
       - name: Package macOS installer
         run: |
           mkdir -p target/jpackage
           JAR_FILE=$(ls target/*.jar | head -n 1)
+          VERSION_NUM="${VERSION#v}"
           jpackage \
             --type dmg \
             --dest target/jpackage \
@@ -41,7 +42,7 @@ jobs:
             --input target \
             --main-jar "$(basename "$JAR_FILE")" \
             --main-class "${MAIN_CLASS}" \
-            --app-version "${GITHUB_REF#refs/tags/}" \
+            --app-version "$VERSION_NUM" \
             --vendor "Rainer Pons"
           mv target/jpackage/*.dmg target/jpackage/${APP_NAME}-macos.dmg
 
@@ -65,13 +66,14 @@ jobs:
           cache: maven
 
       - name: Build application JAR
-        run: mvn package -DskipTests
+        run: mvn verify
 
       - name: Package Windows installer
         shell: bash
         run: |
           mkdir -p target/jpackage
           JAR_FILE=$(ls target/*.jar | head -n 1)
+          VERSION_NUM="${VERSION#v}"
           jpackage \
             --type exe \
             --dest target/jpackage \
@@ -79,7 +81,7 @@ jobs:
             --input target \
             --main-jar "$(basename "$JAR_FILE")" \
             --main-class "${MAIN_CLASS}" \
-            --app-version "${GITHUB_REF#refs/tags/}" \
+            --app-version "$VERSION_NUM" \
             --vendor "Rainer Pons"
           mv target/jpackage/*.exe target/jpackage/${APP_NAME}-windows.exe
 
@@ -103,17 +105,18 @@ jobs:
           cache: maven
 
       - name: Build application JAR
-        run: mvn package -DskipTests
+        run: mvn verify
 
       - name: Install AppImage tool
         run: |
-          curl -L -o appimagetool.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          curl -L -o appimagetool.AppImage https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage
           chmod +x appimagetool.AppImage
 
       - name: Package Linux AppImage
         run: |
           mkdir -p target/jpackage
           JAR_FILE=$(ls target/*.jar | head -n 1)
+          VERSION_NUM="${VERSION#v}"
           jpackage \
             --type app-image \
             --dest target/jpackage \
@@ -121,7 +124,7 @@ jobs:
             --input target \
             --main-jar "$(basename "$JAR_FILE")" \
             --main-class "${MAIN_CLASS}" \
-            --app-version "${GITHUB_REF#refs/tags/}" \
+            --app-version "$VERSION_NUM" \
             --vendor "Rainer Pons"
           ./appimagetool.AppImage target/jpackage/${APP_NAME}-linux target/jpackage/${APP_NAME}-linux.AppImage
 
@@ -160,7 +163,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.ref_name }}
-          name: Cellular Automata ${{ github.ref_name }}
+          name: Cellular Automata v${{ github.ref_name }}
           artifacts: |
             release-assets/macos/${APP_NAME}-macos.dmg
             release-assets/windows/${APP_NAME}-windows.exe
