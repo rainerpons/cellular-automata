@@ -143,6 +143,7 @@ jobs:
           echo "Categories=Utility;" >> "$DESKTOP_FILE"
           
           ./appimagetool.AppImage target/jpackage/${APP_NAME}-linux target/jpackage/${APP_NAME}-linux.AppImage
+          ls -la target/jpackage/
 
       - name: Upload Linux package
         uses: actions/upload-artifact@v4
