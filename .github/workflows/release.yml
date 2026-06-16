@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-package
-          path: target/jpackage/${APP_NAME}-macos.dmg
+          path: target/jpackage/${{ env.APP_NAME }}-macos.dmg
 
   build-windows:
     name: Build Windows package
@@ -91,7 +91,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-package
-          path: target/jpackage/${APP_NAME}-windows.exe
+          path: target/jpackage/${{ env.APP_NAME }}-windows.exe
 
   build-linux:
     name: Build Linux package
@@ -149,7 +149,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-package
-          path: target/jpackage/${APP_NAME}-linux.AppImage
+          path: target/jpackage/${{ env.APP_NAME }}-linux.AppImage
 
   release:
     name: Publish GitHub Release
