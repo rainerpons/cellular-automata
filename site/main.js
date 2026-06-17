@@ -1,19 +1,24 @@
 function createMetadataElement(metadata) {
   if (!metadata || !metadata.value) return null;
-  
-  var p = document.createElement('p');
+
+  const p = document.createElement('p');
   p.textContent = metadata.label + ': ';
-  
-  var el = document.createElement(metadata.elementType);
+
+  const el = document.createElement(metadata.elementType);
   el.id = metadata.id;
-  el.textContent = metadata.value;
-  
+  if (metadata.isLink) {
+    el.href = metadata.value;
+    el.textContent = 'Download';
+  } else {
+    el.textContent = metadata.value;
+  }
+
   p.appendChild(el);
   return p;
 }
 
 function appendMetadataElement(container, metadata) {
-  var element = createMetadataElement(metadata);
+  const element = createMetadataElement(metadata);
   if (!element) return;
 
   container.appendChild(element);
@@ -22,21 +27,27 @@ function appendMetadataElement(container, metadata) {
 fetch('release.json')
   .then(function (r) { return r.json(); })
   .then(function (data) {
-    var container = document.getElementById('release-metadata');
+    const container = document.getElementById('release-metadata');
     if (!container || !data) return;
 
-    appendMetadataElement(container, {
-      label: 'Version',
-      id: 'version',
-      value: data.version,
-      elementType: 'span'
-    });
+    console.log('Loaded release metadata:', data);
 
-    appendMetadataElement(container, {
-      label: 'Commit',
-      id: 'commit',
-      value: data.commit,
-      elementType: 'code'
+    const appName = data.app && data.app.name ? data.app.name : null;
+    const version = data.release && data.release.version ? data.release.version : null;
+    const commit = data.release && data.release.commit ? data.release.commit : null;
+    const downloads = data.downloads || {};
+
+    const elementsToRender = [
+      { label: 'App', id: 'app-name', value: appName, elementType: 'span' },
+      { label: 'Version', id: 'version', value: version, elementType: 'span' },
+      { label: 'Commit', id: 'commit', value: commit, elementType: 'code' },
+      { label: 'macOS', id: 'download-macos', value: downloads.macos, elementType: 'a', isLink: true },
+      { label: 'Windows', id: 'download-windows', value: downloads.windows, elementType: 'a', isLink: true },
+      { label: 'Linux', id: 'download-linux', value: downloads.linux, elementType: 'a', isLink: true }
+    ];
+
+    elementsToRender.forEach(function (item) {
+      appendMetadataElement(container, item);
     });
   })
   .catch(function () {
