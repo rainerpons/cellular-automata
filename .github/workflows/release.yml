@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 env:
   APP_NAME: cellular-automata
@@ -134,3 +136,14 @@ jobs:
           prerelease: false
           allowUpdates: true
           replacesArtifacts: true
+
+  deploy-pages:
+    name: Deploy GitHub Pages
+    needs: [release]
+    uses: ./.github/workflows/pages.yml
+    with:
+      app_version: ${{ github.ref_name }}
+    permissions:
+      pages: write
+      id-token: write
+      contents: read

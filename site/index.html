@@ -7,6 +7,19 @@
   </head>
   <body>
     <h1>Cellular Automata</h1>
-    <p>Deployed from commit: <code>%%COMMIT_SHA%%</code></p>
+    <p>Version: <span id="version">Loading...</span></p>
+    <p>Commit: <code id="commit">Loading...</code></p>
+    <script>
+      fetch('release.json')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          document.getElementById('version').textContent = data.version || 'Unknown';
+          document.getElementById('commit').textContent = data.commit || 'Unknown';
+        })
+        .catch(function () {
+          document.getElementById('version').textContent = 'Unavailable';
+          document.getElementById('commit').textContent = 'Unavailable';
+        });
+    </script>
   </body>
 </html>
