@@ -27,3 +27,6 @@ Thumbs.db
 # Local-only project context
 AGENTS.md
 docs/
+
+# Generated at deploy time by the Pages workflow
+site/release.json

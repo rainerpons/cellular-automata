@@ -4,7 +4,7 @@ set -euo pipefail
 mkdir -p target/jpackage-input target/jpackage
 JAR_FILE=$(ls target/*.jar | head -n 1)
 cp "$JAR_FILE" target/jpackage-input/
-VERSION_NUM="${VERSION#v}"
+VERSION_NUM=$(echo "${VERSION#v}" | sed 's/[-+].*//') # jpackage requires numeric-only version
 jpackage \
   --type app-image \
   --dest target/jpackage \

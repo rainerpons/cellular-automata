@@ -1,0 +1,70 @@
+# Deploys the minimal static site in site/ to GitHub Pages.
+#
+# Triggers:
+#   - push to master/main: auto-deploys on every merge to keep the live site current.
+#   - workflow_dispatch:   manual trigger from the Actions UI for ad-hoc deploys.
+#   - workflow_call:       allows release automation (e.g. release.yml) to invoke
+#                          this workflow as a reusable step after publishing a release.
+#                          Accepts an optional app_version input; falls back to
+#                          github.ref_name for non-release runs.
+#
+# How it works:
+#   1. Configures GitHub Pages settings for this repository.
+#   2. Generates site/release.json with the app name, version, and commit SHA.
+#      The HTML page reads this file at runtime to display deployment details.
+#   3. Uploads the site/ directory as a GitHub Pages artifact.
+#   4. Deploys the artifact to the github-pages environment.
+#
+# Required repository settings:
+#   Settings > Pages > Source must be set to "GitHub Actions".
+
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      app_version:
+        description: 'App version to embed in the deployed site metadata'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Generate deployment metadata
+        env:
+          APP_VERSION: ${{ inputs.app_version || github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: bash scripts/pages/generate-release-metadata.sh
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
