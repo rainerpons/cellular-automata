@@ -1,13 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cellular Automata</title>
-  </head>
-  <body>
-    <h1>Cellular Automata</h1>
-    <div id="release-metadata"></div>
-    <script src="main.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cellular Automata</title>
+  <link rel="icon" href="assets/cellular-automata-icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a href="/" class="nav-brand">
+        <img src="assets/cellular-automata-icon.svg" alt="Cellular Automata Logo">
+        <span id="app-name">CELLULAR AUTOMATA</span>
+      </a>
+      <a href="https://github.com/rainerpons/cellular-automata" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <svg class="btn-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+        </svg>
+      </a>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Patterns emerge from <span class="highlight">simplicity.</span></h1>
+          <p class="subtext">A modern, interactive playground for cellular automata. Create, simulate, and discover complex behaviors from simple rules.</p>
+          <div class="downloads">
+            <a href="https://github.com/rainerpons/cellular-automata/releases/latest" class="download-btn" id="btn-macos">
+              <svg class="btn-icon" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+              </svg>
+              <div class="btn-text">
+                <span class="btn-title">Download for</span>
+                <span class="btn-os">macOS</span>
+                <span class="btn-version" id="version-macos" hidden></span>
+              </div>
+            </a>
+            
+            <a href="https://github.com/rainerpons/cellular-automata/releases/latest" class="download-btn" id="btn-windows">
+              <svg class="btn-icon" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.9zm0-380.6v180.1H448V32L203.8 65.7z"/>
+              </svg>
+              <div class="btn-text">
+                <span class="btn-title">Download for</span>
+                <span class="btn-os">Windows</span>
+                <span class="btn-version" id="version-windows" hidden></span>
+              </div>
+            </a>
+            
+            <a href="https://github.com/rainerpons/cellular-automata/releases/latest" class="download-btn" id="btn-linux">
+              <svg class="btn-icon" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
+                <path d="M220.8 123.3c1.1 0 2.3 0 3.5-.1 1.1.1 2.3.1 3.5.1 48.4 0 94.6-22.1 120.4-58.8C377 24.1 384 10.4 384 0v4.6c0 51.5-27 96.6-67.1 121.7 48.7 13.9 83.2 59.5 83.2 113.8v22.8c0 14.5-5.9 28.5-16.3 38.6l-50 48.8c-23.3 22.8-55 35.6-88 35.6H202c-33 0-64.7-12.8-88-35.6l-50-48.8c-10.4-10.1-16.3-24.1-16.3-38.6v-22.8c0-54.3 34.5-99.9 83.2-113.8-40.1-25.1-67.1-70.2-67.1-121.7V0c0 10.4 7 24.1 35.8 64.5 25.8 36.7 72 58.8 120.4 58.8z"/>
+              </svg>
+              <div class="btn-text">
+                <span class="btn-title">Download for</span>
+                <span class="btn-os">Linux</span>
+                <span class="btn-version" id="version-linux" hidden></span>
+              </div>
+            </a>
+          </div>
+        </div>
+        
+        <div class="hero-graphic">
+          <svg viewBox="0 0 100 86.6025" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" aria-hidden="true">
+            <defs>
+              <polygon id="base" points="50,0 100,86.6025 0,86.6025" fill="#4ADE80" />
+              <g id="l1">
+                <use href="#base" transform="translate(25,0) scale(0.5)" />
+                <use href="#base" transform="translate(0,43.3013) scale(0.5)" />
+                <use href="#base" transform="translate(50,43.3013) scale(0.5)" />
+              </g>
+              <g id="l2">
+                <use href="#l1" transform="translate(25,0) scale(0.5)" />
+                <use href="#l1" transform="translate(0,43.3013) scale(0.5)" />
+                <use href="#l1" transform="translate(50,43.3013) scale(0.5)" />
+              </g>
+              <g id="l3">
+                <use href="#l2" transform="translate(25,0) scale(0.5)" />
+                <use href="#l2" transform="translate(0,43.3013) scale(0.5)" />
+                <use href="#l2" transform="translate(50,43.3013) scale(0.5)" />
+              </g>
+              <g id="l4">
+                <use href="#l3" transform="translate(25,0) scale(0.5)" />
+                <use href="#l3" transform="translate(0,43.3013) scale(0.5)" />
+                <use href="#l3" transform="translate(50,43.3013) scale(0.5)" />
+              </g>
+              <g id="l5">
+                <use href="#l4" transform="translate(25,0) scale(0.5)" />
+                <use href="#l4" transform="translate(0,43.3013) scale(0.5)" />
+                <use href="#l4" transform="translate(50,43.3013) scale(0.5)" />
+              </g>
+            </defs>
+            <use href="#l5" />
+          </svg>
+        </div>
+      </section>
+
+      <section class="gallery">
+        <h2>SEE IT IN ACTION</h2>
+        <p class="subtext">Explore simulations and customize rules to create endless patterns.</p>
+        
+        <div class="gallery-grid">
+          <div class="gallery-item">
+            <div class="placeholder"></div>
+            <h3>Conway's Game of Life</h3>
+            <p>Classic life simulation.</p>
+          </div>
+          <div class="gallery-item">
+            <div class="placeholder"></div>
+            <h3>Elementary Rule 30</h3>
+            <p>One-dimensional chaos.</p>
+          </div>
+          <div class="gallery-item">
+            <div class="placeholder"></div>
+            <h3>Sierpinski Triangle</h3>
+            <p>Fractals from simple rules.</p>
+          </div>
+          <div class="gallery-item">
+            <div class="placeholder"></div>
+            <h3>Brian's Brain</h3>
+            <p>Emergent, organic behavior.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-brand">
+            <img src="assets/cellular-automata-icon.svg" alt="">
+            <span>CELLULAR AUTOMATA</span>
+          </div>
+          <p>Open-source cellular automata simulator. Built with Java.</p>
+          <a href="https://github.com/rainerpons/cellular-automata" class="footer-links" style="margin-top: 1rem; color: var(--text-primary);" target="_blank" rel="noopener noreferrer">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: currentColor;" xmlns="http://www.w3.org/2000/svg"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+              <span>Open source on GitHub</span>
+            </div>
+          </a>
+        </div>
+        
+        <div class="footer-col">
+          <h3>RESOURCES</h3>
+          <div class="footer-links">
+            <a href="https://github.com/rainerpons/cellular-automata/blob/main/README.md" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M433.9 129.9l-83.9-83.9C338.1 34.1 322 24 304 24H96C43 24 0 67 0 120v272c0 53 43 96 96 96h256c53 0 96-43 96-96V152.6c0-18.1-10.1-34.1-26.1-42.7zM256 128v104h-64V128h64z"/></svg>
+              <span>README</span>
+              <svg class="external-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M432 320H400a16 16 0 0 0-16 16V448H64V128H208a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16H48A48 48 0 0 0 0 112V464a48 48 0 0 0 48 48H400a48 48 0 0 0 48-48V336A16 16 0 0 0 432 320zM488 0h-128c-21.4 0-32 25.9-17 41l35.7 35.7L135 320.4a24 24 0 0 0 0 34L157.7 377a24 24 0 0 0 34 0L435.3 133.3 471 169c15 15 41 4.5 41-17V24A24 24 0 0 0 488 0z"/></svg>
+            </a>
+            <a href="https://github.com/rainerpons/cellular-automata" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+              <span>Repository</span>
+              <svg class="external-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M432 320H400a16 16 0 0 0-16 16V448H64V128H208a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16H48A48 48 0 0 0 0 112V464a48 48 0 0 0 48 48H400a48 48 0 0 0 48-48V336A16 16 0 0 0 432 320zM488 0h-128c-21.4 0-32 25.9-17 41l35.7 35.7L135 320.4a24 24 0 0 0 0 34L157.7 377a24 24 0 0 0 34 0L435.3 133.3 471 169c15 15 41 4.5 41-17V24A24 24 0 0 0 488 0z"/></svg>
+            </a>
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h3>CONNECT</h3>
+          <div class="footer-links">
+            <a href="https://github.com/rainerpons" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+              <span>GitHub</span>
+              <svg class="external-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M432 320H400a16 16 0 0 0-16 16V448H64V128H208a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16H48A48 48 0 0 0 0 112V464a48 48 0 0 0 48 48H400a48 48 0 0 0 48-48V336A16 16 0 0 0 432 320zM488 0h-128c-21.4 0-32 25.9-17 41l35.7 35.7L135 320.4a24 24 0 0 0 0 34L157.7 377a24 24 0 0 0 34 0L435.3 133.3 471 169c15 15 41 4.5 41-17V24A24 24 0 0 0 488 0z"/></svg>
+            </a>
+            <a href="mailto:rainerpons11@gmail.com">
+              <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"/></svg>
+              <span>Email</span>
+            </a>
+            <a href="https://linkedin.com/in/rainerpons" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z"/></svg>
+              <span>LinkedIn</span>
+              <svg class="external-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M432 320H400a16 16 0 0 0-16 16V448H64V128H208a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16H48A48 48 0 0 0 0 112V464a48 48 0 0 0 48 48H400a48 48 0 0 0 48-48V336A16 16 0 0 0 432 320zM488 0h-128c-21.4 0-32 25.9-17 41l35.7 35.7L135 320.4a24 24 0 0 0 0 34L157.7 377a24 24 0 0 0 34 0L435.3 133.3 471 169c15 15 41 4.5 41-17V24A24 24 0 0 0 488 0z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script src="main.js"></script>
+</body>
 </html>
