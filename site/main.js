@@ -1,28 +1,14 @@
-function createVersionElement(version) {
-  if (!version) return null;
+function createMetadataElement(label, id, value, elementType) {
+  if (!value) return null;
   
   var p = document.createElement('p');
-  p.textContent = 'Version: ';
+  p.textContent = label + ': ';
   
-  var span = document.createElement('span');
-  span.id = 'version';
-  span.textContent = version;
+  var el = document.createElement(elementType);
+  el.id = id;
+  el.textContent = value;
   
-  p.appendChild(span);
-  return p;
-}
-
-function createCommitElement(commit) {
-  if (!commit) return null;
-  
-  var p = document.createElement('p');
-  p.textContent = 'Commit: ';
-  
-  var code = document.createElement('code');
-  code.id = 'commit';
-  code.textContent = commit;
-  
-  p.appendChild(code);
+  p.appendChild(el);
   return p;
 }
 
@@ -32,12 +18,12 @@ fetch('release.json')
     var container = document.getElementById('release-metadata');
     if (!container || !data) return;
 
-    var versionEl = createVersionElement(data.version);
+    var versionEl = createMetadataElement('Version', 'version', data.version, 'span');
     if (versionEl) {
       container.appendChild(versionEl);
     }
 
-    var commitEl = createCommitElement(data.commit);
+    var commitEl = createMetadataElement('Commit', 'commit', data.commit, 'code');
     if (commitEl) {
       container.appendChild(commitEl);
     }
