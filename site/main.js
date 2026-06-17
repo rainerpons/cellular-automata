@@ -1,15 +1,22 @@
-function createMetadataElement(label, id, value, elementType) {
-  if (!value) return null;
+function createMetadataElement(metadata) {
+  if (!metadata || !metadata.value) return null;
   
   var p = document.createElement('p');
-  p.textContent = label + ': ';
+  p.textContent = metadata.label + ': ';
   
-  var el = document.createElement(elementType);
-  el.id = id;
-  el.textContent = value;
+  var el = document.createElement(metadata.elementType);
+  el.id = metadata.id;
+  el.textContent = metadata.value;
   
   p.appendChild(el);
   return p;
+}
+
+function appendMetadataElement(container, metadata) {
+  var element = createMetadataElement(metadata);
+  if (!element) return;
+
+  container.appendChild(element);
 }
 
 fetch('release.json')
@@ -18,15 +25,19 @@ fetch('release.json')
     var container = document.getElementById('release-metadata');
     if (!container || !data) return;
 
-    var versionEl = createMetadataElement('Version', 'version', data.version, 'span');
-    if (versionEl) {
-      container.appendChild(versionEl);
-    }
+    appendMetadataElement(container, {
+      label: 'Version',
+      id: 'version',
+      value: data.version,
+      elementType: 'span'
+    });
 
-    var commitEl = createMetadataElement('Commit', 'commit', data.commit, 'code');
-    if (commitEl) {
-      container.appendChild(commitEl);
-    }
+    appendMetadataElement(container, {
+      label: 'Commit',
+      id: 'commit',
+      value: data.commit,
+      elementType: 'code'
+    });
   })
   .catch(function () {
     // If release.json fails to load, do not render anything.
