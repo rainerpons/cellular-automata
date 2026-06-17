@@ -1,12 +1,10 @@
 # Deploys the minimal static site in site/ to GitHub Pages.
 #
 # Triggers:
-#   - push to master/main: auto-deploys on every merge to keep the live site current.
 #   - workflow_dispatch:   manual trigger from the Actions UI for ad-hoc deploys.
 #   - workflow_call:       allows release automation (e.g. release.yml) to invoke
 #                          this workflow as a reusable step after publishing a release.
-#                          Accepts an optional app_version input; falls back to
-#                          github.ref_name for non-release runs.
+#                          Accepts an optional app_version input.
 #
 # How it works:
 #   1. Configures GitHub Pages settings for this repository.
@@ -21,8 +19,6 @@
 name: Deploy GitHub Pages
 
 on:
-  push:
-    branches: [master, main]
   workflow_dispatch:
   workflow_call:
     inputs:

@@ -30,68 +30,24 @@ fetch('release.json')
     var container = document.getElementById('release-metadata');
     if (!container || !data) return;
 
-    // Handle nested metadata with fallback to old flat structure
-    var version = data.release && data.release.version ? data.release.version : data.version;
-    var commit = data.release && data.release.commit ? data.release.commit : data.commit;
+    console.log('Loaded release metadata:', data);
+
     var appName = data.app && data.app.name ? data.app.name : null;
+    var version = data.release && data.release.version ? data.release.version : null;
+    var commit = data.release && data.release.commit ? data.release.commit : null;
+    var downloads = data.downloads || {};
 
-    console.log('Loaded release metadata:', { app: appName, version: version, commit: commit, downloads: data.downloads });
+    var elementsToRender = [
+      { label: 'App', id: 'app-name', value: appName, elementType: 'span' },
+      { label: 'Version', id: 'version', value: version, elementType: 'span' },
+      { label: 'Commit', id: 'commit', value: commit, elementType: 'code' },
+      { label: 'macOS', id: 'download-macos', value: downloads.macos, elementType: 'a', isLink: true },
+      { label: 'Windows', id: 'download-windows', value: downloads.windows, elementType: 'a', isLink: true },
+      { label: 'Linux', id: 'download-linux', value: downloads.linux, elementType: 'a', isLink: true }
+    ];
 
-    if (appName) {
-      appendMetadataElement(container, {
-        label: 'App',
-        id: 'app-name',
-        value: appName,
-        elementType: 'span'
-      });
-    }
-
-    if (version) {
-      appendMetadataElement(container, {
-        label: 'Version',
-        id: 'version',
-        value: version,
-        elementType: 'span'
-      });
-    }
-
-    if (commit) {
-      appendMetadataElement(container, {
-        label: 'Commit',
-        id: 'commit',
-        value: commit,
-        elementType: 'code'
-      });
-    }
-
-    if (data.downloads) {
-      if (data.downloads.macos) {
-        appendMetadataElement(container, {
-          label: 'macOS',
-          id: 'download-macos',
-          value: data.downloads.macos,
-          elementType: 'a',
-          isLink: true
-        });
-      }
-      if (data.downloads.windows) {
-        appendMetadataElement(container, {
-          label: 'Windows',
-          id: 'download-windows',
-          value: data.downloads.windows,
-          elementType: 'a',
-          isLink: true
-        });
-      }
-      if (data.downloads.linux) {
-        appendMetadataElement(container, {
-          label: 'Linux',
-          id: 'download-linux',
-          value: data.downloads.linux,
-          elementType: 'a',
-          isLink: true
-        });
-      }
+    for (var i = 0; i < elementsToRender.length; i++) {
+      appendMetadataElement(container, elementsToRender[i]);
     }
   })
   .catch(function () {
