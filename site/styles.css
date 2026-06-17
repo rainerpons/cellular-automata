@@ -32,24 +32,28 @@ body {
   pointer-events: none;
   z-index: -1;
   background-image: 
-    radial-gradient(circle at 640px 160px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 720px 320px, rgba(167, 243, 208, 0.8) 1px, transparent 2px),
-    radial-gradient(circle at 800px 480px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 880px 160px, rgba(167, 243, 208, 0.9) 1px, transparent 2px),
-    radial-gradient(circle at 960px 400px, rgba(255, 255, 255, 0.8) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 1040px 240px, rgba(167, 243, 208, 0.7) 1px, transparent 2px),
-    radial-gradient(circle at 1120px 560px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 1200px 320px, rgba(167, 243, 208, 0.8) 1px, transparent 2.5px),
-    radial-gradient(circle at 640px 640px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 800px 800px, rgba(167, 243, 208, 0.8) 1px, transparent 2px),
-    radial-gradient(circle at 960px 720px, rgba(255, 255, 255, 0.8) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 1120px 880px, rgba(167, 243, 208, 0.7) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 320px 240px, rgba(255, 255, 255, 0.6) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 160px 480px, rgba(167, 243, 208, 0.5) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 400px 720px, rgba(255, 255, 255, 0.5) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 640.5px 160.5px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 720.5px 320.5px, rgba(167, 243, 208, 0.8) 1.25px, transparent 2px),
+    radial-gradient(circle at 800.5px 480.5px, rgba(255, 255, 255, 0.9) 0.25px, transparent 1px),
+    radial-gradient(circle at 880.5px 160.5px, rgba(167, 243, 208, 0.9) 1px, transparent 2px),
+    radial-gradient(circle at 960.5px 400.5px, rgba(255, 255, 255, 0.8) 0.75px, transparent 1.5px),
+    radial-gradient(circle at 1040.5px 240.5px, rgba(167, 243, 208, 0.7) 1.5px, transparent 2px),
+    radial-gradient(circle at 1120.5px 560.5px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 1200.5px 320.5px, rgba(167, 243, 208, 0.8) 1px, transparent 2.5px),
+    radial-gradient(circle at 640.5px 640.5px, rgba(255, 255, 255, 0.9) 0.75px, transparent 1.5px),
+    radial-gradient(circle at 800.5px 800.5px, rgba(167, 243, 208, 0.8) 1.25px, transparent 2px),
+    radial-gradient(circle at 960.5px 720.5px, rgba(255, 255, 255, 0.8) 0.25px, transparent 1px),
+    radial-gradient(circle at 1120.5px 880.5px, rgba(167, 243, 208, 0.7) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 320.5px 240.5px, rgba(255, 255, 255, 0.6) 0.75px, transparent 1.5px),
+    radial-gradient(circle at 160.5px 480.5px, rgba(167, 243, 208, 0.5) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 400.5px 720.5px, rgba(255, 255, 255, 0.5) 1px, transparent 1.5px),
+    radial-gradient(circle at 560.5px 320.5px, rgba(167, 243, 208, 0.7) 0.5px, transparent 1px),
+    radial-gradient(circle at 880.5px 560.5px, rgba(255, 255, 255, 0.8) 1.5px, transparent 2.5px),
+    radial-gradient(circle at 1280.5px 160.5px, rgba(167, 243, 208, 0.6) 0.75px, transparent 1.5px),
+    radial-gradient(circle at 1040.5px 880.5px, rgba(255, 255, 255, 0.9) 0.25px, transparent 1px),
     linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 80px 80px, 80px 80px;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 80px 80px, 80px 80px;
   background-position: 0 0;
   mask-image: radial-gradient(circle at 60% 40%, black 25%, transparent 70%);
   -webkit-mask-image: radial-gradient(circle at 60% 40%, black 25%, transparent 70%);
@@ -106,7 +110,6 @@ a:focus-visible, button:focus-visible {
   -webkit-mask-image: url('assets/external-link-icon.svg');
   width: 14px;
   height: 14px;
-  margin-left: 0.5rem;
 }
 
 /* Navbar */
@@ -163,9 +166,9 @@ nav {
 .hero-graphic {
   order: -1;
   width: 100%;
-  max-width: clamp(220px, 55vw, 260px);
+  max-width: clamp(236px, 60vw, 280px); /* Increased by roughly 7.5% from 220px/260px */
   max-height: 25vh;
-  margin: 0 auto;
+  margin: 0 auto clamp(1.5rem, 3vh, 2rem); /* Add bottom margin to visually balance with the top */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -190,6 +193,7 @@ nav {
     order: 0;
     max-width: 555px;
     max-height: none;
+    margin: 0; /* Reset margin on desktop */
   }
 }
 
@@ -429,8 +433,10 @@ footer {
 .footer-links a {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   color: var(--text-secondary);
   font-size: 0.875rem;
+  line-height: 1;
 }
 
 .footer-links a:hover, .footer-links a:focus {
