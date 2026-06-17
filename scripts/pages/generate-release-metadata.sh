@@ -18,16 +18,23 @@ WIN_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${APP_VERSION
 MAC_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${APP_VERSION}/cellular-automata-macos.dmg"
 LIN_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${APP_VERSION}/cellular-automata-linux.AppImage"
 
-# Verify that assets exist
-echo "Verifying release assets for ${APP_VERSION}..."
-for url in "$WIN_URL" "$MAC_URL" "$LIN_URL"; do
-  # Follow redirects but fail on HTTP errors (e.g. 404)
-  if ! curl -sLfo /dev/null -I "$url"; then
-    echo "Error: Required platform asset missing at $url" >&2
-    exit 1
-  fi
-done
-echo "All required platform assets verified."
+# Verify that assets exist for release deployments
+if [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
+  echo "Verifying release assets for ${APP_VERSION}..."
+  for url in "$WIN_URL" "$MAC_URL" "$LIN_URL"; do
+    # Follow redirects but fail on HTTP errors (e.g. 404)
+    if ! curl -sLfo /dev/null -I "$url"; then
+      echo "Error: Required platform asset missing at $url" >&2
+      exit 1
+    fi
+  done
+  echo "All required platform assets verified."
+else
+  echo "Non-release deployment, skipping asset verification."
+  WIN_URL=""
+  MAC_URL=""
+  LIN_URL=""
+fi
 
 jq -n \
   --arg app "Cellular Automata" \
