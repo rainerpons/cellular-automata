@@ -138,7 +138,7 @@ jobs:
           replacesArtifacts: true
 
   deploy-pages:
-    name: Deploy GitHub Pages
+    name: Trigger Pages deployment
     needs: [release]
     uses: ./.github/workflows/pages.yml
     with:
