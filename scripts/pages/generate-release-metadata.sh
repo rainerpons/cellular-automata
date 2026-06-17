@@ -14,8 +14,8 @@ set -euo pipefail
 : "${GITHUB_REPOSITORY:?Missing required environment variable GITHUB_REPOSITORY}"
 
 # Enforce release tag format
-if [[ "${APP_VERSION}" != v* ]]; then
-  echo "Error: APP_VERSION must be a release tag starting with 'v' (got '${APP_VERSION}')" >&2
+if [[ ! "${APP_VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+  echo "Error: APP_VERSION must be a release tag matching 'vX.Y.Z*' (got '${APP_VERSION}')" >&2
   exit 1
 fi
 
