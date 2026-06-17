@@ -1,9 +1,9 @@
 function createMetadataElement(metadata) {
   if (!metadata || !metadata.value) return null;
-  
+
   const p = document.createElement('p');
   p.textContent = metadata.label + ': ';
-  
+
   const el = document.createElement(metadata.elementType);
   el.id = metadata.id;
   if (metadata.isLink) {
@@ -12,7 +12,7 @@ function createMetadataElement(metadata) {
   } else {
     el.textContent = metadata.value;
   }
-  
+
   p.appendChild(el);
   return p;
 }
@@ -46,7 +46,7 @@ fetch('release.json')
       { label: 'Linux', id: 'download-linux', value: downloads.linux, elementType: 'a', isLink: true }
     ];
 
-    elementsToRender.forEach(function(item) {
+    elementsToRender.forEach(function (item) {
       appendMetadataElement(container, item);
     });
   })
