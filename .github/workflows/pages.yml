@@ -57,13 +57,8 @@ jobs:
       - name: Generate deployment metadata
         env:
           APP_VERSION: ${{ inputs.app_version || github.ref_name }}
-        run: |
-          jq -n \
-            --arg app "Cellular Automata" \
-            --arg version "$APP_VERSION" \
-            --arg commit "${{ github.sha }}" \
-            '{"app": $app, "version": $version, "commit": $commit}' \
-            > site/release.json
+          COMMIT_SHA: ${{ github.sha }}
+        run: bash scripts/pages/generate-release-metadata.sh
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
