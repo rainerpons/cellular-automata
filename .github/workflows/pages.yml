@@ -1,10 +1,9 @@
 # Deploys the minimal static site in site/ to GitHub Pages.
 #
 # Triggers:
-#   - workflow_dispatch:   manual trigger from the Actions UI for ad-hoc deploys.
 #   - workflow_call:       allows release automation (e.g. release.yml) to invoke
 #                          this workflow as a reusable step after publishing a release.
-#                          Accepts an optional app_version input.
+#                          Requires an app_version input.
 #
 # How it works:
 #   1. Configures GitHub Pages settings for this repository.
@@ -19,12 +18,11 @@
 name: Deploy GitHub Pages
 
 on:
-  workflow_dispatch:
   workflow_call:
     inputs:
       app_version:
         description: 'App version to embed in the deployed site metadata'
-        required: false
+        required: true
         type: string
 
 permissions:
@@ -52,7 +50,7 @@ jobs:
 
       - name: Generate deployment metadata
         env:
-          APP_VERSION: ${{ inputs.app_version || github.ref_name }}
+          APP_VERSION: ${{ inputs.app_version }}
           COMMIT_SHA: ${{ github.sha }}
         run: bash scripts/pages/generate-release-metadata.sh
 

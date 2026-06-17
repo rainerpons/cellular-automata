@@ -46,9 +46,9 @@ fetch('release.json')
       { label: 'Linux', id: 'download-linux', value: downloads.linux, elementType: 'a', isLink: true }
     ];
 
-    for (let i = 0; i < elementsToRender.length; i++) {
-      appendMetadataElement(container, elementsToRender[i]);
-    }
+    elementsToRender.forEach(function(item) {
+      appendMetadataElement(container, item);
+    });
   })
   .catch(function () {
     // If release.json fails to load, do not render anything.
