@@ -1,0 +1,56 @@
+# Deploys the minimal static site in site/ to GitHub Pages.
+#
+# Triggers:
+#   - push to master/main: auto-deploys on every merge to keep the live site current.
+#   - workflow_dispatch:   manual trigger from the Actions UI for ad-hoc deploys.
+#   - workflow_call:       allows future release automation (e.g. release.yml) to invoke
+#                          this workflow as a reusable step after publishing a release.
+#
+# How it works:
+#   1. Injects the current commit SHA into site/index.html (replacing the %%COMMIT_SHA%%
+#      placeholder) so it is easy to confirm which commit is live after a deployment.
+#   2. Uploads the site/ directory as a GitHub Pages artifact.
+#   3. Deploys the artifact to the github-pages environment.
+#
+# Required repository settings:
+#   Settings > Pages > Source must be set to "GitHub Actions".
+
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject commit SHA into index.html
+        run: sed -i "s|%%COMMIT_SHA%%|${{ github.sha }}|g" site/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
