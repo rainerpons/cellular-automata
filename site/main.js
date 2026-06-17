@@ -1,42 +1,41 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const osList = ['macos', 'windows', 'linux'];
-  
-  fetch('release.json', { cache: 'no-store' })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Failed to fetch release metadata: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      if (!data || !data.release || !data.downloads) {
-        throw new Error('Malformed release metadata');
-      }
 
-      if (data.app && data.app.name) {
-        const appNameEl = document.getElementById('app-name');
-        if (appNameEl) {
-          appNameEl.textContent = data.app.name.toUpperCase();
-        }
-      }
+  try {
+    const response = await fetch('release.json', { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch release metadata: ${response.status}`);
+    }
 
-      const version = data.release.version;
+    const data = await response.json();
 
-      osList.forEach(os => {
-        const btn = document.getElementById(`btn-${os}`);
-        const versionSpan = document.getElementById(`version-${os}`);
-        const downloadUrl = data.downloads[os];
+    if (!data?.release?.version || !data?.downloads) {
+      throw new Error('Malformed release metadata: Missing required properties');
+    }
 
-        if (btn && versionSpan && downloadUrl) {
-          btn.href = downloadUrl;
-          versionSpan.textContent = version;
-          versionSpan.removeAttribute('hidden');
-        }
-      });
-    })
-    .catch(error => {
-      // Gracefully degrade: console log the error but do not break the page.
-      // Buttons will keep their fallback GitHub Releases links and version labels will remain hidden.
-      console.warn('Could not load release metadata:', error.message);
+    const appName = data.app?.name || 'Cellular Automata';
+    const appNameElements = document.querySelectorAll('.app-name-label');
+    appNameElements.forEach(el => {
+      el.textContent = appName;
     });
+
+    const version = data.release.version;
+
+    osList.forEach(os => {
+      const btn = document.getElementById(`btn-${os}`);
+      const versionSpan = document.getElementById(`version-${os}`);
+      const downloadUrl = data.downloads[os];
+
+      if (btn && versionSpan && downloadUrl) {
+        btn.href = downloadUrl;
+        versionSpan.textContent = version;
+        versionSpan.removeAttribute('hidden');
+      }
+    });
+
+  } catch (error) {
+    // Gracefully degrade: buttons keep fallback GitHub Releases links,
+    // version labels remain hidden, and the page doesn't break.
+    console.warn('Could not load release metadata:', error.message);
+  }
 });
