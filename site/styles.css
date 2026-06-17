@@ -32,23 +32,27 @@ body {
   pointer-events: none;
   z-index: -1;
   background-image: 
-    radial-gradient(circle at 160px 160px, rgba(255, 255, 255, 0.9) 0.5px, transparent 2px),
-    radial-gradient(circle at 320px 480px, rgba(167, 243, 208, 0.8) 1px, transparent 2px),
-    radial-gradient(circle at 480px 320px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 640px 160px, rgba(167, 243, 208, 0.9) 1px, transparent 2.5px),
-    radial-gradient(circle at 880px 240px, rgba(255, 255, 255, 0.8) 0.5px, transparent 2px),
-    radial-gradient(circle at 1120px 480px, rgba(167, 243, 208, 0.7) 1px, transparent 2px),
-    radial-gradient(circle at 160px 800px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
-    radial-gradient(circle at 480px 640px, rgba(167, 243, 208, 0.8) 1px, transparent 3px),
-    radial-gradient(circle at 800px 720px, rgba(255, 255, 255, 0.9) 0.5px, transparent 2px),
-    radial-gradient(circle at 1040px 160px, rgba(167, 243, 208, 0.8) 1px, transparent 2.5px),
-    radial-gradient(circle at 1200px 720px, rgba(255, 255, 255, 0.8) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 640px 160px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 720px 320px, rgba(167, 243, 208, 0.8) 1px, transparent 2px),
+    radial-gradient(circle at 800px 480px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 880px 160px, rgba(167, 243, 208, 0.9) 1px, transparent 2px),
+    radial-gradient(circle at 960px 400px, rgba(255, 255, 255, 0.8) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 1040px 240px, rgba(167, 243, 208, 0.7) 1px, transparent 2px),
+    radial-gradient(circle at 1120px 560px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 1200px 320px, rgba(167, 243, 208, 0.8) 1px, transparent 2.5px),
+    radial-gradient(circle at 640px 640px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 800px 800px, rgba(167, 243, 208, 0.8) 1px, transparent 2px),
+    radial-gradient(circle at 960px 720px, rgba(255, 255, 255, 0.8) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 1120px 880px, rgba(167, 243, 208, 0.7) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 320px 240px, rgba(255, 255, 255, 0.6) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 160px 480px, rgba(167, 243, 208, 0.5) 0.5px, transparent 1.5px),
+    radial-gradient(circle at 400px 720px, rgba(255, 255, 255, 0.5) 0.5px, transparent 1.5px),
     linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 80px 80px, 80px 80px;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 80px 80px, 80px 80px;
   background-position: 0 0;
-  mask-image: radial-gradient(circle at center 30%, black 20%, transparent 70%);
-  -webkit-mask-image: radial-gradient(circle at center 30%, black 20%, transparent 70%);
+  mask-image: radial-gradient(circle at 60% 40%, black 25%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle at 60% 40%, black 25%, transparent 70%);
 }
 
 a {
@@ -152,13 +156,13 @@ nav {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 0 3rem;
-  gap: 1.5rem;
+  padding: 1.5rem 0 2.5rem;
+  gap: 1rem;
 }
 
 .hero-graphic {
   order: -1;
-  max-width: 280px;
+  max-width: 310px;
   margin: 0 auto;
   display: flex;
   justify-content: center;
@@ -181,7 +185,7 @@ nav {
   .hero-graphic {
     flex: 1;
     order: 0;
-    max-width: 600px;
+    max-width: 555px;
   }
 }
 
@@ -193,13 +197,13 @@ nav {
 .hero h1 {
   font-size: 2.5rem;
   line-height: 1.2;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .hero .subtext {
   color: var(--text-secondary);
   font-size: 1.125rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 @media (min-width: 768px) {
