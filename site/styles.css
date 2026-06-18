@@ -28,10 +28,13 @@ body {
 
 .bg-grid {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   pointer-events: none;
   z-index: -1;
-  background-image: 
+  background-image:
     radial-gradient(circle at 640.5px 160.5px, rgba(255, 255, 255, 0.9) 0.5px, transparent 1.5px),
     radial-gradient(circle at 720.5px 320.5px, rgba(167, 243, 208, 0.8) 1px, transparent 2px),
     radial-gradient(circle at 800.5px 480.5px, rgba(255, 255, 255, 0.9) 0.25px, transparent 1px),
@@ -71,12 +74,14 @@ a {
   transition: color 0.2s;
 }
 
-a:hover, a:focus {
+a:hover,
+a:focus {
   color: var(--accent-color);
   outline: none;
 }
 
-a:focus-visible, button:focus-visible {
+a:focus-visible,
+button:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 4px;
 }
@@ -116,7 +121,8 @@ a:focus-visible, button:focus-visible {
   -webkit-mask-image: url('assets/external-link-icon.svg');
   width: 14px;
   height: 14px;
-  transform: translateY(1px); /* Optically centers the icon with uppercase text */
+  transform: translateY(1px);
+  /* Optically centers the icon with uppercase text */
 }
 
 /* Navbar */
@@ -143,11 +149,14 @@ nav {
 .nav-brand-text {
   transition: color 0.2s;
 }
-.nav-brand-text:hover, .nav-brand-text:focus-visible {
+
+.nav-brand-text:hover,
+.nav-brand-text:focus-visible {
   color: var(--accent-color);
 }
 
-.nav-brand img, .nav-brand svg {
+.nav-brand img,
+.nav-brand svg {
   width: 32px;
   height: 32px;
 }
@@ -157,7 +166,9 @@ nav {
   display: flex;
   align-items: center;
 }
-.nav-github-link:hover, .nav-github-link:focus-visible {
+
+.nav-github-link:hover,
+.nav-github-link:focus-visible {
   color: var(--accent-color);
 }
 
@@ -173,9 +184,11 @@ nav {
 .hero-graphic {
   order: -1;
   width: 100%;
-  max-width: clamp(248px, 63vw, 294px); /* Increased by another 5% */
+  max-width: clamp(248px, 63vw, 294px);
+  /* Increased by another 5% */
   max-height: 25vh;
-  margin: 0 auto clamp(1.5rem, 3vh, 2rem); /* Add bottom margin to visually balance with the top */
+  margin: 0 auto clamp(1.5rem, 3vh, 2rem);
+  /* Add bottom margin to visually balance with the top */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -195,12 +208,14 @@ nav {
     padding: 4rem 0 6rem;
     gap: 4rem;
   }
+
   .hero-graphic {
     flex: 1;
     order: 0;
     max-width: 555px;
     max-height: none;
-    margin: 0; /* Reset margin on desktop */
+    margin: 0;
+    /* Reset margin on desktop */
   }
 }
 
@@ -262,8 +277,8 @@ nav {
 }
 
 .btn-icon {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   fill: currentColor;
   flex-shrink: 0;
 }
@@ -276,7 +291,7 @@ nav {
 }
 
 .btn-title {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--text-secondary);
 }
 
@@ -309,7 +324,7 @@ nav {
   margin-bottom: 0.5rem;
 }
 
-.gallery > .subtext {
+.gallery>.subtext {
   color: var(--text-secondary);
   margin-bottom: 3rem;
 }
@@ -376,6 +391,7 @@ footer {
   .footer-grid {
     grid-template-columns: 2fr 1fr 1fr;
   }
+
   .footer-col:first-child {
     grid-column: auto;
   }
@@ -395,18 +411,19 @@ footer {
   font-size: 1.25rem;
 }
 
-.footer-brand img, .footer-brand svg {
+.footer-brand img,
+.footer-brand svg {
   width: 32px;
   height: 32px;
 }
 
-.footer-col > p {
+.footer-col>p {
   color: var(--text-secondary);
   font-size: 0.875rem;
 }
 
 @media (min-width: 768px) {
-  .footer-col > p {
+  .footer-col>p {
     max-width: 300px;
   }
 }
@@ -421,7 +438,8 @@ footer {
   transition: color 0.2s;
 }
 
-.footer-github-link:hover, .footer-github-link:focus-visible {
+.footer-github-link:hover,
+.footer-github-link:focus-visible {
   color: var(--accent-color);
 }
 
@@ -446,6 +464,7 @@ footer {
   line-height: 1;
 }
 
-.footer-links a:hover, .footer-links a:focus {
+.footer-links a:hover,
+.footer-links a:focus {
   color: var(--accent-color);
 }
