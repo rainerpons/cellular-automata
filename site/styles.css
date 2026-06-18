@@ -119,10 +119,8 @@ button:focus-visible {
 .icon-external {
   mask-image: url('assets/external-link-icon.svg');
   -webkit-mask-image: url('assets/external-link-icon.svg');
-  width: 14px;
-  height: 14px;
-  transform: translateY(1px);
-  /* Optically centers the icon with uppercase text */
+  width: 1em;
+  height: 1em;
 }
 
 /* Navbar */
@@ -429,13 +427,22 @@ footer {
 }
 
 .footer-github-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  display: inline-block;
   margin-top: 1rem;
   color: var(--text-primary);
   font-size: 0.875rem;
   transition: color 0.2s;
+}
+
+.footer-github-link span {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.footer-github-link .icon-github {
+  width: 1.25em; /* Semantic relative scaling instead of fixed 24px */
+  height: 1.25em;
+  margin-right: 0.5rem;
 }
 
 .footer-github-link:hover,
@@ -456,12 +463,18 @@ footer {
 }
 
 .footer-links a {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  display: inline-block;
   color: var(--text-secondary);
   font-size: 0.875rem;
-  line-height: 1;
+}
+
+.footer-links a span {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.footer-links a .icon-external {
+  margin-left: 0.25rem;
 }
 
 .footer-links a:hover,
