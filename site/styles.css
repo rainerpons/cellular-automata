@@ -1,3 +1,4 @@
+/* Design Tokens */
 :root {
   --bg-color: #111315;
   --text-primary: #FFFFFF;
@@ -8,6 +9,7 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+/* Base / Reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -24,6 +26,24 @@ body {
   position: relative;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover,
+a:focus {
+  color: var(--accent-color);
+  outline: none;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* Shared Utilities */
 .bg-grid {
   position: absolute;
   top: 0;
@@ -66,23 +86,6 @@ body {
   -webkit-mask-image: radial-gradient(circle at 60% 40%, black 25%, transparent 70%);
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-a:hover,
-a:focus {
-  color: var(--accent-color);
-  outline: none;
-}
-
-a:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 4px;
-}
-
 .highlight {
   color: var(--accent-color);
 }
@@ -91,12 +94,7 @@ a:focus-visible {
   text-transform: uppercase;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 clamp(1rem, 4vw, 2rem);
-}
-
+/* Icons */
 .icon {
   display: inline-block;
   background-color: currentColor;
@@ -120,7 +118,14 @@ a:focus-visible {
   height: 1em;
 }
 
-/* Navbar */
+/* Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2rem);
+}
+
+/* Header / Navigation */
 nav {
   display: flex;
   justify-content: space-between;
@@ -152,7 +157,7 @@ nav {
   align-items: center;
 }
 
-/* Hero Section */
+/* Hero */
 .hero {
   display: flex;
   flex-direction: column;
@@ -179,23 +184,6 @@ nav {
   filter: drop-shadow(0 0 22px rgba(167, 243, 208, 0.6)) drop-shadow(0 0 60px rgba(167, 243, 208, 0.3));
 }
 
-@media (min-width: 768px) {
-  .hero {
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 4rem 0 6rem;
-    gap: 4rem;
-  }
-
-  .hero-graphic {
-    flex: 1;
-    order: 0;
-    max-width: 555px;
-    max-height: none;
-    margin: 0;
-  }
-}
-
 .hero-content {
   flex: 1;
   width: 100%;
@@ -215,18 +203,11 @@ nav {
   margin-bottom: clamp(1rem, 3vh, 3rem);
 }
 
+/* Downloads */
 .downloads {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-
-@media (min-width: 1024px) {
-  .downloads {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
 }
 
 .download-btn {
@@ -285,7 +266,7 @@ nav {
   text-align: center;
 }
 
-/* Gallery Section */
+/* Gallery */
 .gallery {
   padding: 4rem 0;
   border-top: 1px solid var(--border-color);
@@ -306,18 +287,6 @@ nav {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
-}
-
-@media (min-width: 640px) {
-  .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .gallery-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 .gallery-item {
@@ -360,16 +329,6 @@ footer {
   grid-column: span 2;
 }
 
-@media (min-width: 768px) {
-  .footer-grid {
-    grid-template-columns: 2fr 1fr 1fr;
-  }
-
-  .footer-col:first-child {
-    grid-column: auto;
-  }
-}
-
 .footer-col {
   display: flex;
   flex-direction: column;
@@ -392,12 +351,6 @@ footer {
 .footer-col>p {
   color: var(--text-secondary);
   font-size: 0.875rem;
-}
-
-@media (min-width: 768px) {
-  .footer-col>p {
-    max-width: 300px;
-  }
 }
 
 .footer-github-link {
@@ -432,4 +385,52 @@ footer {
   gap: 0.5rem;
   color: var(--text-secondary);
   font-size: 0.875rem;
+}
+
+/* Responsive Overrides */
+@media (min-width: 640px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .hero {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 4rem 0 6rem;
+    gap: 4rem;
+  }
+
+  .hero-graphic {
+    flex: 1;
+    order: 0;
+    max-width: 555px;
+    max-height: none;
+    margin: 0;
+  }
+
+  .footer-grid {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .footer-col:first-child {
+    grid-column: auto;
+  }
+
+  .footer-col>p {
+    max-width: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .downloads {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
