@@ -194,34 +194,31 @@ public class Main {
 
     // creates the display button in commands panel
     JButton displayButton = new JButton("Display");
-    displayButton.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseClicked(MouseEvent e) {
-            String ruleText = ruleTextArea.getText();
-            if (RuleValidator.isValidRule(ruleText)) {
-              rule = Integer.parseInt(ruleText.trim());
-              int size = sizeSlider.getValue();
-              String seedType = (String) seedComboBox.getSelectedItem();
-              seed = null;
-              if (seedType.equalsIgnoreCase("uniform")) {
-                seed = Generator.generateSeed(size);
-              } else if (seedType.equalsIgnoreCase("sparse")) {
-                seed = Generator.generateSparseSeed(size);
-              } else if (seedType.equalsIgnoreCase("alternating")) {
-                seed = Generator.generateAlternatingSeed(size);
-              }
-              Map<Integer, Vector> automatonMap = Automaton.initializeVectorMap(rule, seed);
-              BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
-              resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
-              automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
-            } else {
-              JOptionPane.showMessageDialog(
-                  caFrame,
-                  "Rule must be a whole number between 0 and 255.",
-                  "Rule Number Error",
-                  JOptionPane.ERROR_MESSAGE);
+    displayButton.addActionListener(
+        e -> {
+          String ruleText = ruleTextArea.getText();
+          if (RuleValidator.isValidRule(ruleText)) {
+            rule = Integer.parseInt(ruleText.trim());
+            int size = sizeSlider.getValue();
+            String seedType = (String) seedComboBox.getSelectedItem();
+            seed = null;
+            if (seedType.equalsIgnoreCase("uniform")) {
+              seed = Generator.generateSeed(size);
+            } else if (seedType.equalsIgnoreCase("sparse")) {
+              seed = Generator.generateSparseSeed(size);
+            } else if (seedType.equalsIgnoreCase("alternating")) {
+              seed = Generator.generateAlternatingSeed(size);
             }
+            Map<Integer, Vector> automatonMap = Automaton.initializeVectorMap(rule, seed);
+            BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
+            resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
+            automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
+          } else {
+            JOptionPane.showMessageDialog(
+                caFrame,
+                "Rule must be a whole number between 0 and 255.",
+                "Rule Number Error",
+                JOptionPane.ERROR_MESSAGE);
           }
         });
     GridBagConstraints gbcDisplayButton = new GridBagConstraints();
