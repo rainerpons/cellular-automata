@@ -18,25 +18,18 @@ public class GeneratorTest {
     Assert.assertEquals(expected, actual);
   }
 
-  /** Asserts that a local update rule is invalid. */
+  /** Asserts that invalid rule numbers are rejected. */
   @Test
-  public void testGenerateRuleNegative() {
-    String expected = null;
-    String actual = Generator.generateRule(-1);
-    Assert.assertEquals(expected, actual);
-  }
-
-  /** Asserts that rule numbers above the valid range are rejected. */
-  @Test
-  public void testGenerateRuleAboveUpperBound() {
-    Assert.assertNull(Generator.generateRule(256));
-    Assert.assertNull(Generator.generateRule(300));
-  }
-
-  /** Asserts that rule numbers below the valid range are rejected. */
-  @Test
-  public void testGenerateRuleBelowLowerBound() {
-    Assert.assertNull(Generator.generateRule(-100));
+  public void testGenerateRuleInvalid() {
+    int[] invalidRules = {-1, 256};
+    for (int rule : invalidRules) {
+      try {
+        Generator.generateRule(rule);
+        Assert.fail("Expected IllegalArgumentException for rule: " + rule);
+      } catch (IllegalArgumentException expected) {
+        // Expected.
+      }
+    }
   }
 
   /** Asserts that the lower boundary rule is zero-padded to eight bits. */
@@ -147,12 +140,24 @@ public class GeneratorTest {
     Assert.assertEquals(expected, actual);
   }
 
-  /** Asserts that invalid rules produce an empty successor vector. */
+  /** Asserts that invalid rules throw an exception during successor generation. */
   @Test
   public void testGenerateSuccessorInvalidRule() {
-    Vector successor = Generator.generateSuccessor(256, new Vector("10101010"));
-    Assert.assertEquals(0, successor.getSize());
-    Assert.assertEquals("", successor.getState());
+    int[] invalidRules = {-1, 256};
+    for (int rule : invalidRules) {
+      try {
+        Generator.generateSuccessor(rule, new Vector("10101010"));
+        Assert.fail("Expected IllegalArgumentException for rule: " + rule);
+      } catch (IllegalArgumentException expected) {
+        // Expected.
+      }
+    }
+  }
+
+  /** Asserts that null vectors throw an exception during successor generation. */
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerateSuccessorNullVector() {
+    Generator.generateSuccessor(30, null);
   }
 
   /** Asserts successor generation across additional representative rules. */
