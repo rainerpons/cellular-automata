@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.OptionalInt;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -27,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
 
 /**
@@ -47,6 +49,12 @@ public class Main {
 
   /** Initializes every component of the GUI. */
   private void initialize() {
+    try {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    } catch (Exception e) {
+      System.err.println("Could not set native look and feel.");
+    }
+
     // creates the cellular automata frame
     caFrame = new JFrame();
     caFrame.setResizable(false);
@@ -194,33 +202,32 @@ public class Main {
 
     // creates the display button in commands panel
     JButton displayButton = new JButton("Display");
-    displayButton.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseClicked(MouseEvent e) {
-            rule = Integer.parseInt(ruleTextArea.getText());
-            if (rule > -1 && rule < 256) {
-              int size = sizeSlider.getValue();
-              String seedType = (String) seedComboBox.getSelectedItem();
-              seed = null;
-              if (seedType.equalsIgnoreCase("uniform")) {
-                seed = Generator.generateSeed(size);
-              } else if (seedType.equalsIgnoreCase("sparse")) {
-                seed = Generator.generateSparseSeed(size);
-              } else if (seedType.equalsIgnoreCase("alternating")) {
-                seed = Generator.generateAlternatingSeed(size);
-              }
-              Map<Integer, Vector> automatonMap = Automaton.initializeVectorMap(rule, seed);
-              BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
-              resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
-              automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
-            } else {
-              JOptionPane.showMessageDialog(
-                  caFrame,
-                  "Rule number should be an integer \nbetween 0 and 255 (inclusive).",
-                  "Rule Number Error",
-                  JOptionPane.ERROR_MESSAGE);
+    displayButton.addActionListener(
+        e -> {
+          String ruleText = ruleTextArea.getText();
+          OptionalInt parsedRule = RuleValidator.parseRule(ruleText);
+          if (parsedRule.isPresent()) {
+            rule = parsedRule.getAsInt();
+            int size = sizeSlider.getValue();
+            String seedType = (String) seedComboBox.getSelectedItem();
+            seed = null;
+            if (seedType.equalsIgnoreCase("uniform")) {
+              seed = Generator.generateSeed(size);
+            } else if (seedType.equalsIgnoreCase("sparse")) {
+              seed = Generator.generateSparseSeed(size);
+            } else if (seedType.equalsIgnoreCase("alternating")) {
+              seed = Generator.generateAlternatingSeed(size);
             }
+            Map<Integer, Vector> automatonMap = Automaton.initializeVectorMap(rule, seed);
+            BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
+            resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
+            automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
+          } else {
+            JOptionPane.showMessageDialog(
+                caFrame,
+                "Rule must be a whole number between 0 and 255.",
+                "Rule Number Error",
+                JOptionPane.ERROR_MESSAGE);
           }
         });
     GridBagConstraints gbcDisplayButton = new GridBagConstraints();
