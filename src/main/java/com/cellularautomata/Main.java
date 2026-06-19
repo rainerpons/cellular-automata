@@ -8,7 +8,6 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
@@ -200,6 +199,12 @@ public class Main {
     gblCommandsPanel.rowWeights = new double[] {1.0, Double.MIN_VALUE};
     commandsPanel.setLayout(gblCommandsPanel);
 
+    // creates the save button in commands panel
+    final JButton saveButton = new JButton("Save");
+    // TODO: Centralize UI state management once presentation and application concerns are
+    // separated.
+    saveButton.setEnabled(false);
+
     // creates the display button in commands panel
     JButton displayButton = new JButton("Display");
     displayButton.addActionListener(
@@ -222,6 +227,7 @@ public class Main {
             BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
             resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
             automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
+            saveButton.setEnabled(true);
           } else {
             JOptionPane.showMessageDialog(
                 caFrame,
@@ -236,29 +242,22 @@ public class Main {
     gbcDisplayButton.gridy = 0;
     commandsPanel.add(displayButton, gbcDisplayButton);
 
-    // creates the save button in commands panel
-    JButton saveButton = new JButton("Save");
-    saveButton.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseClicked(MouseEvent e) {
-            JFileChooser fileChooser =
-                new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-            String child = AutomatonImage.getFileName(rule, seed);
-            fileChooser.setSelectedFile(new File(child));
-            int returnValue = fileChooser.showSaveDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-              String parent = fileChooser.getCurrentDirectory().getAbsolutePath();
-              File file = new File(parent + "/" + child);
-              try {
-                if (!file.createNewFile()) {
-                  System.err.println(
-                      "Warning: file already exists, overwriting: " + file.getPath());
-                }
-                ImageIO.write(resizedAutomatonImage, "JPG", file);
-              } catch (IOException ie) {
-                ie.printStackTrace();
+    saveButton.addActionListener(
+        e -> {
+          JFileChooser fileChooser =
+              new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+          String child = AutomatonImage.getFileName(rule, seed);
+          fileChooser.setSelectedFile(new File(child));
+          int returnValue = fileChooser.showSaveDialog(null);
+          if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try {
+              if (!file.createNewFile()) {
+                System.err.println("Warning: file already exists, overwriting: " + file.getPath());
               }
+              ImageIO.write(resizedAutomatonImage, "JPG", file);
+            } catch (IOException ie) {
+              ie.printStackTrace();
             }
           }
         });
