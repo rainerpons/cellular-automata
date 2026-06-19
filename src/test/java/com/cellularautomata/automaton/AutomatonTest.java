@@ -49,9 +49,17 @@ public class AutomatonTest {
   }
 
   /** Asserts that invalid rules throw an exception during initialization. */
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testInitializeVectorMapInvalidRule() {
-    Automaton.initializeVectorMap(256, new Vector("000010000"));
+    int[] invalidRules = {-1, 256};
+    for (int rule : invalidRules) {
+      try {
+        Automaton.initializeVectorMap(rule, new Vector("000010000"));
+        Assert.fail("Expected IllegalArgumentException for rule: " + rule);
+      } catch (IllegalArgumentException expected) {
+        // Expected.
+      }
+    }
   }
 
   /** Asserts that a null seed throws an exception during initialization. */

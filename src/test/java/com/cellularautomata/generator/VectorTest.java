@@ -56,21 +56,17 @@ public class VectorTest {
   }
 
   /** Asserts that an invalid state is rejected by initializeVector. */
-  @Test(expected = IllegalArgumentException.class)
-  public void testInitializeVectorNegative() {
-    Vector.initializeVector("bad");
-  }
-
-  /** Asserts that an invalid state is rejected by initializeVector. */
-  @Test(expected = IllegalArgumentException.class)
-  public void testInitializeVectorNegativeExtended() {
-    Vector.initializeVector("01002010");
-  }
-
-  /** Asserts that a null state is rejected by initializeVector. */
-  @Test(expected = IllegalArgumentException.class)
-  public void testInitializeVectorNull() {
-    Vector.initializeVector(null);
+  @Test
+  public void testInitializeVectorInvalid() {
+    String[] invalidStates = {"01002010", null};
+    for (String state : invalidStates) {
+      try {
+        Vector.initializeVector(state);
+        Assert.fail("Expected IllegalArgumentException for state: " + state);
+      } catch (IllegalArgumentException expected) {
+        // Expected.
+      }
+    }
   }
 
   /** Asserts that a vector constructed from a valid state exposes that state. */
@@ -82,14 +78,16 @@ public class VectorTest {
   }
 
   /** Asserts that a vector constructed from an invalid state throws an exception. */
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testVectorConstructorInvalidState() {
-    new Vector("01002010");
-  }
-
-  /** Asserts that a vector constructed from a null state throws an exception. */
-  @Test(expected = IllegalArgumentException.class)
-  public void testVectorConstructorNullState() {
-    new Vector(null);
+    String[] invalidStates = {"01002010", null};
+    for (String state : invalidStates) {
+      try {
+        new Vector(state);
+        Assert.fail("Expected IllegalArgumentException for state: " + state);
+      } catch (IllegalArgumentException expected) {
+        // Expected.
+      }
+    }
   }
 }

@@ -60,7 +60,8 @@ public final class Vector {
    * Initializes a <code>Vector</code> object given that the state is valid.
    *
    * @param state collection of states for each individual cell
-   * @return state if valid, or null otherwise
+   * @return state if valid
+   * @throws IllegalArgumentException if the state is invalid or null
    */
   public static String initializeVector(String state) {
     if (state == null) {

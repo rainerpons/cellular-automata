@@ -1,5 +1,6 @@
 package com.cellularautomata.automaton;
 
+import com.cellularautomata.generator.ElementaryRule;
 import com.cellularautomata.generator.Generator;
 import com.cellularautomata.generator.Vector;
 import java.util.HashMap;
@@ -31,11 +32,10 @@ public final class Automaton {
    * @param rule local update rule number
    * @param seed initial neighborhood vector
    * @return a map with associated value pairs of generation counts and neighborhood vectors
+   * @throws IllegalArgumentException if the rule is invalid or the seed is null
    */
   public static Map<Integer, Vector> initializeVectorMap(int rule, Vector seed) {
-    if (rule < 0 || rule > 255) {
-      throw new IllegalArgumentException("Invalid rule number: " + rule);
-    }
+    ElementaryRule.validate(rule);
     if (seed == null) {
       throw new IllegalArgumentException("Initial seed cannot be null.");
     }

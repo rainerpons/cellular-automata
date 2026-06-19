@@ -22,11 +22,10 @@ public final class Generator {
    *
    * @param rule local update rule number
    * @return rule as binary string
+   * @throws IllegalArgumentException if the rule is invalid
    */
   public static String generateRule(int rule) {
-    if (rule < 0 || rule > 255) {
-      throw new IllegalArgumentException("Invalid rule number: " + rule);
-    }
+    ElementaryRule.validate(rule);
     String binary = Integer.toBinaryString(rule);
     while (binary.length() < 8) {
       binary = "0".concat(binary);
@@ -102,11 +101,10 @@ public final class Generator {
    * @param rule local update rule number
    * @param current vector to determine the successor
    * @return successive neighborhood vector based on the rule and the seed
+   * @throws IllegalArgumentException if the rule is invalid or the vector is null
    */
   public static Vector generateSuccessor(int rule, Vector current) {
-    if (rule < 0 || rule > 255) {
-      throw new IllegalArgumentException("Invalid rule number: " + rule);
-    }
+    ElementaryRule.validate(rule);
     if (current == null) {
       throw new IllegalArgumentException("Vector cannot be null.");
     }

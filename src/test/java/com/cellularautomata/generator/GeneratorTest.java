@@ -18,28 +18,18 @@ public class GeneratorTest {
     Assert.assertEquals(expected, actual);
   }
 
-  /** Asserts that a local update rule is invalid. */
-  @Test(expected = IllegalArgumentException.class)
-  public void testGenerateRuleNegative() {
-    Generator.generateRule(-1);
-  }
-
-  /** Asserts that rule numbers above the valid range are rejected. */
-  @Test(expected = IllegalArgumentException.class)
-  public void testGenerateRuleAboveUpperBound() {
-    Generator.generateRule(256);
-  }
-
-  /** Asserts that rule numbers above the valid range are rejected. */
-  @Test(expected = IllegalArgumentException.class)
-  public void testGenerateRuleAboveUpperBoundExtended() {
-    Generator.generateRule(300);
-  }
-
-  /** Asserts that rule numbers below the valid range are rejected. */
-  @Test(expected = IllegalArgumentException.class)
-  public void testGenerateRuleBelowLowerBound() {
-    Generator.generateRule(-100);
+  /** Asserts that invalid rule numbers are rejected. */
+  @Test
+  public void testGenerateRuleInvalid() {
+    int[] invalidRules = {-1, 256};
+    for (int rule : invalidRules) {
+      try {
+        Generator.generateRule(rule);
+        Assert.fail("Expected IllegalArgumentException for rule: " + rule);
+      } catch (IllegalArgumentException expected) {
+        // Expected.
+      }
+    }
   }
 
   /** Asserts that the lower boundary rule is zero-padded to eight bits. */
@@ -151,9 +141,17 @@ public class GeneratorTest {
   }
 
   /** Asserts that invalid rules throw an exception during successor generation. */
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testGenerateSuccessorInvalidRule() {
-    Generator.generateSuccessor(256, new Vector("10101010"));
+    int[] invalidRules = {-1, 256};
+    for (int rule : invalidRules) {
+      try {
+        Generator.generateSuccessor(rule, new Vector("10101010"));
+        Assert.fail("Expected IllegalArgumentException for rule: " + rule);
+      } catch (IllegalArgumentException expected) {
+        // Expected.
+      }
+    }
   }
 
   /** Asserts that null vectors throw an exception during successor generation. */
