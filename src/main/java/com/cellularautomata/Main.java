@@ -30,7 +30,8 @@ import javax.swing.JTextField;
 import javax.swing.filechooser.FileSystemView;
 
 /**
- * The <code>Main</code> class is responsible for the logic and the display of the GUI.
+ * The <code>Main</code> class is responsible for the logic and the display of
+ * the GUI.
  *
  * @author Rainer Pons
  */
@@ -54,10 +55,10 @@ public class Main {
     caFrame.setBounds(100, 100, 640, 360);
     caFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     GridBagLayout gridBagLayout = new GridBagLayout();
-    gridBagLayout.columnWidths = new int[] {358, 0, 0};
-    gridBagLayout.rowHeights = new int[] {229, 0, 0};
-    gridBagLayout.columnWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
-    gridBagLayout.rowWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
+    gridBagLayout.columnWidths = new int[] { 358, 0, 0 };
+    gridBagLayout.rowHeights = new int[] { 229, 0, 0 };
+    gridBagLayout.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+    gridBagLayout.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
     caFrame.getContentPane().setLayout(gridBagLayout);
 
     // creates the display panel
@@ -86,10 +87,10 @@ public class Main {
     gbcParametersPanel.gridy = 0;
     caFrame.getContentPane().add(parametersPanel, gbcParametersPanel);
     GridBagLayout gblParametersPanel = new GridBagLayout();
-    gblParametersPanel.columnWidths = new int[] {103, 0, 0};
-    gblParametersPanel.rowHeights = new int[] {31, 45, 48, 50, 0, 0};
-    gblParametersPanel.columnWeights = new double[] {0.0, 1.0, Double.MIN_VALUE};
-    gblParametersPanel.rowWeights = new double[] {1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
+    gblParametersPanel.columnWidths = new int[] { 103, 0, 0 };
+    gblParametersPanel.rowHeights = new int[] { 31, 45, 48, 50, 0, 0 };
+    gblParametersPanel.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
+    gblParametersPanel.rowWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
     parametersPanel.setLayout(gblParametersPanel);
 
     // creates the size label in parameters panel
@@ -168,7 +169,7 @@ public class Main {
     parametersPanel.add(seedLabel, gbcSeedLabel);
 
     // creates the seed combo box in parameters panel
-    String[] seedTypes = {"Uniform", "Sparse", "Alternating"};
+    String[] seedTypes = { "Uniform", "Sparse", "Alternating" };
     final JComboBox<String> seedComboBox = new JComboBox<>(seedTypes);
     GridBagConstraints gbcSeedComboBox = new GridBagConstraints();
     gbcSeedComboBox.fill = GridBagConstraints.HORIZONTAL;
@@ -186,10 +187,10 @@ public class Main {
     gbcCommandsPanel.gridy = 1;
     caFrame.getContentPane().add(commandsPanel, gbcCommandsPanel);
     GridBagLayout gblCommandsPanel = new GridBagLayout();
-    gblCommandsPanel.columnWidths = new int[] {0, 0, 0};
-    gblCommandsPanel.rowHeights = new int[] {0, 0};
-    gblCommandsPanel.columnWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
-    gblCommandsPanel.rowWeights = new double[] {1.0, Double.MIN_VALUE};
+    gblCommandsPanel.columnWidths = new int[] { 0, 0, 0 };
+    gblCommandsPanel.rowHeights = new int[] { 0, 0 };
+    gblCommandsPanel.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+    gblCommandsPanel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
     commandsPanel.setLayout(gblCommandsPanel);
 
     // creates the display button in commands panel
@@ -198,8 +199,9 @@ public class Main {
         new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            rule = Integer.parseInt(ruleTextArea.getText());
-            if (rule > -1 && rule < 256) {
+            String ruleText = ruleTextArea.getText();
+            if (RuleValidator.isValidRule(ruleText)) {
+              rule = Integer.parseInt(ruleText.trim());
               int size = sizeSlider.getValue();
               String seedType = (String) seedComboBox.getSelectedItem();
               seed = null;
@@ -217,7 +219,7 @@ public class Main {
             } else {
               JOptionPane.showMessageDialog(
                   caFrame,
-                  "Rule number should be an integer \nbetween 0 and 255 (inclusive).",
+                  "Rule must be a whole number between 0 and 255.",
                   "Rule Number Error",
                   JOptionPane.ERROR_MESSAGE);
             }
@@ -235,8 +237,7 @@ public class Main {
         new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            JFileChooser fileChooser =
-                new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+            JFileChooser fileChooser = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
             String child = AutomatonImage.getFileName(rule, seed);
             fileChooser.setSelectedFile(new File(child));
             int returnValue = fileChooser.showSaveDialog(null);
