@@ -1,5 +1,6 @@
 package com.cellularautomata;
 
+/** Utility class for validating cellular automaton rules. */
 public class RuleValidator {
 
   /**
