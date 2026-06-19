@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
 
 /**
@@ -47,6 +48,12 @@ public class Main {
 
   /** Initializes every component of the GUI. */
   private void initialize() {
+    try {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    } catch (Exception e) {
+      System.err.println("Could not set native look and feel.");
+    }
+
     // creates the cellular automata frame
     caFrame = new JFrame();
     caFrame.setResizable(false);
