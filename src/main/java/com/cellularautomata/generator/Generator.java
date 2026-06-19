@@ -1,5 +1,6 @@
 package com.cellularautomata.generator;
 
+import com.cellularautomata.automaton.ElementaryRule;
 import java.util.Random;
 
 /**
@@ -104,7 +105,6 @@ public final class Generator {
    * @throws IllegalArgumentException if the rule is invalid or the vector is null
    */
   public static Vector generateSuccessor(int rule, Vector current) {
-    ElementaryRule.validate(rule);
     if (current == null) {
       throw new IllegalArgumentException("Vector cannot be null.");
     }

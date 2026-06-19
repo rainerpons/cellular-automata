@@ -1,6 +1,5 @@
 package com.cellularautomata.automaton;
 
-import com.cellularautomata.generator.ElementaryRule;
 import com.cellularautomata.generator.Generator;
 import com.cellularautomata.generator.Vector;
 import java.util.HashMap;

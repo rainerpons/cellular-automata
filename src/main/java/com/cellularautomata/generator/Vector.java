@@ -14,6 +14,7 @@ public final class Vector {
    * Creates a <code>Vector</code> object from a specified state.
    *
    * @param state collection of states for each individual cell
+   * @throws IllegalArgumentException if the state is invalid or null
    */
   public Vector(String state) {
     this.state = initializeVector(state);

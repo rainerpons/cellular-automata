@@ -1,4 +1,4 @@
-package com.cellularautomata.generator;
+package com.cellularautomata.automaton;
 
 /** Utility class for elementary cellular automaton rule validation. */
 public final class ElementaryRule {
