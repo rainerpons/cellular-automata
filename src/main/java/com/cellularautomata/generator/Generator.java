@@ -24,14 +24,14 @@ public final class Generator {
    * @return rule as binary string
    */
   public static String generateRule(int rule) {
-    if (rule > -1 && rule < 256) {
-      String binary = Integer.toBinaryString(rule);
-      while (binary.length() < 8) {
-        binary = "0".concat(binary);
-      }
-      return binary;
+    if (rule < 0 || rule > 255) {
+      throw new IllegalArgumentException("Invalid rule number: " + rule);
     }
-    return null;
+    String binary = Integer.toBinaryString(rule);
+    while (binary.length() < 8) {
+      binary = "0".concat(binary);
+    }
+    return binary;
   }
 
   /**
@@ -104,40 +104,44 @@ public final class Generator {
    * @return successive neighborhood vector based on the rule and the seed
    */
   public static Vector generateSuccessor(int rule, Vector current) {
+    if (rule < 0 || rule > 255) {
+      throw new IllegalArgumentException("Invalid rule number: " + rule);
+    }
+    if (current == null) {
+      throw new IllegalArgumentException("Vector cannot be null.");
+    }
     String successor = "";
-    if (rule > -1 && rule < 256) {
-      String temp = "0".concat(current.getState()).concat("0");
-      String gen = generateRule(rule);
-      for (int i = 0; i < current.getSize(); i++) {
-        String sub = temp.substring(i, i + 3);
-        switch (sub) {
-          case "111":
-            successor = successor.concat(Character.toString(gen.charAt(0)));
-            break;
-          case "110":
-            successor = successor.concat(Character.toString(gen.charAt(1)));
-            break;
-          case "101":
-            successor = successor.concat(Character.toString(gen.charAt(2)));
-            break;
-          case "100":
-            successor = successor.concat(Character.toString(gen.charAt(3)));
-            break;
-          case "011":
-            successor = successor.concat(Character.toString(gen.charAt(4)));
-            break;
-          case "010":
-            successor = successor.concat(Character.toString(gen.charAt(5)));
-            break;
-          case "001":
-            successor = successor.concat(Character.toString(gen.charAt(6)));
-            break;
-          case "000":
-            successor = successor.concat(Character.toString(gen.charAt(7)));
-            break;
-          default:
-            throw new IllegalStateException();
-        }
+    String temp = "0".concat(current.getState()).concat("0");
+    String gen = generateRule(rule);
+    for (int i = 0; i < current.getSize(); i++) {
+      String sub = temp.substring(i, i + 3);
+      switch (sub) {
+        case "111":
+          successor = successor.concat(Character.toString(gen.charAt(0)));
+          break;
+        case "110":
+          successor = successor.concat(Character.toString(gen.charAt(1)));
+          break;
+        case "101":
+          successor = successor.concat(Character.toString(gen.charAt(2)));
+          break;
+        case "100":
+          successor = successor.concat(Character.toString(gen.charAt(3)));
+          break;
+        case "011":
+          successor = successor.concat(Character.toString(gen.charAt(4)));
+          break;
+        case "010":
+          successor = successor.concat(Character.toString(gen.charAt(5)));
+          break;
+        case "001":
+          successor = successor.concat(Character.toString(gen.charAt(6)));
+          break;
+        case "000":
+          successor = successor.concat(Character.toString(gen.charAt(7)));
+          break;
+        default:
+          throw new IllegalStateException();
       }
     }
     return new Vector(successor);

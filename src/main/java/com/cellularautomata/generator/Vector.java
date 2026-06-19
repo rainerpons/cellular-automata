@@ -6,7 +6,7 @@ package com.cellularautomata.generator;
  *
  * @author Rainer Pons
  */
-public class Vector {
+public final class Vector {
   /** Stores a binary string representing the current state of an entire neighborhood vector. */
   private String state;
 
@@ -44,6 +44,9 @@ public class Vector {
    * @return true if <code>state</code> has only ones and zeroes, or false otherwise
    */
   public static boolean isValid(String state) {
+    if (state == null) {
+      return false;
+    }
     for (int i = 0; i < state.length(); i++) {
       String s = Character.toString(state.charAt(i));
       if (!"0".equals(s) && !"1".equals(s)) {
@@ -60,6 +63,12 @@ public class Vector {
    * @return state if valid, or null otherwise
    */
   public static String initializeVector(String state) {
-    return isValid(state) ? state : null;
+    if (state == null) {
+      throw new IllegalArgumentException("State string cannot be null.");
+    }
+    if (!isValid(state)) {
+      throw new IllegalArgumentException("Invalid state string.");
+    }
+    return state;
   }
 }

@@ -11,7 +11,7 @@ import java.util.Map;
  *
  * @author Rainer Pons
  */
-public class Automaton {
+public final class Automaton {
   /** Creates a map which associates the generation count of a vector with the vector itself. */
   private Map<Integer, Vector> map;
 
@@ -33,20 +33,23 @@ public class Automaton {
    * @return a map with associated value pairs of generation counts and neighborhood vectors
    */
   public static Map<Integer, Vector> initializeVectorMap(int rule, Vector seed) {
-    if (rule > -1 && rule < 256 && seed != null) {
-      Map<Integer, Vector> map = new HashMap<>();
-      Vector successor = Generator.generateSuccessor(rule, seed);
-      int generation = 0;
-
-      map.put(generation, seed);
-      while (generation < seed.getSize() - 1) {
-        generation++;
-        map.put(generation, successor);
-        successor = Generator.generateSuccessor(rule, successor);
-      }
-      return map;
+    if (rule < 0 || rule > 255) {
+      throw new IllegalArgumentException("Invalid rule number: " + rule);
     }
-    return null;
+    if (seed == null) {
+      throw new IllegalArgumentException("Initial seed cannot be null.");
+    }
+    Map<Integer, Vector> map = new HashMap<>();
+    Vector successor = Generator.generateSuccessor(rule, seed);
+    int generation = 0;
+
+    map.put(generation, seed);
+    while (generation < seed.getSize() - 1) {
+      generation++;
+      map.put(generation, successor);
+      successor = Generator.generateSuccessor(rule, successor);
+    }
+    return map;
   }
 
   /** Outputs the generation count of neighborhood vectors and the vectors themselves as text. */
