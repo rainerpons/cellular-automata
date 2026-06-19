@@ -327,9 +327,9 @@ nav {
 
 .rule-badge {
   position: absolute;
-  top: clamp(0.5rem, 3%, 1rem);
-  left: clamp(0.5rem, 3%, 1rem);
-  padding: clamp(0.2rem, 1vw, 0.3rem) clamp(0.4rem, 1.5vw, 0.6rem);
+  top: clamp(0.75rem, 4%, 1.25rem);
+  left: clamp(0.75rem, 4%, 1.25rem);
+  padding: clamp(0.3rem, 1vw, 0.4rem) clamp(0.6rem, 1.5vw, 0.8rem);
   font-size: clamp(0.55rem, 1.5vw, 0.75rem);
   color: var(--bg-color);
   background-color: var(--accent-color);
