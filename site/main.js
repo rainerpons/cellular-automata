@@ -1,55 +1,47 @@
-function createMetadataElement(metadata) {
-  if (!metadata || !metadata.value) return null;
+document.addEventListener('DOMContentLoaded', async () => {
+  const osList = ['macos', 'windows', 'linux'];
 
-  const p = document.createElement('p');
-  p.textContent = metadata.label + ': ';
-
-  const el = document.createElement(metadata.elementType);
-  el.id = metadata.id;
-  if (metadata.isLink) {
-    el.href = metadata.value;
-    el.textContent = 'Download';
-  } else {
-    el.textContent = metadata.value;
+  let response;
+  try {
+    response = await fetch('release.json', { cache: 'no-store' });
+  } catch (error) {
+    console.warn('Could not fetch release metadata:', error);
+    return;
   }
 
-  p.appendChild(el);
-  return p;
-}
+  if (!response.ok) {
+    return;
+  }
 
-function appendMetadataElement(container, metadata) {
-  const element = createMetadataElement(metadata);
-  if (!element) return;
+  let data;
+  try {
+    data = await response.json();
+  } catch (error) {
+    console.warn('Could not parse release metadata:', error);
+    return;
+  }
 
-  container.appendChild(element);
-}
+  if (!data?.release?.version || !data?.downloads) {
+    return;
+  }
 
-fetch('release.json')
-  .then(function (r) { return r.json(); })
-  .then(function (data) {
-    const container = document.getElementById('release-metadata');
-    if (!container || !data) return;
-
-    console.log('Loaded release metadata:', data);
-
-    const appName = data.app && data.app.name ? data.app.name : null;
-    const version = data.release && data.release.version ? data.release.version : null;
-    const commit = data.release && data.release.commit ? data.release.commit : null;
-    const downloads = data.downloads || {};
-
-    const elementsToRender = [
-      { label: 'App', id: 'app-name', value: appName, elementType: 'span' },
-      { label: 'Version', id: 'version', value: version, elementType: 'span' },
-      { label: 'Commit', id: 'commit', value: commit, elementType: 'code' },
-      { label: 'macOS', id: 'download-macos', value: downloads.macos, elementType: 'a', isLink: true },
-      { label: 'Windows', id: 'download-windows', value: downloads.windows, elementType: 'a', isLink: true },
-      { label: 'Linux', id: 'download-linux', value: downloads.linux, elementType: 'a', isLink: true }
-    ];
-
-    elementsToRender.forEach(function (item) {
-      appendMetadataElement(container, item);
-    });
-  })
-  .catch(function () {
-    // If release.json fails to load, do not render anything.
+  const appName = data.app?.name || 'Cellular Automata';
+  const appNameElements = document.querySelectorAll('.app-name-label');
+  appNameElements.forEach(el => {
+    el.textContent = appName;
   });
+
+  const version = data.release.version;
+
+  osList.forEach(os => {
+    const btn = document.getElementById(`btn-${os}`);
+    const versionSpan = document.getElementById(`version-${os}`);
+    const downloadUrl = data.downloads[os];
+
+    if (btn && versionSpan && downloadUrl) {
+      btn.href = downloadUrl;
+      versionSpan.textContent = version;
+      versionSpan.removeAttribute('hidden');
+    }
+  });
+});

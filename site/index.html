@@ -1,13 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cellular Automata</title>
-  </head>
-  <body>
-    <h1>Cellular Automata</h1>
-    <div id="release-metadata"></div>
-    <script src="main.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cellular Automata</title>
+  <link rel="icon" href="assets/cellular-automata-icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="bg-grid"></div>
+  <div class="container">
+    <nav>
+      <div class="nav-brand">
+        <a href="./" aria-label="Home"><img src="assets/cellular-automata-icon.svg" alt="Cellular Automata Logo"></a>
+        <a href="./" class="nav-brand-text"><span id="app-name" class="app-name-label">Cellular Automata</span></a>
+      </div>
+      <a href="https://github.com/rainerpons/cellular-automata" class="nav-github-link" target="_blank"
+        rel="noopener noreferrer" aria-label="GitHub">
+        <span class="icon icon-github"></span>
+      </a>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Patterns emerge from <span class="highlight">simplicity.</span></h1>
+          <p class="subtext">A modern, interactive playground for cellular automata. Create, simulate, and discover
+            complex behaviors from simple rules.</p>
+          <div class="downloads">
+            <a href="https://github.com/rainerpons/cellular-automata/releases/latest" class="download-btn"
+              id="btn-macos">
+              <div class="btn-top-row">
+                <svg class="btn-icon" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                </svg>
+                <div class="btn-text">
+                  <span class="btn-title">Download for</span>
+                  <span class="btn-os">macOS</span>
+                </div>
+              </div>
+              <span class="btn-version" id="version-macos" hidden></span>
+            </a>
+
+            <a href="https://github.com/rainerpons/cellular-automata/releases/latest" class="download-btn"
+              id="btn-windows">
+              <div class="btn-top-row">
+                <svg class="btn-icon" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.9zm0-380.6v180.1H448V32L203.8 65.7z" />
+                </svg>
+                <div class="btn-text">
+                  <span class="btn-title">Download for</span>
+                  <span class="btn-os">Windows</span>
+                </div>
+              </div>
+              <span class="btn-version" id="version-windows" hidden></span>
+            </a>
+
+            <a href="https://github.com/rainerpons/cellular-automata/releases/latest" class="download-btn"
+              id="btn-linux">
+              <div class="btn-top-row">
+                <svg class="btn-icon" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M220.8 123.3c1.1 0 2.3 0 3.5-.1 1.1.1 2.3.1 3.5.1 48.4 0 94.6-22.1 120.4-58.8C377 24.1 384 10.4 384 0v4.6c0 51.5-27 96.6-67.1 121.7 48.7 13.9 83.2 59.5 83.2 113.8v22.8c0 14.5-5.9 28.5-16.3 38.6l-50 48.8c-23.3 22.8-55 35.6-88 35.6H202c-33 0-64.7-12.8-88-35.6l-50-48.8c-10.4-10.1-16.3-24.1-16.3-38.6v-22.8c0-54.3 34.5-99.9 83.2-113.8-40.1-25.1-67.1-70.2-67.1-121.7V0c0 10.4 7 24.1 35.8 64.5 25.8 36.7 72 58.8 120.4 58.8z" />
+                </svg>
+                <div class="btn-text">
+                  <span class="btn-title">Download for</span>
+                  <span class="btn-os">Linux</span>
+                </div>
+              </div>
+              <span class="btn-version" id="version-linux" hidden></span>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-graphic">
+          <img src="assets/sierpinski-triangle.svg" alt="Sierpinski Triangle Glow Graphic" aria-hidden="true" />
+        </div>
+      </section>
+
+      <section class="gallery">
+        <h2>SEE IT IN ACTION</h2>
+        <p class="subtext">Create endless visualizations through custom rules.</p>
+        <div class="gallery-grid">
+          <div class="gallery-item">
+            <div class="gallery-image">
+              <img src="assets/gallery-rule-30.png" alt="Rule 30">
+              <span class="rule-badge">Rule 30</span>
+            </div>
+            <h3>Chaos and Natural Patterns</h3>
+            <p>Produces chaotic patterns resembling those found on some seashells. It has even been used for
+              pseudorandom number generation.</p>
+          </div>
+          <div class="gallery-item">
+            <div class="gallery-image">
+              <img src="assets/gallery-rule-90.png" alt="Rule 90">
+              <span class="rule-badge">Rule 90</span>
+            </div>
+            <h3>Emergent Fractals</h3>
+            <p>Produces fractals, including the famous Sierpinski triangle (pictured above). It shows how complex
+              patterns can emerge from simple rules.</p>
+          </div>
+          <div class="gallery-item">
+            <div class="gallery-image">
+              <img src="assets/gallery-rule-110.png" alt="Rule 110">
+              <span class="rule-badge">Rule 110</span>
+            </div>
+            <h3>Universal Computation</h3>
+            <p>Produces intricate, interacting structures and is one of the most studied cellular automata. It is Turing
+              complete.</p>
+          </div>
+          <div class="gallery-item">
+            <div class="gallery-image">
+              <img src="assets/gallery-rule-54.png" alt="Rule 54">
+              <span class="rule-badge">Rule 54</span>
+            </div>
+            <h3>Moving Forms</h3>
+            <p>Produces "gliders", moving forms that drift and interact in surprisingly coordinated ways. Their
+              interactions lead to intricate motion.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-brand">
+            <img src="assets/cellular-automata-icon.svg" alt="">
+            <span class="app-name-label">Cellular Automata</span>
+          </div>
+          <p>Open-source cellular automata simulator. Built with Java.</p>
+          <a href="https://github.com/rainerpons/cellular-automata" class="footer-github-link" target="_blank"
+            rel="noopener noreferrer">
+            <span class="icon icon-github"></span>
+            <span>Open source on GitHub</span>
+          </a>
+        </div>
+
+        <div class="footer-col">
+          <h3>RESOURCES</h3>
+          <div class="footer-links">
+            <a href="https://github.com/rainerpons/cellular-automata/blob/main/README.md" target="_blank"
+              rel="noopener noreferrer">
+              <span>README</span>
+              <span class="icon icon-external"></span>
+            </a>
+            <a href="https://github.com/rainerpons/cellular-automata" target="_blank" rel="noopener noreferrer">
+              <span>Repository</span>
+              <span class="icon icon-external"></span>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h3>CONNECT</h3>
+          <div class="footer-links">
+            <a href="https://github.com/rainerpons" target="_blank" rel="noopener noreferrer">
+              <span>GitHub</span>
+              <span class="icon icon-external"></span>
+            </a>
+            <a href="https://linkedin.com/in/rainerpons" target="_blank" rel="noopener noreferrer">
+              <span>LinkedIn</span>
+              <span class="icon icon-external"></span>
+            </a>
+            <a href="mailto:rainerpons11@gmail.com">
+              <span>Email</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script src="main.js"></script>
+</body>
+
 </html>
