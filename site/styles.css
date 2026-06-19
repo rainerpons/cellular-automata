@@ -320,6 +320,26 @@ nav {
   font-size: 0.875rem;
 }
 
+.gallery-image {
+  position: relative;
+  width: 100%;
+}
+
+.rule-badge {
+  position: absolute;
+  top: clamp(0.5rem, 3%, 1rem);
+  left: clamp(0.5rem, 3%, 1rem);
+  padding: clamp(0.25rem, 1.5vw, 0.4rem) clamp(0.5rem, 2.5vw, 1rem);
+  font-size: clamp(0.65rem, 2.5vw, 0.875rem);
+  letter-spacing: clamp(1px, 0.5vw, 2px);
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  background-color: rgba(17, 19, 21, 0.85);
+  border-radius: 9999px;
+  line-height: 1;
+  pointer-events: none;
+}
+
 /* Footer */
 footer {
   border-top: 1px solid var(--border-color);
