@@ -1,9 +1,12 @@
-package com.cellularautomata.automaton;
+package com.cellularautomata.image;
 
-import com.cellularautomata.generator.Vector;
+import com.cellularautomata.engine.Vector;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 /**
@@ -67,5 +70,19 @@ public class AutomatonImage extends JPanel {
    */
   public static String getFileName(int rule, Vector seed) {
     return "rule" + rule + "_seed" + seed.getState() + ".jpg";
+  }
+
+  /**
+   * Saves the provided image to the specified file.
+   *
+   * @param image the image to save
+   * @param file the destination file
+   * @throws IOException if an error occurs during writing
+   */
+  public static void saveImage(BufferedImage image, File file) throws IOException {
+    if (!file.createNewFile()) {
+      System.err.println("Warning: file already exists, overwriting: " + file.getPath());
+    }
+    ImageIO.write(image, "JPG", file);
   }
 }

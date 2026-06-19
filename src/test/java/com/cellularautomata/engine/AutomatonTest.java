@@ -1,6 +1,5 @@
-package com.cellularautomata.automaton;
+package com.cellularautomata.engine;
 
-import com.cellularautomata.generator.Vector;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;

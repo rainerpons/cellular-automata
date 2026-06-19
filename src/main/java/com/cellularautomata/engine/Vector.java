@@ -1,4 +1,4 @@
-package com.cellularautomata.generator;
+package com.cellularautomata.engine;
 
 /**
  * The <code>Vector</code> class represents a neighborhood vector of cells for an elementary

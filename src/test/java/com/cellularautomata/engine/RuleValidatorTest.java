@@ -1,4 +1,4 @@
-package com.cellularautomata;
+package com.cellularautomata.engine;
 
 import java.util.OptionalInt;
 import org.junit.Assert;
