@@ -1,62 +1,30 @@
 package com.cellularautomata;
 
+import java.util.OptionalInt;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class RuleValidatorTest {
 
   @Test
-  public void testValidLowerBound() {
-    Assert.assertTrue(RuleValidator.isValidRule("0"));
+  public void testValidInputs() {
+    String[] validInputs = {"0", "255", " 30 "};
+    int[] expectedOutputs = {0, 255, 30};
+
+    for (int i = 0; i < validInputs.length; i++) {
+      OptionalInt result = RuleValidator.parseRule(validInputs[i]);
+      Assert.assertTrue("Should be valid: " + validInputs[i], result.isPresent());
+      Assert.assertEquals(expectedOutputs[i], result.getAsInt());
+    }
   }
 
   @Test
-  public void testValidUpperBound() {
-    Assert.assertTrue(RuleValidator.isValidRule("255"));
-  }
+  public void testInvalidInputs() {
+    String[] invalidInputs = {"abc", "12.5", "-1", "256", "2150000000", "", null};
 
-  @Test
-  public void testValidMiddle() {
-    Assert.assertTrue(RuleValidator.isValidRule("128"));
-  }
-
-  @Test
-  public void testValidWithWhitespace() {
-    Assert.assertTrue(RuleValidator.isValidRule("  30  "));
-  }
-
-  @Test
-  public void testNonNumericInput() {
-    Assert.assertFalse(RuleValidator.isValidRule("abc"));
-  }
-
-  @Test
-  public void testDecimalInput() {
-    Assert.assertFalse(RuleValidator.isValidRule("12.5"));
-  }
-
-  @Test
-  public void testBelowRangeInput() {
-    Assert.assertFalse(RuleValidator.isValidRule("-1"));
-  }
-
-  @Test
-  public void testAboveRangeInput() {
-    Assert.assertFalse(RuleValidator.isValidRule("256"));
-  }
-
-  @Test
-  public void testLargeNumericInput() {
-    Assert.assertFalse(RuleValidator.isValidRule("2150000000"));
-  }
-
-  @Test
-  public void testEmptyInput() {
-    Assert.assertFalse(RuleValidator.isValidRule(""));
-  }
-
-  @Test
-  public void testNullInput() {
-    Assert.assertFalse(RuleValidator.isValidRule(null));
+    for (String input : invalidInputs) {
+      OptionalInt result = RuleValidator.parseRule(input);
+      Assert.assertFalse("Should be invalid: " + input, result.isPresent());
+    }
   }
 }

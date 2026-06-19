@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.OptionalInt;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -204,8 +205,9 @@ public class Main {
     displayButton.addActionListener(
         e -> {
           String ruleText = ruleTextArea.getText();
-          if (RuleValidator.isValidRule(ruleText)) {
-            rule = Integer.parseInt(ruleText.trim());
+          OptionalInt parsedRule = RuleValidator.parseRule(ruleText);
+          if (parsedRule.isPresent()) {
+            rule = parsedRule.getAsInt();
             int size = sizeSlider.getValue();
             String seedType = (String) seedComboBox.getSelectedItem();
             seed = null;
