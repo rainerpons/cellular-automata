@@ -5,6 +5,7 @@ import com.cellularautomata.engine.AutomataResult;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -61,7 +62,7 @@ public class MainFrame {
 
     // creates the display panel
     JPanel displayPanel = new JPanel();
-    displayPanel.setLayout(new java.awt.BorderLayout());
+    displayPanel.setLayout(new BorderLayout());
     displayPanel.setBorder(BorderFactory.createTitledBorder("Display"));
     displayPanel.setToolTipText("");
     GridBagConstraints gbcDisplayPanel = new GridBagConstraints();
@@ -75,9 +76,11 @@ public class MainFrame {
     // creates the automaton label in display panel
     final JLabel automatonLabel =
         new JLabel(
-            "<html><center>Click Display to generate an automaton.<br><br><font color='gray'>Adjust size, rule, or seed type.</font></center></html>");
+            "<html><center>Click Display to generate an automaton.<br><br>"
+                + "<font color='gray'>Adjust size, rule, or seed type first.</font>"
+                + "</center></html>");
     automatonLabel.setHorizontalAlignment(JLabel.CENTER);
-    displayPanel.add(automatonLabel, java.awt.BorderLayout.CENTER);
+    displayPanel.add(automatonLabel, BorderLayout.CENTER);
 
     // creates the parameters panel
     JPanel parametersPanel = new JPanel();
