@@ -111,4 +111,5 @@ jobs:
       run: mvn package -DskipTests
 
     - name: Verify JAR Manifest Main-Class
-      run: unzip -p target/cellular-automata-*.jar META-INF/MANIFEST.MF | grep "Main-Class: com.cellularautomata.app.Main"
+      run: |
+        unzip -p target/cellular-automata-*.jar META-INF/MANIFEST.MF | grep "Main-Class: com.cellularautomata.app.Main"
