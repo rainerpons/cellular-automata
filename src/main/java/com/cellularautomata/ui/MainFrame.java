@@ -87,14 +87,17 @@ public class MainFrame {
       showRuleError();
       return;
     }
+
     rule = parsedRule.getAsInt();
     AutomataResult result =
         AutomataEngine.generate(
             rule, parametersPanel.getSizeValue(), parametersPanel.getSeedType());
     seed = result.getOriginalSeed();
+
     BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
     // Empirically scaled from 280x280 to 400x400 for an 800x500 window
     resizedAutomatonImage = AutomatonImage.resizeImage(400, 400, automatonImage);
+
     displayPanel.setAutomatonImage(new ImageIcon(resizedAutomatonImage));
     commandsPanel.setSaveEnabled(true);
   }
@@ -104,12 +107,14 @@ public class MainFrame {
         new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
     fileChooser.setSelectedFile(new File(AutomatonImage.getFileName(rule, seed)));
     int returnValue = fileChooser.showSaveDialog(null);
-    if (returnValue == JFileChooser.APPROVE_OPTION) {
-      try {
-        AutomatonImage.saveImage(resizedAutomatonImage, fileChooser.getSelectedFile());
-      } catch (IOException ie) {
-        ie.printStackTrace();
-      }
+    if (returnValue != JFileChooser.APPROVE_OPTION) {
+      return;
+    }
+
+    try {
+      AutomatonImage.saveImage(resizedAutomatonImage, fileChooser.getSelectedFile());
+    } catch (IOException ie) {
+      ie.printStackTrace();
     }
   }
 
