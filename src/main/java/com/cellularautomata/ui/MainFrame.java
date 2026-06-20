@@ -61,7 +61,7 @@ public class MainFrame {
     caFrame.getContentPane().setLayout(gridBagLayout);
 
     // creates the display panel
-    JPanel displayPanel = new JPanel();
+    final JPanel displayPanel = new JPanel();
     displayPanel.setLayout(new BorderLayout());
     displayPanel.setToolTipText("");
     GridBagConstraints gbcDisplayPanel = new GridBagConstraints();
@@ -87,7 +87,7 @@ public class MainFrame {
     displayPanel.add(automatonLabel, BorderLayout.CENTER);
 
     // creates the parameters panel
-    JPanel parametersPanel = new JPanel();
+    final JPanel parametersPanel = new JPanel();
     GridBagConstraints gbcParametersPanel = new GridBagConstraints();
     gbcParametersPanel.insets = new Insets(20, 10, 5, 20);
     gbcParametersPanel.fill = GridBagConstraints.BOTH;
@@ -176,7 +176,7 @@ public class MainFrame {
     parametersPanel.add(seedComboBox, gbcSeedComboBox);
 
     // creates the commands panel
-    JPanel commandsPanel = new JPanel();
+    final JPanel commandsPanel = new JPanel();
     GridBagConstraints gbcCommandsPanel = new GridBagConstraints();
     gbcCommandsPanel.insets = new Insets(5, 10, 20, 20);
     gbcCommandsPanel.fill = GridBagConstraints.BOTH;
