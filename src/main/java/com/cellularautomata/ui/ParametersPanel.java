@@ -55,7 +55,7 @@ class ParametersPanel extends JPanel {
     add(new JLabel("Rule number"), gbcRuleLabel);
 
     ruleTextArea = new JTextField("30");
-    ruleTextArea.putClientProperty("JComponent.sizeVariant", UiStyles.CONTROL_SIZE_VARIANT);
+    UiStyles.applyControlHeight(ruleTextArea);
     GridBagConstraints gbcRuleTextArea = new GridBagConstraints();
     gbcRuleTextArea.fill = GridBagConstraints.HORIZONTAL;
     gbcRuleTextArea.weightx = 1.0;
@@ -73,7 +73,7 @@ class ParametersPanel extends JPanel {
 
     String[] seedTypes = {"Uniform", "Sparse", "Alternating"};
     seedComboBox = new JComboBox<>(seedTypes);
-    seedComboBox.putClientProperty("JComponent.sizeVariant", UiStyles.CONTROL_SIZE_VARIANT);
+    UiStyles.applyControlHeight(seedComboBox);
     GridBagConstraints gbcSeedComboBox = new GridBagConstraints();
     gbcSeedComboBox.fill = GridBagConstraints.HORIZONTAL;
     gbcSeedComboBox.weightx = 1.0;

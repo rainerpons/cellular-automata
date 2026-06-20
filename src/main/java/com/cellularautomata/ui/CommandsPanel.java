@@ -25,7 +25,7 @@ class CommandsPanel extends JPanel {
     add(commandsHeading, gbcCommandsHeading);
 
     displayButton = new JButton("Generate automaton");
-    displayButton.putClientProperty("JComponent.sizeVariant", UiStyles.CONTROL_SIZE_VARIANT);
+    UiStyles.applyControlHeight(displayButton);
     GridBagConstraints gbcDisplayButton = new GridBagConstraints();
     gbcDisplayButton.anchor = GridBagConstraints.WEST;
     gbcDisplayButton.insets = new Insets(0, 0, 0, UiStyles.BUTTON_GAP_X);
@@ -34,7 +34,7 @@ class CommandsPanel extends JPanel {
     add(displayButton, gbcDisplayButton);
 
     saveButton = new JButton("Save image");
-    saveButton.putClientProperty("JComponent.sizeVariant", UiStyles.CONTROL_SIZE_VARIANT);
+    UiStyles.applyControlHeight(saveButton);
     saveButton.setEnabled(false);
     GridBagConstraints gbcSaveButton = new GridBagConstraints();
     gbcSaveButton.anchor = GridBagConstraints.EAST;

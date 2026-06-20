@@ -18,14 +18,15 @@ class SidebarPanel extends JPanel {
             UiStyles.SIDEBAR_PADDING_RIGHT));
 
     add(parametersPanel);
-    add(Box.createVerticalStrut(UiStyles.SECTION_SEPARATOR_GAP));
+    add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_GAP)));
 
     JSeparator separator = new JSeparator();
     separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
     add(separator);
 
-    add(Box.createVerticalStrut(UiStyles.SECTION_SEPARATOR_GAP));
+    add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_GAP)));
     add(commandsPanel);
-    add(Box.createVerticalGlue()); // Push everything up
+    add(Box.createVerticalGlue());
+    // Consume remaining sidebar height so Parameters and Commands stay grouped near the top.
   }
 }
