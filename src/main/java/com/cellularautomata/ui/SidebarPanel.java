@@ -8,10 +8,8 @@ import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 
 /**
- * The right column of the application window. Stacks {@link ParametersPanel}
- * and {@link
- * CommandsPanel} vertically with a separator between them and owns the sidebar
- * padding and
+ * The right column of the application window. Stacks {@link ParametersPanel} and {@link
+ * CommandsPanel} vertically with a separator between them and owns the sidebar padding and
  * alignment contract.
  */
 class SidebarPanel extends JPanel {
