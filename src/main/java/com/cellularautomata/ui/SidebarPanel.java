@@ -8,8 +8,10 @@ import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 
 /**
- * The right column of the application window. Stacks {@link ParametersPanel} and {@link
- * CommandsPanel} vertically with a separator between them and owns the sidebar padding and
+ * The right column of the application window. Stacks {@link ParametersPanel}
+ * and {@link
+ * CommandsPanel} vertically with a separator between them and owns the sidebar
+ * padding and
  * alignment contract.
  */
 class SidebarPanel extends JPanel {
@@ -33,7 +35,7 @@ class SidebarPanel extends JPanel {
 
     add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_GAP)));
     add(commandsPanel);
+    // Consume remaining sidebar height so sidebar sections stay grouped at the top
     add(Box.createVerticalGlue());
-    // Consume remaining sidebar height so Parameters and Commands stay grouped near the top.
   }
 }
