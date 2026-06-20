@@ -5,6 +5,7 @@ import com.cellularautomata.engine.AutomataResult;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -61,6 +62,7 @@ public class MainFrame {
 
     // creates the display panel
     JPanel displayPanel = new JPanel();
+    displayPanel.setLayout(new BorderLayout());
     displayPanel.setBorder(BorderFactory.createTitledBorder("Display"));
     displayPanel.setToolTipText("");
     GridBagConstraints gbcDisplayPanel = new GridBagConstraints();
@@ -72,8 +74,13 @@ public class MainFrame {
     caFrame.getContentPane().add(displayPanel, gbcDisplayPanel);
 
     // creates the automaton label in display panel
-    final JLabel automatonLabel = new JLabel();
-    displayPanel.add(automatonLabel);
+    final JLabel automatonLabel =
+        new JLabel(
+            "<html><center>Click Display to generate an automaton.<br><br>"
+                + "<font color='gray'>Adjust size, rule, or seed type first.</font>"
+                + "</center></html>");
+    automatonLabel.setHorizontalAlignment(JLabel.CENTER);
+    displayPanel.add(automatonLabel, BorderLayout.CENTER);
 
     // creates the parameters panel
     JPanel parametersPanel = new JPanel();
@@ -193,7 +200,8 @@ public class MainFrame {
 
     // creates the save button in commands panel
     final JButton saveButton = new JButton("Save");
-    // TODO: Centralize UI state management once presentation and application concerns are
+    // TODO: Centralize UI state management once presentation and application
+    // concerns are
     // separated.
     saveButton.setEnabled(false);
 
@@ -212,6 +220,7 @@ public class MainFrame {
             seed = result.getOriginalSeed(); // retain seed for filename creation during save
             BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
             resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
+            automatonLabel.setText(null);
             automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
             saveButton.setEnabled(true);
           } else {
