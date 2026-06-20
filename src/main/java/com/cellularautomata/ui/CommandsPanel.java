@@ -51,6 +51,12 @@ class CommandsPanel extends JPanel {
     add(saveButton, gbcSaveButton);
   }
 
+  @Override
+  public java.awt.Dimension getMaximumSize() {
+    // Prevent BoxLayout from stretching this panel beyond its natural height.
+    return new java.awt.Dimension(Integer.MAX_VALUE, getPreferredSize().height);
+  }
+
   void addGenerateListener(ActionListener listener) {
     displayButton.addActionListener(listener);
   }

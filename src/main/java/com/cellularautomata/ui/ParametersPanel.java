@@ -31,6 +31,12 @@ class ParametersPanel extends JPanel {
     addSeedControls();
   }
 
+  @Override
+  public java.awt.Dimension getMaximumSize() {
+    // Prevent BoxLayout from stretching this panel beyond its natural height.
+    return new java.awt.Dimension(Integer.MAX_VALUE, getPreferredSize().height);
+  }
+
   int getSizeValue() {
     return sizeSlider.getValue();
   }

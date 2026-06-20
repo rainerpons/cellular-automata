@@ -6,6 +6,7 @@ import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
 import com.formdev.flatlaf.FlatDarkLaf;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -17,6 +18,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
 
 /**
@@ -36,11 +38,15 @@ public class MainFrame {
 
   /** Initializes every component of the GUI. */
   public MainFrame() {
+    UiFonts.registerBundledFonts();
+
     try {
       FlatDarkLaf.setup();
     } catch (Exception e) {
       System.err.println("Could not set FlatDarkLaf look and feel.");
     }
+
+    applyGlobalFont();
 
     caFrame = new JFrame();
     caFrame.setResizable(false);
@@ -74,6 +80,22 @@ public class MainFrame {
     caFrame.getContentPane().add(sidebarPanel, gbcSidebarPanel);
 
     setupActionListeners();
+  }
+
+  private static void applyGlobalFont() {
+    Font plexSans = new Font(UiFonts.IBM_PLEX_SANS, Font.PLAIN, 13);
+    // Only apply if the font was successfully registered; fall back to FlatLaf default otherwise.
+    if (!plexSans.getFamily().equals(UiFonts.IBM_PLEX_SANS)) {
+      return;
+    }
+    String[] uiKeys = {
+      "Button.font", "Label.font", "ComboBox.font", "TextField.font",
+      "Slider.font", "Panel.font", "OptionPane.font", "OptionPane.buttonFont",
+      "OptionPane.messageFont", "TitledBorder.font"
+    };
+    for (String key : uiKeys) {
+      UIManager.put(key, plexSans);
+    }
   }
 
   private void setupActionListeners() {

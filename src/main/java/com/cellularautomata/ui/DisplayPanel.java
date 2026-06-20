@@ -41,7 +41,10 @@ class DisplayPanel extends JPanel {
     innerContainer.add(automatonLabel);
 
     GridBagConstraints gbc = new GridBagConstraints();
-    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.anchor = GridBagConstraints.NORTHWEST;
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.weightx = 1.0;
+    gbc.weighty = 1.0;
     add(innerContainer, gbc);
   }
 
