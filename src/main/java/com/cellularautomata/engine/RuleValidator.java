@@ -1,4 +1,4 @@
-package com.cellularautomata;
+package com.cellularautomata.engine;
 
 import java.util.OptionalInt;
 
@@ -6,7 +6,7 @@ import java.util.OptionalInt;
 public final class RuleValidator {
 
   private RuleValidator() {
-    // Utility class should not be instantiated
+    throw new IllegalStateException("Utility class");
   }
 
   /**

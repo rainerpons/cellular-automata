@@ -1,4 +1,4 @@
-package com.cellularautomata.automaton;
+package com.cellularautomata.engine;
 
 /** Utility class for elementary cellular automaton rule validation. */
 public final class ElementaryRule {

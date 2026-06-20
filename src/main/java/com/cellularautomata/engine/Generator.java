@@ -1,6 +1,5 @@
-package com.cellularautomata.generator;
+package com.cellularautomata.engine;
 
-import com.cellularautomata.automaton.ElementaryRule;
 import java.util.Random;
 
 /**

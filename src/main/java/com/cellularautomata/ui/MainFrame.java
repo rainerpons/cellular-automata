@@ -1,10 +1,10 @@
-package com.cellularautomata;
+package com.cellularautomata.ui;
 
-import com.cellularautomata.automaton.Automaton;
-import com.cellularautomata.automaton.AutomatonImage;
-import com.cellularautomata.generator.Generator;
-import com.cellularautomata.generator.Vector;
-import java.awt.EventQueue;
+import com.cellularautomata.engine.AutomataEngine;
+import com.cellularautomata.engine.AutomataResult;
+import com.cellularautomata.engine.RuleValidator;
+import com.cellularautomata.engine.Vector;
+import com.cellularautomata.image.AutomatonImage;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -13,9 +13,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import java.util.OptionalInt;
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -31,23 +29,17 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
 
 /**
- * The <code>Main</code> class is responsible for the logic and the display of the GUI.
- *
- * @author Rainer Pons
+ * The <code>MainFrame</code> class owns Swing UI setup and event wiring, while delegating
+ * generation and image work.
  */
-public class Main {
+public class MainFrame {
   private BufferedImage resizedAutomatonImage;
   private JFrame caFrame;
   private Vector seed;
   private int rule;
 
-  /** Launches the application. */
-  public Main() {
-    initialize();
-  }
-
   /** Initializes every component of the GUI. */
-  private void initialize() {
+  public MainFrame() {
     try {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     } catch (Exception e) {
@@ -215,16 +207,10 @@ public class Main {
             rule = parsedRule.getAsInt();
             int size = sizeSlider.getValue();
             String seedType = (String) seedComboBox.getSelectedItem();
-            seed = null;
-            if (seedType.equalsIgnoreCase("uniform")) {
-              seed = Generator.generateSeed(size);
-            } else if (seedType.equalsIgnoreCase("sparse")) {
-              seed = Generator.generateSparseSeed(size);
-            } else if (seedType.equalsIgnoreCase("alternating")) {
-              seed = Generator.generateAlternatingSeed(size);
-            }
-            Map<Integer, Vector> automatonMap = Automaton.initializeVectorMap(rule, seed);
-            BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
+
+            AutomataResult result = AutomataEngine.generate(rule, size, seedType);
+            seed = result.getOriginalSeed(); // retain seed for filename creation during save
+            BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
             resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
             automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
             saveButton.setEnabled(true);
@@ -252,10 +238,7 @@ public class Main {
           if (returnValue == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             try {
-              if (!file.createNewFile()) {
-                System.err.println("Warning: file already exists, overwriting: " + file.getPath());
-              }
-              ImageIO.write(resizedAutomatonImage, "JPG", file);
+              AutomatonImage.saveImage(resizedAutomatonImage, file);
             } catch (IOException ie) {
               ie.printStackTrace();
             }
@@ -268,21 +251,11 @@ public class Main {
   }
 
   /**
-   * Main method to run the application.
+   * Shows or hides this MainFrame depending on the value of parameter b.
    *
-   * @param args command line arguments
+   * @param b if true, makes the MainFrame visible, otherwise hides the MainFrame.
    */
-  public static void main(String[] args) {
-    EventQueue.invokeLater(
-        new Runnable() {
-          public void run() {
-            try {
-              Main window = new Main();
-              window.caFrame.setVisible(true);
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
-          }
-        });
+  public void setVisible(boolean b) {
+    caFrame.setVisible(b);
   }
 }

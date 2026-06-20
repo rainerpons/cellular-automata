@@ -1,4 +1,4 @@
-package com.cellularautomata.generator;
+package com.cellularautomata.engine;
 
 /**
  * The <code>Vector</code> class represents a neighborhood vector of cells for an elementary
@@ -8,7 +8,7 @@ package com.cellularautomata.generator;
  */
 public final class Vector {
   /** Stores a binary string representing the current state of an entire neighborhood vector. */
-  private String state;
+  private final String state;
 
   /**
    * Creates a <code>Vector</code> object from a specified state.
