@@ -15,7 +15,7 @@ class CommandsPanel extends JPanel {
   CommandsPanel() {
     setLayout(new GridBagLayout());
 
-    JLabel commandsHeading = createHeading("Commands");
+    final JLabel commandsHeading = createHeading("Commands");
     GridBagConstraints gbcCommandsHeading = new GridBagConstraints();
     gbcCommandsHeading.gridwidth = 2;
     gbcCommandsHeading.anchor = GridBagConstraints.WEST;

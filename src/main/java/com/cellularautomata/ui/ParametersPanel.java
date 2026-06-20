@@ -17,7 +17,7 @@ class ParametersPanel extends JPanel {
   ParametersPanel() {
     setLayout(new GridBagLayout());
 
-    JLabel parametersHeading = createHeading("Parameters");
+    final JLabel parametersHeading = createHeading("Parameters");
     GridBagConstraints gbcHeading = new GridBagConstraints();
     gbcHeading.gridwidth = 2;
     gbcHeading.anchor = GridBagConstraints.WEST;
