@@ -8,7 +8,7 @@ package com.cellularautomata.engine;
  */
 public final class Vector {
   /** Stores a binary string representing the current state of an entire neighborhood vector. */
-  private String state;
+  private final String state;
 
   /**
    * Creates a <code>Vector</code> object from a specified state.
