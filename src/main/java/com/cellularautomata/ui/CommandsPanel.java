@@ -15,11 +15,11 @@ class CommandsPanel extends JPanel {
   CommandsPanel() {
     setLayout(new GridBagLayout());
 
-    final JLabel commandsHeading = createHeading("Commands");
+    final JLabel commandsHeading = UiStyles.createHeading("Commands");
     GridBagConstraints gbcCommandsHeading = new GridBagConstraints();
     gbcCommandsHeading.gridwidth = 2;
     gbcCommandsHeading.anchor = GridBagConstraints.WEST;
-    gbcCommandsHeading.insets = new Insets(0, 0, 10, 0);
+    gbcCommandsHeading.insets = new Insets(0, 0, UiStyles.HEADING_BOTTOM_GAP, 0);
     gbcCommandsHeading.gridx = 0;
     gbcCommandsHeading.gridy = 0;
     add(commandsHeading, gbcCommandsHeading);
@@ -27,7 +27,7 @@ class CommandsPanel extends JPanel {
     displayButton = new JButton("Generate automaton");
     GridBagConstraints gbcDisplayButton = new GridBagConstraints();
     gbcDisplayButton.anchor = GridBagConstraints.WEST;
-    gbcDisplayButton.insets = new Insets(0, 0, 0, 5);
+    gbcDisplayButton.insets = new Insets(0, 0, 0, UiStyles.BUTTON_GAP_X);
     gbcDisplayButton.gridx = 0;
     gbcDisplayButton.gridy = 1;
     add(displayButton, gbcDisplayButton);
@@ -52,11 +52,5 @@ class CommandsPanel extends JPanel {
 
   void setSaveEnabled(boolean enabled) {
     saveButton.setEnabled(enabled);
-  }
-
-  private JLabel createHeading(String text) {
-    JLabel heading = new JLabel(text);
-    heading.putClientProperty("FlatLaf.styleClass", "h3");
-    return heading;
   }
 }

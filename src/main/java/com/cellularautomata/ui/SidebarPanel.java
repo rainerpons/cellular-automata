@@ -8,10 +8,17 @@ import javax.swing.border.EmptyBorder;
 class SidebarPanel extends JPanel {
   SidebarPanel(ParametersPanel parametersPanel, CommandsPanel commandsPanel) {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    setBorder(new EmptyBorder(20, 10, 20, 20));
+    setBorder(
+        new EmptyBorder(
+            UiStyles.SIDEBAR_PADDING_TOP,
+            UiStyles.SIDEBAR_PADDING_LEFT,
+            UiStyles.SIDEBAR_PADDING_BOTTOM,
+            UiStyles.SIDEBAR_PADDING_RIGHT));
 
     add(parametersPanel);
-    add(Box.createVerticalStrut(20)); // Gap between parameters and commands
+    add(
+        Box.createVerticalStrut(
+            UiStyles.SECTION_VERTICAL_GAP)); // Gap between parameters and commands
     add(commandsPanel);
   }
 }

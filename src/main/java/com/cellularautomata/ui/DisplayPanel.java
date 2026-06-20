@@ -18,9 +18,10 @@ class DisplayPanel extends JPanel {
     JPanel innerContainer = new JPanel();
     innerContainer.setLayout(new BoxLayout(innerContainer, BoxLayout.Y_AXIS));
 
-    JLabel displayHeading = createHeading("Display");
+    JLabel displayHeading = UiStyles.createHeading("Display");
     displayHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
-    displayHeading.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+    displayHeading.setBorder(
+        BorderFactory.createEmptyBorder(0, 0, UiStyles.DISPLAY_HEADING_GAP, 0));
     innerContainer.add(displayHeading);
 
     automatonLabel =
@@ -40,11 +41,5 @@ class DisplayPanel extends JPanel {
   void setAutomatonImage(ImageIcon icon) {
     automatonLabel.setText(null);
     automatonLabel.setIcon(icon);
-  }
-
-  private JLabel createHeading(String text) {
-    JLabel heading = new JLabel(text);
-    heading.putClientProperty("FlatLaf.styleClass", "h3");
-    return heading;
   }
 }

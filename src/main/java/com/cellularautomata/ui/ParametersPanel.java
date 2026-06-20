@@ -17,11 +17,11 @@ class ParametersPanel extends JPanel {
   ParametersPanel() {
     setLayout(new GridBagLayout());
 
-    final JLabel parametersHeading = createHeading("Parameters");
+    final JLabel parametersHeading = UiStyles.createHeading("Parameters");
     GridBagConstraints gbcHeading = new GridBagConstraints();
     gbcHeading.gridwidth = 2;
     gbcHeading.anchor = GridBagConstraints.WEST;
-    gbcHeading.insets = new Insets(0, 0, 15, 0);
+    gbcHeading.insets = new Insets(0, 0, UiStyles.SECTION_HEADING_GAP, 0);
     gbcHeading.gridx = 0;
     gbcHeading.gridy = 0;
     add(parametersHeading, gbcHeading);
@@ -30,7 +30,7 @@ class ParametersPanel extends JPanel {
     GridBagConstraints gbcSizeLabel = new GridBagConstraints();
     gbcSizeLabel.gridwidth = 2;
     gbcSizeLabel.anchor = GridBagConstraints.WEST;
-    gbcSizeLabel.insets = new Insets(0, 0, 5, 0);
+    gbcSizeLabel.insets = new Insets(0, 0, UiStyles.LABEL_TO_CONTROL_GAP, 0);
     gbcSizeLabel.gridx = 0;
     gbcSizeLabel.gridy = 1;
     add(sizeLabel, gbcSizeLabel);
@@ -41,14 +41,15 @@ class ParametersPanel extends JPanel {
     gbcSizeSlider.fill = GridBagConstraints.HORIZONTAL;
     gbcSizeSlider.gridwidth = 2;
     gbcSizeSlider.weightx = 1.0;
-    gbcSizeSlider.insets = new Insets(0, 0, 15, 0);
+    gbcSizeSlider.insets = new Insets(0, 0, UiStyles.CONTROL_GROUP_GAP, 0);
     gbcSizeSlider.gridx = 0;
     gbcSizeSlider.gridy = 2;
     add(sizeSlider, gbcSizeSlider);
 
     GridBagConstraints gbcRuleLabel = new GridBagConstraints();
     gbcRuleLabel.anchor = GridBagConstraints.WEST;
-    gbcRuleLabel.insets = new Insets(0, 0, 10, 15);
+    gbcRuleLabel.insets =
+        new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, UiStyles.FORM_LABEL_COLUMN_GAP);
     gbcRuleLabel.gridx = 0;
     gbcRuleLabel.gridy = 3;
     add(new JLabel("Rule number"), gbcRuleLabel);
@@ -58,14 +59,14 @@ class ParametersPanel extends JPanel {
     GridBagConstraints gbcRuleTextArea = new GridBagConstraints();
     gbcRuleTextArea.fill = GridBagConstraints.HORIZONTAL;
     gbcRuleTextArea.weightx = 1.0;
-    gbcRuleTextArea.insets = new Insets(0, 0, 10, 0);
+    gbcRuleTextArea.insets = new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0);
     gbcRuleTextArea.gridx = 1;
     gbcRuleTextArea.gridy = 3;
     add(ruleTextArea, gbcRuleTextArea);
 
     GridBagConstraints gbcSeedLabel = new GridBagConstraints();
     gbcSeedLabel.anchor = GridBagConstraints.WEST;
-    gbcSeedLabel.insets = new Insets(0, 0, 0, 15);
+    gbcSeedLabel.insets = new Insets(0, 0, 0, UiStyles.FORM_LABEL_COLUMN_GAP);
     gbcSeedLabel.gridx = 0;
     gbcSeedLabel.gridy = 4;
     add(new JLabel("Seed type"), gbcSeedLabel);
@@ -91,11 +92,5 @@ class ParametersPanel extends JPanel {
 
   String getSeedType() {
     return (String) seedComboBox.getSelectedItem();
-  }
-
-  private JLabel createHeading(String text) {
-    JLabel heading = new JLabel(text);
-    heading.putClientProperty("FlatLaf.styleClass", "h3");
-    return heading;
   }
 }
