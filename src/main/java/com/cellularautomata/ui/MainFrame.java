@@ -75,7 +75,7 @@ public class MainFrame {
     // creates the automaton label in display panel
     final JLabel automatonLabel =
         new JLabel(
-            "<html><center>Click Display to generate an automaton.<br><br><font color='gray'>Adjust size, rule, or seed type first.</font></center></html>");
+            "<html><center>Click Display to generate an automaton.<br><br><font color='gray'>Adjust size, rule, or seed type.</font></center></html>");
     automatonLabel.setHorizontalAlignment(JLabel.CENTER);
     displayPanel.add(automatonLabel, java.awt.BorderLayout.CENTER);
 
@@ -197,7 +197,8 @@ public class MainFrame {
 
     // creates the save button in commands panel
     final JButton saveButton = new JButton("Save");
-    // TODO: Centralize UI state management once presentation and application concerns are
+    // TODO: Centralize UI state management once presentation and application
+    // concerns are
     // separated.
     saveButton.setEnabled(false);
 
