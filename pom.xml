@@ -93,7 +93,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.cellularautomata.Main</mainClass>
+							<mainClass>com.cellularautomata.app.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

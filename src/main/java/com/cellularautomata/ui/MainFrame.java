@@ -1,6 +1,7 @@
 package com.cellularautomata.ui;
 
 import com.cellularautomata.engine.AutomataEngine;
+import com.cellularautomata.engine.AutomataResult;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
@@ -12,7 +13,6 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import java.util.OptionalInt;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -28,7 +28,10 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
 
-/** The <code>MainFrame</code> class is responsible for the logic and the display of the GUI. */
+/**
+ * The <code>MainFrame</code> class owns Swing UI setup and event wiring, while delegating
+ * generation and image work.
+ */
 public class MainFrame {
   private BufferedImage resizedAutomatonImage;
   private JFrame caFrame;
@@ -190,6 +193,8 @@ public class MainFrame {
 
     // creates the save button in commands panel
     final JButton saveButton = new JButton("Save");
+    // TODO: Centralize UI state management once presentation and application concerns are
+    // separated.
     saveButton.setEnabled(false);
 
     // creates the display button in commands panel
@@ -203,9 +208,9 @@ public class MainFrame {
             int size = sizeSlider.getValue();
             String seedType = (String) seedComboBox.getSelectedItem();
 
-            Map<Integer, Vector> automatonMap = AutomataEngine.generate(rule, size, seedType);
-            seed = automatonMap.get(0); // retain seed for filename creation during save
-            BufferedImage automatonImage = AutomatonImage.getImageFromMap(automatonMap);
+            AutomataResult result = AutomataEngine.generate(rule, size, seedType);
+            seed = result.getOriginalSeed(); // retain seed for filename creation during save
+            BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
             resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
             automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
             saveButton.setEnabled(true);

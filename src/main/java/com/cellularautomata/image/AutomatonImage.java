@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 
 /**
  * The <code>AutomatonImage</code> class generates images of an automaton. This class originally
@@ -17,9 +16,11 @@ import javax.swing.JPanel;
  *
  * @author Rainer Pons
  */
-public class AutomatonImage extends JPanel {
-  /** Associates the <code>AutomatonImage</code> class with a version number. */
-  private static final long serialVersionUID = 1L;
+public final class AutomatonImage {
+
+  private AutomatonImage() {
+    throw new IllegalStateException("Utility class");
+  }
 
   /**
    * Generates a (small) buffered image of an automaton.
