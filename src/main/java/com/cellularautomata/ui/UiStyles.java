@@ -17,7 +17,8 @@ final class UiStyles {
   static final int SIDEBAR_PADDING_BOTTOM = 20;
   static final int SIDEBAR_PADDING_RIGHT = 20;
 
-  static final int SECTION_VERTICAL_GAP = 20;
+  static final int SECTION_SEPARATOR_GAP = 10;
+  static final String CONTROL_SIZE_VARIANT = "large";
 
   private UiStyles() {}
 
