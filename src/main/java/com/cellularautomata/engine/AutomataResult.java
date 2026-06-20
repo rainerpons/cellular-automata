@@ -9,6 +9,13 @@ public final class AutomataResult {
   private final Map<Integer, Vector> automatonMap;
   private final Vector originalSeed;
 
+  /**
+   * Constructs an AutomataResult.
+   *
+   * @param automatonMap the generated automaton map
+   * @param originalSeed the initial vector seed used for generation
+   * @throws IllegalArgumentException if automatonMap or originalSeed is null
+   */
   public AutomataResult(Map<Integer, Vector> automatonMap, Vector originalSeed) {
     if (automatonMap == null) {
       throw new IllegalArgumentException("automatonMap cannot be null");
