@@ -77,47 +77,48 @@ public class MainFrame {
   }
 
   private void setupActionListeners() {
-    commandsPanel.addGenerateListener(
-        e -> {
-          String ruleText = parametersPanel.getRuleText();
-          OptionalInt parsedRule = RuleValidator.parseRule(ruleText);
-          if (parsedRule.isPresent()) {
-            rule = parsedRule.getAsInt();
-            int size = parametersPanel.getSizeValue();
-            String seedType = parametersPanel.getSeedType();
+    commandsPanel.addGenerateListener(e -> generateAutomaton());
+    commandsPanel.addSaveListener(e -> saveAutomatonImage());
+  }
 
-            AutomataResult result = AutomataEngine.generate(rule, size, seedType);
-            seed = result.getOriginalSeed(); // retain seed for filename creation during save
-            BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
-            // Empirically scaled from 280x280 to 400x400 for an 800x500 window
-            resizedAutomatonImage = AutomatonImage.resizeImage(400, 400, automatonImage);
-            displayPanel.setAutomatonImage(new ImageIcon(resizedAutomatonImage));
-            commandsPanel.setSaveEnabled(true);
-          } else {
-            JOptionPane.showMessageDialog(
-                caFrame,
-                "Rule must be a whole number between 0 and 255.",
-                "Rule Number Error",
-                JOptionPane.ERROR_MESSAGE);
-          }
-        });
+  private void generateAutomaton() {
+    OptionalInt parsedRule = RuleValidator.parseRule(parametersPanel.getRuleText());
+    if (!parsedRule.isPresent()) {
+      showRuleError();
+      return;
+    }
+    rule = parsedRule.getAsInt();
+    AutomataResult result =
+        AutomataEngine.generate(
+            rule, parametersPanel.getSizeValue(), parametersPanel.getSeedType());
+    seed = result.getOriginalSeed();
+    BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
+    // Empirically scaled from 280x280 to 400x400 for an 800x500 window
+    resizedAutomatonImage = AutomatonImage.resizeImage(400, 400, automatonImage);
+    displayPanel.setAutomatonImage(new ImageIcon(resizedAutomatonImage));
+    commandsPanel.setSaveEnabled(true);
+  }
 
-    commandsPanel.addSaveListener(
-        e -> {
-          JFileChooser fileChooser =
-              new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-          String child = AutomatonImage.getFileName(rule, seed);
-          fileChooser.setSelectedFile(new File(child));
-          int returnValue = fileChooser.showSaveDialog(null);
-          if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            try {
-              AutomatonImage.saveImage(resizedAutomatonImage, file);
-            } catch (IOException ie) {
-              ie.printStackTrace();
-            }
-          }
-        });
+  private void saveAutomatonImage() {
+    JFileChooser fileChooser =
+        new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+    fileChooser.setSelectedFile(new File(AutomatonImage.getFileName(rule, seed)));
+    int returnValue = fileChooser.showSaveDialog(null);
+    if (returnValue == JFileChooser.APPROVE_OPTION) {
+      try {
+        AutomatonImage.saveImage(resizedAutomatonImage, fileChooser.getSelectedFile());
+      } catch (IOException ie) {
+        ie.printStackTrace();
+      }
+    }
+  }
+
+  private void showRuleError() {
+    JOptionPane.showMessageDialog(
+        caFrame,
+        "Rule must be a whole number between 0 and 255.",
+        "Rule Number Error",
+        JOptionPane.ERROR_MESSAGE);
   }
 
   /**

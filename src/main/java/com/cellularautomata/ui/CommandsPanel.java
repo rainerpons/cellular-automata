@@ -8,6 +8,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+/**
+ * The commands section of the sidebar. Contains the Generate and Save action buttons and exposes
+ * listener registration methods so {@link MainFrame} can wire up behavior without knowing about the
+ * button internals.
+ */
 class CommandsPanel extends JPanel {
   private final JButton displayButton;
   private final JButton saveButton;
@@ -15,6 +20,7 @@ class CommandsPanel extends JPanel {
   CommandsPanel() {
     setLayout(new GridBagLayout());
 
+    // Add section heading.
     final JLabel commandsHeading = UiStyles.createHeading("Commands");
     GridBagConstraints gbcCommandsHeading = new GridBagConstraints();
     gbcCommandsHeading.gridwidth = 2;
@@ -24,6 +30,7 @@ class CommandsPanel extends JPanel {
     gbcCommandsHeading.gridy = 0;
     add(commandsHeading, gbcCommandsHeading);
 
+    // Add command buttons.
     displayButton = new JButton("Generate automaton");
     UiStyles.applyControlHeight(displayButton);
     GridBagConstraints gbcDisplayButton = new GridBagConstraints();

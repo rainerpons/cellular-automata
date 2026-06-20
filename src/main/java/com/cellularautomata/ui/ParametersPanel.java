@@ -9,23 +9,52 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 
+/**
+ * The parameters section of the sidebar. Provides controls for configuring the automaton size, rule
+ * number, and seed type. Exposes read-only accessors so {@link MainFrame} can retrieve the current
+ * values without knowing the internal control types.
+ */
 class ParametersPanel extends JPanel {
-  private final JSlider sizeSlider;
-  private final JTextField ruleTextArea;
-  private final JComboBox<String> seedComboBox;
+  private JSlider sizeSlider;
+  private JTextField ruleTextArea;
+  private JComboBox<String> seedComboBox;
 
   ParametersPanel() {
     setLayout(new GridBagLayout());
 
-    final JLabel parametersHeading = UiStyles.createHeading("Parameters");
-    GridBagConstraints gbcHeading = new GridBagConstraints();
-    gbcHeading.gridwidth = 2;
-    gbcHeading.anchor = GridBagConstraints.WEST;
-    gbcHeading.insets = new Insets(0, 0, UiStyles.SECTION_HEADING_GAP, 0);
-    gbcHeading.gridx = 0;
-    gbcHeading.gridy = 0;
-    add(parametersHeading, gbcHeading);
+    // Add section heading.
+    addHeading();
 
+    // Add parameter controls.
+    addSizeControls();
+    addRuleControls();
+    addSeedControls();
+  }
+
+  int getSizeValue() {
+    return sizeSlider.getValue();
+  }
+
+  String getRuleText() {
+    return ruleTextArea.getText();
+  }
+
+  String getSeedType() {
+    return (String) seedComboBox.getSelectedItem();
+  }
+
+  private void addHeading() {
+    final JLabel heading = UiStyles.createHeading("Parameters");
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.gridwidth = 2;
+    gbc.anchor = GridBagConstraints.WEST;
+    gbc.insets = new Insets(0, 0, UiStyles.SECTION_HEADING_GAP, 0);
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    add(heading, gbc);
+  }
+
+  private void addSizeControls() {
     final JLabel sizeLabel = new JLabel("Size (8)");
     GridBagConstraints gbcSizeLabel = new GridBagConstraints();
     gbcSizeLabel.gridwidth = 2;
@@ -45,7 +74,9 @@ class ParametersPanel extends JPanel {
     gbcSizeSlider.gridx = 0;
     gbcSizeSlider.gridy = 2;
     add(sizeSlider, gbcSizeSlider);
+  }
 
+  private void addRuleControls() {
     GridBagConstraints gbcRuleLabel = new GridBagConstraints();
     gbcRuleLabel.anchor = GridBagConstraints.WEST;
     gbcRuleLabel.insets =
@@ -63,7 +94,9 @@ class ParametersPanel extends JPanel {
     gbcRuleTextArea.gridx = 1;
     gbcRuleTextArea.gridy = 3;
     add(ruleTextArea, gbcRuleTextArea);
+  }
 
+  private void addSeedControls() {
     GridBagConstraints gbcSeedLabel = new GridBagConstraints();
     gbcSeedLabel.anchor = GridBagConstraints.WEST;
     gbcSeedLabel.insets = new Insets(0, 0, 0, UiStyles.FORM_LABEL_COLUMN_GAP);
@@ -80,17 +113,5 @@ class ParametersPanel extends JPanel {
     gbcSeedComboBox.gridx = 1;
     gbcSeedComboBox.gridy = 4;
     add(seedComboBox, gbcSeedComboBox);
-  }
-
-  int getSizeValue() {
-    return sizeSlider.getValue();
-  }
-
-  String getRuleText() {
-    return ruleTextArea.getText();
-  }
-
-  String getSeedType() {
-    return (String) seedComboBox.getSelectedItem();
   }
 }

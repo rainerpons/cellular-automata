@@ -7,8 +7,14 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * The right column of the application window. Stacks {@link ParametersPanel} and {@link
+ * CommandsPanel} vertically with a separator between them and owns the sidebar padding and
+ * alignment contract.
+ */
 class SidebarPanel extends JPanel {
   SidebarPanel(ParametersPanel parametersPanel, CommandsPanel commandsPanel) {
+    // Configure layout and spacing.
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     setBorder(
         new EmptyBorder(
@@ -17,6 +23,7 @@ class SidebarPanel extends JPanel {
             UiStyles.SIDEBAR_PADDING_BOTTOM,
             UiStyles.SIDEBAR_PADDING_RIGHT));
 
+    // Stack panels with a separator between them.
     add(parametersPanel);
     add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_GAP)));
 

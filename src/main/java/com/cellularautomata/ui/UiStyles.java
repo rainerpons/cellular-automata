@@ -4,6 +4,10 @@ import java.awt.Dimension;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+/**
+ * Shared styling constants and component helpers for the UI package. Centralises spacing, sizing,
+ * and appearance values so individual panels stay focused on layout structure.
+ */
 final class UiStyles {
   // Heading and component styling
   static final String HEADING_STYLE_CLASS = "h3";
