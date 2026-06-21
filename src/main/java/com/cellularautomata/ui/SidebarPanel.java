@@ -18,13 +18,13 @@ class SidebarPanel extends JPanel {
 
     // Stack panels with a separator between them.
     add(parametersPanel);
-    add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_GAP)));
+    add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_GAP / 2)));
 
     JSeparator separator = new JSeparator();
     separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
     add(separator);
 
-    add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_GAP)));
+    add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_GAP / 2)));
     add(commandsPanel);
     // Consume remaining sidebar height so sidebar sections stay grouped at the top
     add(Box.createVerticalGlue());

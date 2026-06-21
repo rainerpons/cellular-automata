@@ -7,9 +7,6 @@ import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
 import com.formdev.flatlaf.FlatDarkLaf;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -51,16 +48,11 @@ public class MainFrame {
     caFrame = new JFrame();
     caFrame.setResizable(false);
     caFrame.setTitle("Cellular Automata");
-    caFrame.setBounds(100, 100, 880, 500);
+    caFrame.setBounds(100, 100, 950, 500);
     caFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    GridBagLayout gridBagLayout = new GridBagLayout();
-    gridBagLayout.columnWidths = new int[] {450, 0, 0};
-    gridBagLayout.rowHeights = new int[] {0, 0};
-    gridBagLayout.columnWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
-    gridBagLayout.rowWeights = new double[] {1.0, Double.MIN_VALUE};
-
-    javax.swing.JPanel contentPane = new javax.swing.JPanel(gridBagLayout);
+    javax.swing.JPanel contentPane = new javax.swing.JPanel();
+    contentPane.setLayout(new javax.swing.BoxLayout(contentPane, javax.swing.BoxLayout.X_AXIS));
     contentPane.setBorder(
         javax.swing.BorderFactory.createEmptyBorder(
             UiStyles.APP_SPACING,
@@ -70,22 +62,17 @@ public class MainFrame {
     caFrame.setContentPane(contentPane);
 
     displayPanel = new DisplayPanel();
-    GridBagConstraints gbcDisplayPanel = new GridBagConstraints();
-    gbcDisplayPanel.insets = new Insets(0, 0, 0, UiStyles.APP_SPACING);
-    gbcDisplayPanel.fill = GridBagConstraints.BOTH;
-    gbcDisplayPanel.gridx = 0;
-    gbcDisplayPanel.gridy = 0;
-    caFrame.getContentPane().add(displayPanel, gbcDisplayPanel);
+    displayPanel.setAlignmentY(java.awt.Component.TOP_ALIGNMENT);
 
     parametersPanel = new ParametersPanel();
     commandsPanel = new CommandsPanel();
     sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+    sidebarPanel.setAlignmentY(java.awt.Component.TOP_ALIGNMENT);
 
-    GridBagConstraints gbcSidebarPanel = new GridBagConstraints();
-    gbcSidebarPanel.fill = GridBagConstraints.BOTH;
-    gbcSidebarPanel.gridx = 1;
-    gbcSidebarPanel.gridy = 0;
-    caFrame.getContentPane().add(sidebarPanel, gbcSidebarPanel);
+    contentPane.add(displayPanel);
+    contentPane.add(
+        javax.swing.Box.createRigidArea(new java.awt.Dimension(UiStyles.APP_SPACING, 0)));
+    contentPane.add(sidebarPanel);
 
     setupActionListeners();
   }

@@ -1,8 +1,6 @@
 package com.cellularautomata.ui;
 
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -17,35 +15,29 @@ class DisplayPanel extends JPanel {
   private final JLabel automatonLabel;
 
   DisplayPanel() {
-    setLayout(new GridBagLayout());
-
-    // Inner container aligns heading and image to a shared left edge.
-    JPanel innerContainer = new JPanel();
-    innerContainer.setLayout(new BoxLayout(innerContainer, BoxLayout.Y_AXIS));
+    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
     // Add section heading.
     JLabel displayHeading = UiStyles.createHeading("Display");
     displayHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
     displayHeading.setBorder(
         BorderFactory.createEmptyBorder(0, 0, UiStyles.DISPLAY_HEADING_GAP, 0));
-    innerContainer.add(displayHeading);
+    add(displayHeading);
 
     // Add placeholder label, replaced by the automaton image after generation.
     automatonLabel =
         new JLabel(
             "<html><center>Click the Generate automaton button to begin.<br><br>"
-                + "<font color='gray'>Adjust size, rule, or seed type first.</font>"
-                + "</center></html>");
+                + "Select size, rule, and seed type.</center></html>");
     automatonLabel.setHorizontalAlignment(JLabel.CENTER);
+    automatonLabel.setVerticalAlignment(JLabel.CENTER);
     automatonLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    innerContainer.add(automatonLabel);
 
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.anchor = GridBagConstraints.NORTHWEST;
-    gbc.fill = GridBagConstraints.BOTH;
-    gbc.weightx = 1.0;
-    gbc.weighty = 1.0;
-    add(innerContainer, gbc);
+    java.awt.Dimension previewSize = new java.awt.Dimension(400, 400);
+    automatonLabel.setPreferredSize(previewSize);
+    automatonLabel.setMinimumSize(previewSize);
+    automatonLabel.setMaximumSize(previewSize);
+    add(automatonLabel);
   }
 
   void setAutomatonImage(ImageIcon icon) {
