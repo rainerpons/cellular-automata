@@ -51,7 +51,7 @@ public class MainFrame {
     caFrame = new JFrame();
     caFrame.setResizable(false);
     caFrame.setTitle("Cellular Automata");
-    caFrame.setBounds(100, 100, 800, 500);
+    caFrame.setBounds(100, 100, 880, 500);
     caFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     GridBagLayout gridBagLayout = new GridBagLayout();
@@ -59,11 +59,19 @@ public class MainFrame {
     gridBagLayout.rowHeights = new int[] {0, 0};
     gridBagLayout.columnWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
     gridBagLayout.rowWeights = new double[] {1.0, Double.MIN_VALUE};
-    caFrame.getContentPane().setLayout(gridBagLayout);
+
+    javax.swing.JPanel contentPane = new javax.swing.JPanel(gridBagLayout);
+    contentPane.setBorder(
+        javax.swing.BorderFactory.createEmptyBorder(
+            UiStyles.APP_SPACING,
+            UiStyles.APP_SPACING,
+            UiStyles.APP_SPACING,
+            UiStyles.APP_SPACING));
+    caFrame.setContentPane(contentPane);
 
     displayPanel = new DisplayPanel();
     GridBagConstraints gbcDisplayPanel = new GridBagConstraints();
-    gbcDisplayPanel.insets = new Insets(20, 20, 20, 10);
+    gbcDisplayPanel.insets = new Insets(0, 0, 0, UiStyles.APP_SPACING);
     gbcDisplayPanel.fill = GridBagConstraints.BOTH;
     gbcDisplayPanel.gridx = 0;
     gbcDisplayPanel.gridy = 0;

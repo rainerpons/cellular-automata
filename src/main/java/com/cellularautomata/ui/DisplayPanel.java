@@ -33,7 +33,7 @@ class DisplayPanel extends JPanel {
     // Add placeholder label, replaced by the automaton image after generation.
     automatonLabel =
         new JLabel(
-            "<html><center>Click Generate automaton to begin.<br><br>"
+            "<html><center>Click the Generate automaton button to begin.<br><br>"
                 + "<font color='gray'>Adjust size, rule, or seed type first.</font>"
                 + "</center></html>");
     automatonLabel.setHorizontalAlignment(JLabel.CENTER);
