@@ -5,27 +5,16 @@ import com.cellularautomata.engine.AutomataResult;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import com.formdev.flatlaf.FlatDarkLaf;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.OptionalInt;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
 
@@ -39,224 +28,119 @@ public class MainFrame {
   private Vector seed;
   private int rule;
 
+  private final DisplayPanel displayPanel;
+  private final ParametersPanel parametersPanel;
+  private final CommandsPanel commandsPanel;
+  private final SidebarPanel sidebarPanel;
+
   /** Initializes every component of the GUI. */
   public MainFrame() {
+    UiFonts.registerBundledFonts();
+
     try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      FlatDarkLaf.setup();
     } catch (Exception e) {
-      System.err.println("Could not set native look and feel.");
+      System.err.println("Could not set FlatDarkLaf look and feel.");
     }
 
-    // creates the cellular automata frame
+    applyGlobalFont();
+
     caFrame = new JFrame();
     caFrame.setResizable(false);
     caFrame.setTitle("Cellular Automata");
-    caFrame.setBounds(100, 100, 640, 360);
+    caFrame.setBounds(100, 100, 950, 500);
     caFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    GridBagLayout gridBagLayout = new GridBagLayout();
-    gridBagLayout.columnWidths = new int[] {358, 0, 0};
-    gridBagLayout.rowHeights = new int[] {229, 0, 0};
-    gridBagLayout.columnWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
-    gridBagLayout.rowWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
-    caFrame.getContentPane().setLayout(gridBagLayout);
 
-    // creates the display panel
-    JPanel displayPanel = new JPanel();
-    displayPanel.setLayout(new BorderLayout());
-    displayPanel.setBorder(BorderFactory.createTitledBorder("Display"));
-    displayPanel.setToolTipText("");
-    GridBagConstraints gbcDisplayPanel = new GridBagConstraints();
-    gbcDisplayPanel.gridheight = 2;
-    gbcDisplayPanel.insets = new Insets(10, 10, 10, 5);
-    gbcDisplayPanel.fill = GridBagConstraints.BOTH;
-    gbcDisplayPanel.gridx = 0;
-    gbcDisplayPanel.gridy = 0;
-    caFrame.getContentPane().add(displayPanel, gbcDisplayPanel);
+    javax.swing.JPanel contentPane = new javax.swing.JPanel();
+    contentPane.setLayout(new javax.swing.BoxLayout(contentPane, javax.swing.BoxLayout.X_AXIS));
+    contentPane.setBorder(
+        javax.swing.BorderFactory.createEmptyBorder(
+            UiStyles.APP_SPACING,
+            UiStyles.APP_SPACING,
+            UiStyles.APP_SPACING,
+            UiStyles.APP_SPACING));
+    caFrame.setContentPane(contentPane);
 
-    // creates the automaton label in display panel
-    final JLabel automatonLabel =
-        new JLabel(
-            "<html><center>Click Display to generate an automaton.<br><br>"
-                + "<font color='gray'>Adjust size, rule, or seed type first.</font>"
-                + "</center></html>");
-    automatonLabel.setHorizontalAlignment(JLabel.CENTER);
-    displayPanel.add(automatonLabel, BorderLayout.CENTER);
+    displayPanel = new DisplayPanel();
+    displayPanel.setAlignmentY(java.awt.Component.TOP_ALIGNMENT);
 
-    // creates the parameters panel
-    JPanel parametersPanel = new JPanel();
-    parametersPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));
-    GridBagConstraints gbcParametersPanel = new GridBagConstraints();
-    gbcParametersPanel.insets = new Insets(10, 5, 5, 10);
-    gbcParametersPanel.fill = GridBagConstraints.BOTH;
-    gbcParametersPanel.gridx = 1;
-    gbcParametersPanel.gridy = 0;
-    caFrame.getContentPane().add(parametersPanel, gbcParametersPanel);
-    GridBagLayout gblParametersPanel = new GridBagLayout();
-    gblParametersPanel.columnWidths = new int[] {103, 0, 0};
-    gblParametersPanel.rowHeights = new int[] {31, 45, 48, 50, 0, 0};
-    gblParametersPanel.columnWeights = new double[] {0.0, 1.0, Double.MIN_VALUE};
-    gblParametersPanel.rowWeights = new double[] {1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
-    parametersPanel.setLayout(gblParametersPanel);
+    parametersPanel = new ParametersPanel();
+    commandsPanel = new CommandsPanel();
+    sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+    sidebarPanel.setAlignmentY(java.awt.Component.TOP_ALIGNMENT);
 
-    // creates the size label in parameters panel
-    GridBagConstraints gbcSizeLabel = new GridBagConstraints();
-    gbcSizeLabel.gridwidth = 2;
-    gbcSizeLabel.insets = new Insets(0, 0, 5, 0);
-    gbcSizeLabel.gridx = 0;
-    gbcSizeLabel.gridy = 0;
-    JLabel sizeLabel = new JLabel("Size");
-    parametersPanel.add(sizeLabel, gbcSizeLabel);
+    contentPane.add(displayPanel);
+    contentPane.add(
+        javax.swing.Box.createRigidArea(new java.awt.Dimension(UiStyles.APP_SPACING, 0)));
+    contentPane.add(sidebarPanel);
 
-    // creates the current size label in parameters panel
-    GridBagConstraints gbcCurrentSizeLabel = new GridBagConstraints();
-    gbcCurrentSizeLabel.insets = new Insets(0, 0, 5, 5);
-    gbcCurrentSizeLabel.gridx = 0;
-    gbcCurrentSizeLabel.gridy = 2;
-    JLabel currentSizeLabel = new JLabel("Current size");
-    parametersPanel.add(currentSizeLabel, gbcCurrentSizeLabel);
+    setupActionListeners();
+  }
 
-    // creates the current size text field in parameters panel
-    final JTextField currentSizeTextField = new JTextField();
-    currentSizeTextField.setText(Integer.toString(8));
-    currentSizeTextField.setEditable(false);
-    GridBagConstraints gbcCurrentSizeTextField = new GridBagConstraints();
-    gbcCurrentSizeTextField.insets = new Insets(0, 0, 5, 0);
-    gbcCurrentSizeTextField.fill = GridBagConstraints.HORIZONTAL;
-    gbcCurrentSizeTextField.gridx = 1;
-    gbcCurrentSizeTextField.gridy = 2;
-    parametersPanel.add(currentSizeTextField, gbcCurrentSizeTextField);
+  private static void applyGlobalFont() {
+    Font plexSans = new Font(UiFonts.IBM_PLEX_SANS, Font.PLAIN, 13);
+    // Only apply if the font was successfully registered; fall back to FlatLaf default otherwise.
+    if (!plexSans.getFamily().equals(UiFonts.IBM_PLEX_SANS)) {
+      return;
+    }
+    String[] uiKeys = {
+      "Button.font", "Label.font", "ComboBox.font", "TextField.font",
+      "Slider.font", "Panel.font", "OptionPane.font", "OptionPane.buttonFont",
+      "OptionPane.messageFont", "TitledBorder.font"
+    };
+    for (String key : uiKeys) {
+      UIManager.put(key, plexSans);
+    }
+  }
 
-    // creates the size slider in parameters panel
-    final JSlider sizeSlider = new JSlider(JSlider.HORIZONTAL, 4, 64, 8);
-    sizeSlider.addMouseMotionListener(
-        new MouseMotionAdapter() {
-          @Override
-          public void mouseDragged(MouseEvent e) {
-            currentSizeTextField.setText(Integer.toString(sizeSlider.getValue()));
-          }
-        });
-    GridBagConstraints gbcSizeSlider = new GridBagConstraints();
-    gbcSizeSlider.fill = GridBagConstraints.HORIZONTAL;
-    gbcSizeSlider.gridwidth = 2;
-    gbcSizeSlider.insets = new Insets(0, 0, 5, 0);
-    gbcSizeSlider.gridx = 0;
-    gbcSizeSlider.gridy = 1;
-    parametersPanel.add(sizeSlider, gbcSizeSlider);
-    sizeSlider.setMinorTickSpacing(1);
-    sizeSlider.setMajorTickSpacing(5);
-    sizeSlider.setPaintTicks(true);
-    sizeSlider.setSnapToTicks(true);
+  private void setupActionListeners() {
+    commandsPanel.addGenerateListener(e -> generateAutomaton());
+    commandsPanel.addSaveListener(e -> saveAutomatonImage());
+  }
 
-    // creates the rule label in parameters panel
-    GridBagConstraints gbcRuleLabel = new GridBagConstraints();
-    gbcRuleLabel.insets = new Insets(0, 0, 5, 5);
-    gbcRuleLabel.gridx = 0;
-    gbcRuleLabel.gridy = 3;
-    JLabel ruleLabel = new JLabel("Rule number");
-    parametersPanel.add(ruleLabel, gbcRuleLabel);
+  private void generateAutomaton() {
+    OptionalInt parsedRule = RuleValidator.parseRule(parametersPanel.getRuleText());
+    if (!parsedRule.isPresent()) {
+      showRuleError();
+      return;
+    }
 
-    // creates the rule text area in parameters panel
-    final JTextField ruleTextArea = new JTextField();
-    ruleTextArea.setText("30");
-    GridBagConstraints gbcRuleTextArea = new GridBagConstraints();
-    gbcRuleTextArea.insets = new Insets(0, 0, 5, 0);
-    gbcRuleTextArea.fill = GridBagConstraints.HORIZONTAL;
-    gbcRuleTextArea.gridx = 1;
-    gbcRuleTextArea.gridy = 3;
-    parametersPanel.add(ruleTextArea, gbcRuleTextArea);
+    rule = parsedRule.getAsInt();
+    AutomataResult result =
+        AutomataEngine.generate(
+            rule, parametersPanel.getSizeValue(), parametersPanel.getSeedType());
+    seed = result.getOriginalSeed();
 
-    // creates the seed label in parameters panel
-    GridBagConstraints gbcSeedLabel = new GridBagConstraints();
-    gbcSeedLabel.insets = new Insets(0, 0, 0, 5);
-    gbcSeedLabel.gridx = 0;
-    gbcSeedLabel.gridy = 4;
-    JLabel seedLabel = new JLabel("Seed type");
-    parametersPanel.add(seedLabel, gbcSeedLabel);
+    BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
+    // Empirically scaled from 280x280 to 400x400 for an 800x500 window
+    resizedAutomatonImage = AutomatonImage.resizeImage(400, 400, automatonImage);
 
-    // creates the seed combo box in parameters panel
-    String[] seedTypes = {"Uniform", "Sparse", "Alternating"};
-    final JComboBox<String> seedComboBox = new JComboBox<>(seedTypes);
-    GridBagConstraints gbcSeedComboBox = new GridBagConstraints();
-    gbcSeedComboBox.fill = GridBagConstraints.HORIZONTAL;
-    gbcSeedComboBox.gridx = 1;
-    gbcSeedComboBox.gridy = 4;
-    parametersPanel.add(seedComboBox, gbcSeedComboBox);
+    displayPanel.setAutomatonImage(new ImageIcon(resizedAutomatonImage));
+    commandsPanel.setSaveEnabled(true);
+  }
 
-    // creates the commands panel
-    JPanel commandsPanel = new JPanel();
-    commandsPanel.setBorder(BorderFactory.createTitledBorder("Commands"));
-    GridBagConstraints gbcCommandsPanel = new GridBagConstraints();
-    gbcCommandsPanel.insets = new Insets(5, 5, 10, 10);
-    gbcCommandsPanel.fill = GridBagConstraints.BOTH;
-    gbcCommandsPanel.gridx = 1;
-    gbcCommandsPanel.gridy = 1;
-    caFrame.getContentPane().add(commandsPanel, gbcCommandsPanel);
-    GridBagLayout gblCommandsPanel = new GridBagLayout();
-    gblCommandsPanel.columnWidths = new int[] {0, 0, 0};
-    gblCommandsPanel.rowHeights = new int[] {0, 0};
-    gblCommandsPanel.columnWeights = new double[] {1.0, 1.0, Double.MIN_VALUE};
-    gblCommandsPanel.rowWeights = new double[] {1.0, Double.MIN_VALUE};
-    commandsPanel.setLayout(gblCommandsPanel);
+  private void saveAutomatonImage() {
+    JFileChooser fileChooser =
+        new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+    fileChooser.setSelectedFile(new File(AutomatonImage.getFileName(rule, seed)));
+    int returnValue = fileChooser.showSaveDialog(null);
+    if (returnValue != JFileChooser.APPROVE_OPTION) {
+      return;
+    }
 
-    // creates the save button in commands panel
-    final JButton saveButton = new JButton("Save");
-    // TODO: Centralize UI state management once presentation and application
-    // concerns are
-    // separated.
-    saveButton.setEnabled(false);
+    try {
+      AutomatonImage.saveImage(resizedAutomatonImage, fileChooser.getSelectedFile());
+    } catch (IOException ie) {
+      ie.printStackTrace();
+    }
+  }
 
-    // creates the display button in commands panel
-    JButton displayButton = new JButton("Display");
-    displayButton.addActionListener(
-        e -> {
-          String ruleText = ruleTextArea.getText();
-          OptionalInt parsedRule = RuleValidator.parseRule(ruleText);
-          if (parsedRule.isPresent()) {
-            rule = parsedRule.getAsInt();
-            int size = sizeSlider.getValue();
-            String seedType = (String) seedComboBox.getSelectedItem();
-
-            AutomataResult result = AutomataEngine.generate(rule, size, seedType);
-            seed = result.getOriginalSeed(); // retain seed for filename creation during save
-            BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
-            resizedAutomatonImage = AutomatonImage.resizeImage(280, 280, automatonImage);
-            automatonLabel.setText(null);
-            automatonLabel.setIcon(new ImageIcon(resizedAutomatonImage));
-            saveButton.setEnabled(true);
-          } else {
-            JOptionPane.showMessageDialog(
-                caFrame,
-                "Rule must be a whole number between 0 and 255.",
-                "Rule Number Error",
-                JOptionPane.ERROR_MESSAGE);
-          }
-        });
-    GridBagConstraints gbcDisplayButton = new GridBagConstraints();
-    gbcDisplayButton.insets = new Insets(0, 0, 0, 5);
-    gbcDisplayButton.gridx = 0;
-    gbcDisplayButton.gridy = 0;
-    commandsPanel.add(displayButton, gbcDisplayButton);
-
-    saveButton.addActionListener(
-        e -> {
-          JFileChooser fileChooser =
-              new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-          String child = AutomatonImage.getFileName(rule, seed);
-          fileChooser.setSelectedFile(new File(child));
-          int returnValue = fileChooser.showSaveDialog(null);
-          if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            try {
-              AutomatonImage.saveImage(resizedAutomatonImage, file);
-            } catch (IOException ie) {
-              ie.printStackTrace();
-            }
-          }
-        });
-    GridBagConstraints gbcSaveButton = new GridBagConstraints();
-    gbcSaveButton.gridx = 1;
-    gbcSaveButton.gridy = 0;
-    commandsPanel.add(saveButton, gbcSaveButton);
+  private void showRuleError() {
+    JOptionPane.showMessageDialog(
+        caFrame,
+        "Rule must be a whole number between 0 and 255.",
+        "Rule Number Error",
+        JOptionPane.ERROR_MESSAGE);
   }
 
   /**
