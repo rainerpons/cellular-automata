@@ -1,110 +1,78 @@
-# Cellular Automata
+<div align="center">
+  <img src="site/assets/cellular-automata-icon.svg" alt="Cellular Automata Logo" width="120" />
 
-[![CI](https://github.com/rainerpons/cellular-automata/actions/workflows/ci.yml/badge.svg)](https://github.com/rainerpons/cellular-automata/actions/workflows/ci.yml)
+  <h1>Cellular Automata</h1>
 
-> Demonstrating how one of the simplest models of computation gives rise to surprisingly complex behavior.
+  <p>
+    <strong>A high-performance Java application for exploring elementary cellular automata.</strong>
+  </p>
 
-Get an overview of elementary cellular automata [here](https://en.wikipedia.org/wiki/Elementary_cellular_automaton) or learn about the more mathematical side [here](http://mathworld.wolfram.com/ElementaryCellularAutomaton.html). 
+  [![CI](https://github.com/rainerpons/cellular-automata/actions/workflows/ci.yml/badge.svg)](https://github.com/rainerpons/cellular-automata/actions/workflows/ci.yml)
+</div>
 
-![Elementary cellular automata rules 100 through 149](http://mathworld.wolfram.com/images/eps-gif/ElementaryCA3_900.gif)
+<br />
 
-## Table of contents
+<!-- Hero Image Placeholder -->
+<div align="center">
+  <img src="https://i.redd.it/ypf6h1jjnhb31.gif" alt="Cellular Automata Example" />
+  <!-- <em>[ Hero image / GIF of the application running will go here ]</em> -->
+  <p><i>A demonstration of how simple computational models produce incredibly complex behavior.</i></p>
+</div>
 
-* [Cellular Automata](https://github.com/rpons17/cellular-automata#cellular-automata)
-  * [Table of contents](https://github.com/rpons17/cellular-automata#table-of-contents)
-  * [Getting started](https://github.com/rpons17/cellular-automata#getting-started)
-    * [Prerequisites](https://github.com/rpons17/cellular-automata#prerequisites)
-    * [Installing](https://github.com/rpons17/cellular-automata#installing)
-  * [Running](https://github.com/rpons17/cellular-automata#running)
-    * [Testing](https://github.com/rpons17/cellular-automata#testing)
-  * [Documentation](https://github.com/rpons17/cellular-automata#documentation)
-  * [Built with](https://github.com/rpons17/cellular-automata#built-with)
-  * [License](https://github.com/rpons17/cellular-automata#license)
+## Overview
 
-## Getting started
+Cellular Automata is an interactive Java desktop application that simulates and visualizes elementary cellular automata. It allows users to experiment with different configurations and observe how simple mathematical rules can produce surprisingly complex and often beautiful patterns.
 
-Clone or download the Cellular Automata repository onto your local machine.
+Designed as a modern, polished software engineering project, it features a clean graphical user interface, robust build tooling, and adherence to modern Java coding standards.
 
-### Prerequisites
+**[🌟 Visit the Landing Page for gallery images, rule examples, and downloads](https://www.rainerpons.com/cellular-automata)**
 
-This program is easiest to run if you already have Maven installed. If you do not then you can learn how to [here](https://maven.apache.org/install.html). If you have Homebrew installed then installation is as simple as entering the following into Terminal.
+## Features & Highlights
 
-```bash
-$ brew install maven
-```
+- **Interactive Visualization**: Real-time rendering of elementary cellular automata rules (0-255).
+- **Dynamic Controls**: Adjust grid sizes, generation speeds, and initial seeds on the fly.
+- **Image Export**: Save the current state of the simulation directly to your machine as a JPEG image.
+- **Optimized Rendering**: Efficient drawing routines ensure smooth performance even for large grid sizes.
 
-### Installing
+## Project History
 
-Using a command prompt, `cd` into the local repository. Run the install command.
+This project was originally developed in 2018 as a way to explore Java and the fascinating behavior of elementary cellular automata. Rather than replacing it with a brand new implementation years later, it was intentionally revisited as a legacy modernization project.
 
-```bash
-$ mvn install
-```
+The goal was to preserve the original functionality while improving the overall quality of the software through better architecture, automated testing, continuous integration, static analysis, code formatting, and a more polished user experience. The result is a project that showcases not only the application itself, but also the engineering practices used to evolve and maintain an existing codebase over time.
 
-If the installation is successful then you should see something similar to the following at the end of the results.
+## Tech Stack
 
-```bash
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------
-[INFO] Total time: 5.474 s
-[INFO] Finished at: 2018-04-03T19:23:16-07:00
-[INFO] Final Memory: 11M/39M
-[INFO] ------------------------------------------------------------------------
-```
+- **Language**: Java 8+
+- **UI Framework**: Java Swing
+- **Build Tool**: Maven
+- **Testing**: JUnit 4
+- **Static Analysis**: Checkstyle, SpotBugs
+- **Formatting**: Google Java Format
+- **CI/CD**: GitHub Actions
 
-The JAR file will be available under the `target` folder of the local repository.
+## Running Locally
 
-## Running
-
-Assuming you are currently in the root directory of the local repository, the following command will execute the program. 
+To run the application on your local machine, ensure you have Java and Maven installed.
 
 ```bash
-$ java -jar target/cellular-automata-2.0.jar
+# Clone the repository
+git clone https://github.com/rainerpons/cellular-automata.git
+cd cellular-automata
+
+# Build the project
+mvn install
+
+# Run the application
+java -jar target/cellular-automata-2.0.jar
 ```
 
-From here you can look at cellular automata; adjust its grid size, rule number, and seed type; or save the current display to your local machine as a JPEG image.
+## Development Commands
 
-### Testing
-
-Within the same directory, you can run the test command.
-
-```bash
-$ mvn test
-```
-
-### Formatting
-
-This project uses Google Java Format. The formatter is integrated with Maven and checked during CI. You can format the code locally by running:
-
-```bash
-$ mvn fmt:format
-```
-
-To automatically format your code before every commit, you can install the provided Git pre-commit hook by running:
-
-```bash
-$ ./scripts/install-hooks.sh
-```
-
-## Documentation
-
-If you would like to view documentation for Cellular Automata, the Apache Maven Javadoc plugin in `pom.xml` simplifies the process. From the local repository, run the following command.
-
-```bash
-$ mvn javadoc:javadoc
-```
-
-The Javadoc files will be available under the `target/site/apidocs` folder of the local repository.
-
-## Built with
-
-* [Maven](https://maven.apache.org/) - dependency management
-* [JUnit](https://junit.org/junit4/) - unit testing
-* [Google Java Format](https://github.com/google/google-java-format) - code formatting
-* [Checkstyle](https://checkstyle.org/) - static style analysis
-* [SpotBugs](https://spotbugs.github.io/) - static bug analysis
+- **Run tests**: `mvn test`
+- **Format code**: `mvn fmt:format`
+- **Install git pre-commit hooks** (formats code automatically): `./scripts/install-hooks.sh`
+- **Generate Javadoc**: `mvn javadoc:javadoc` (available in `target/site/apidocs`)
 
 ## License
 
-This project is licensed under the GNU General Public License. See the [LICENSE.md](https://github.com/rpons17/cellular-automata/blob/master/LICENSE.md) file for details.
+This project is licensed under the GNU General Public License. See the [LICENSE.md](LICENSE.md) file for details.
