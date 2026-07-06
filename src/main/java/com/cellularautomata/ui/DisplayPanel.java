@@ -33,6 +33,12 @@ class DisplayPanel extends JPanel {
     automatonLabel.setVerticalAlignment(JLabel.CENTER);
     automatonLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+    java.awt.Color borderColor = javax.swing.UIManager.getColor("Component.borderColor");
+    if (borderColor == null) {
+      borderColor = java.awt.Color.GRAY;
+    }
+    automatonLabel.setBorder(BorderFactory.createDashedBorder(borderColor, 3.0f, 3.0f));
+
     java.awt.Dimension previewSize = new java.awt.Dimension(400, 400);
     automatonLabel.setPreferredSize(previewSize);
     automatonLabel.setMinimumSize(previewSize);
@@ -43,5 +49,6 @@ class DisplayPanel extends JPanel {
   void setAutomatonImage(ImageIcon icon) {
     automatonLabel.setText(null);
     automatonLabel.setIcon(icon);
+    automatonLabel.setBorder(null);
   }
 }
