@@ -70,7 +70,12 @@ class ParametersPanel extends JPanel {
     gbcSizeLabel.gridy = 1;
     add(sizeLabel, gbcSizeLabel);
 
-    sizeSlider = new JSlider(JSlider.HORIZONTAL, 4, 64, 8);
+    sizeSlider =
+        new JSlider(
+            JSlider.HORIZONTAL,
+            com.cellularautomata.engine.AutomataEngine.MIN_SIZE,
+            com.cellularautomata.engine.AutomataEngine.MAX_SIZE,
+            com.cellularautomata.engine.AutomataEngine.DEFAULT_SIZE);
     sizeSlider.addChangeListener(e -> sizeLabel.setText("Size (" + sizeSlider.getValue() + ")"));
     GridBagConstraints gbcSizeSlider = new GridBagConstraints();
     gbcSizeSlider.fill = GridBagConstraints.HORIZONTAL;
