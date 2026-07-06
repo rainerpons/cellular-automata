@@ -14,6 +14,11 @@ import javax.swing.JSlider;
  * values without knowing the internal control types.
  */
 class ParametersPanel extends JPanel {
+  static final int MIN_SIZE = 4;
+  static final int MAX_SIZE = 128;
+  static final int DEFAULT_SIZE = 8;
+  static final int DEFAULT_RULE = 30;
+
   private JSlider sizeSlider;
   private javax.swing.JSpinner ruleSpinner;
   private JComboBox<String> seedComboBox;
@@ -64,7 +69,7 @@ class ParametersPanel extends JPanel {
   }
 
   private void addSizeControls() {
-    final JLabel sizeLabel = new JLabel("Size (8)");
+    final JLabel sizeLabel = new JLabel("Size (" + DEFAULT_SIZE + ")");
     GridBagConstraints gbcSizeLabel = new GridBagConstraints();
     gbcSizeLabel.gridwidth = 2;
     gbcSizeLabel.anchor = GridBagConstraints.WEST;
@@ -73,12 +78,7 @@ class ParametersPanel extends JPanel {
     gbcSizeLabel.gridy = 1;
     add(sizeLabel, gbcSizeLabel);
 
-    sizeSlider =
-        new JSlider(
-            JSlider.HORIZONTAL,
-            com.cellularautomata.engine.AutomataEngine.MIN_SIZE,
-            com.cellularautomata.engine.AutomataEngine.MAX_SIZE,
-            com.cellularautomata.engine.AutomataEngine.DEFAULT_SIZE);
+    sizeSlider = new JSlider(JSlider.HORIZONTAL, MIN_SIZE, MAX_SIZE, DEFAULT_SIZE);
     sizeSlider.addChangeListener(e -> sizeLabel.setText("Size (" + sizeSlider.getValue() + ")"));
     GridBagConstraints gbcSizeSlider = new GridBagConstraints();
     gbcSizeSlider.fill = GridBagConstraints.HORIZONTAL;
@@ -100,9 +100,7 @@ class ParametersPanel extends JPanel {
     add(new JLabel("Rule number"), gbcRuleLabel);
 
     ruleSpinner =
-        new javax.swing.JSpinner(
-            new javax.swing.SpinnerNumberModel(
-                com.cellularautomata.engine.AutomataEngine.DEFAULT_RULE, 0, 255, 1));
+        new javax.swing.JSpinner(new javax.swing.SpinnerNumberModel(DEFAULT_RULE, 0, 255, 1));
     javax.swing.JSpinner.DefaultEditor editor =
         (javax.swing.JSpinner.DefaultEditor) ruleSpinner.getEditor();
     editor.getTextField().setHorizontalAlignment(javax.swing.JTextField.LEFT);

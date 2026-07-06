@@ -6,12 +6,12 @@ import org.junit.Test;
 
 public class RuleValidatorTest {
 
+  private static final int RULE_30 = 30;
+
   @Test
   public void testValidInputs() {
-    String[] validInputs = {
-      "0", "255", " " + com.cellularautomata.engine.AutomataEngine.DEFAULT_RULE + " "
-    };
-    int[] expectedOutputs = {0, 255, com.cellularautomata.engine.AutomataEngine.DEFAULT_RULE};
+    String[] validInputs = {"0", "255", " " + RULE_30 + " "};
+    int[] expectedOutputs = {0, 255, RULE_30};
 
     for (int i = 0; i < validInputs.length; i++) {
       OptionalInt result = RuleValidator.parseRule(validInputs[i]);

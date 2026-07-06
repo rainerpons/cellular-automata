@@ -112,7 +112,7 @@ public class MainFrame {
     seed = result.getOriginalSeed();
 
     BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
-    // Empirically scaled from 280x280 to 400x400 for an 800x500 window
+    // Scale the generated image to fit perfectly within the fixed display area
     resizedAutomatonImage = AutomatonImage.resizeImage(400, 400, automatonImage);
 
     displayPanel.setAutomatonImage(new ImageIcon(resizedAutomatonImage));
