@@ -5,9 +5,11 @@ import org.junit.Test;
 
 public class AutomataEngineTest {
 
+  private static final int RULE_30 = 30;
+
   @Test
   public void testUniformSeedGenerationReturnsValidMap() {
-    AutomataResult result = AutomataEngine.generate(30, 8, "uniform");
+    AutomataResult result = AutomataEngine.generate(RULE_30, 8, "uniform");
     Assert.assertNotNull(result);
     Assert.assertNotNull(result.getOriginalSeed());
     Assert.assertNotNull(result.getAutomatonMap());
@@ -17,7 +19,7 @@ public class AutomataEngineTest {
 
   @Test
   public void testSparseSeedGenerationReturnsValidMap() {
-    AutomataResult result = AutomataEngine.generate(30, 8, "sparse");
+    AutomataResult result = AutomataEngine.generate(RULE_30, 8, "sparse");
     Assert.assertNotNull(result);
     Assert.assertEquals(8, result.getOriginalSeed().getSize());
 
@@ -32,7 +34,7 @@ public class AutomataEngineTest {
 
   @Test
   public void testAlternatingSeedGenerationReturnsValidMap() {
-    AutomataResult result = AutomataEngine.generate(30, 8, "alternating");
+    AutomataResult result = AutomataEngine.generate(RULE_30, 8, "alternating");
     Assert.assertNotNull(result);
     Assert.assertEquals(8, result.getOriginalSeed().getSize());
 
@@ -43,12 +45,12 @@ public class AutomataEngineTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidSeedTypeThrowsException() {
-    AutomataEngine.generate(30, 8, "invalid");
+    AutomataEngine.generate(RULE_30, 8, "invalid");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSeedTypeThrowsException() {
-    AutomataEngine.generate(30, 8, null);
+    AutomataEngine.generate(RULE_30, 8, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -59,7 +61,7 @@ public class AutomataEngineTest {
 
   @Test
   public void testDifferentCasingForSeedTypeStillWorks() {
-    AutomataResult result = AutomataEngine.generate(30, 8, "uNiFoRm");
+    AutomataResult result = AutomataEngine.generate(RULE_30, 8, "uNiFoRm");
     Assert.assertNotNull(result);
     Assert.assertEquals(8, result.getOriginalSeed().getSize());
   }

@@ -10,11 +10,13 @@ import org.junit.Test;
  * @author Rainer Pons
  */
 public class GeneratorTest {
+
+  private static final int RULE_30 = 30;
   /** Asserts that a local update rule is valid. */
   @Test
   public void testGenerateRulePositive() {
     String expected = "00011110";
-    String actual = Generator.generateRule(30);
+    String actual = Generator.generateRule(RULE_30);
     Assert.assertEquals(expected, actual);
   }
 
@@ -128,15 +130,15 @@ public class GeneratorTest {
   public void testGenerateSuccessor() {
     String expected = "10101011";
     String actual =
-        Generator.generateSuccessor(30, Generator.generateAlternatingSeed(8)).getState();
+        Generator.generateSuccessor(RULE_30, Generator.generateAlternatingSeed(8)).getState();
     Assert.assertEquals(expected, actual);
   }
 
-  /** Asserts successor generation for a known sparse seed under rule 30. */
+  /** Asserts successor generation for a known sparse seed under rule RULE_30. */
   @Test
   public void testGenerateSuccessorSparseSeed() {
     String expected = "000111000";
-    String actual = Generator.generateSuccessor(30, new Vector("000010000")).getState();
+    String actual = Generator.generateSuccessor(RULE_30, new Vector("000010000")).getState();
     Assert.assertEquals(expected, actual);
   }
 
@@ -157,7 +159,7 @@ public class GeneratorTest {
   /** Asserts that null vectors throw an exception during successor generation. */
   @Test(expected = IllegalArgumentException.class)
   public void testGenerateSuccessorNullVector() {
-    Generator.generateSuccessor(30, null);
+    Generator.generateSuccessor(RULE_30, null);
   }
 
   /** Asserts successor generation across additional representative rules. */
@@ -177,23 +179,23 @@ public class GeneratorTest {
     Vector sparse = new Vector("000010000");
 
     Assert.assertEquals(
-        singleCell.getSize(), Generator.generateSuccessor(30, singleCell).getSize());
+        singleCell.getSize(), Generator.generateSuccessor(RULE_30, singleCell).getSize());
     Assert.assertEquals(
         alternating.getSize(), Generator.generateSuccessor(110, alternating).getSize());
     Assert.assertEquals(sparse.getSize(), Generator.generateSuccessor(255, sparse).getSize());
   }
 
-  /** Asserts that an empty input vector produces an empty successor under rule 30. */
+  /** Asserts that an empty input vector produces an empty successor under rule RULE_30. */
   @Test
   public void testGenerateSuccessorEmptyVector() {
     Vector empty = new Vector("");
-    Vector successor = Generator.generateSuccessor(30, empty);
+    Vector successor = Generator.generateSuccessor(RULE_30, empty);
 
     Assert.assertEquals(0, successor.getSize());
     Assert.assertEquals("", successor.getState());
   }
 
-  /** Asserts that rule 30 evolves a known sparse seed through multiple generations. */
+  /** Asserts that rule RULE_30 evolves a known sparse seed through multiple generations. */
   @Test
   public void testGenerateSuccessorRule30MultipleGenerations() {
     String[] expected = {
@@ -210,7 +212,7 @@ public class GeneratorTest {
 
     Vector current = new Vector(expected[0]);
     for (int generation = 1; generation < expected.length; generation++) {
-      current = Generator.generateSuccessor(30, current);
+      current = Generator.generateSuccessor(RULE_30, current);
       Assert.assertEquals(expected[generation], current.getState());
     }
   }
