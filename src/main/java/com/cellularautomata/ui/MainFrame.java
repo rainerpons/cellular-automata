@@ -48,7 +48,7 @@ public class MainFrame {
     caFrame = new JFrame();
     caFrame.setResizable(false);
     caFrame.setTitle("Cellular Automata");
-    caFrame.setBounds(100, 100, 760, 500);
+    caFrame.setBounds(100, 100, 725, 500);
     caFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     javax.swing.JPanel contentPane = new javax.swing.JPanel();
