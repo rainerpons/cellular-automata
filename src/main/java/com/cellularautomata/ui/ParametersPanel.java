@@ -7,7 +7,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 
 /**
  * The parameters section of the sidebar. Provides controls for configuring the automaton size, rule
@@ -16,7 +15,7 @@ import javax.swing.JTextField;
  */
 class ParametersPanel extends JPanel {
   private JSlider sizeSlider;
-  private JTextField ruleTextArea;
+  private javax.swing.JSpinner ruleSpinner;
   private JComboBox<String> seedComboBox;
 
   ParametersPanel() {
@@ -42,7 +41,11 @@ class ParametersPanel extends JPanel {
   }
 
   String getRuleText() {
-    return ruleTextArea.getText();
+    Object editor = ruleSpinner.getEditor();
+    if (editor instanceof javax.swing.JSpinner.DefaultEditor) {
+      return ((javax.swing.JSpinner.DefaultEditor) editor).getTextField().getText();
+    }
+    return ruleSpinner.getValue().toString();
   }
 
   String getSeedType() {
@@ -96,15 +99,18 @@ class ParametersPanel extends JPanel {
     gbcRuleLabel.gridy = 3;
     add(new JLabel("Rule number"), gbcRuleLabel);
 
-    ruleTextArea = new JTextField("30");
-    UiStyles.applyControlHeight(ruleTextArea);
-    GridBagConstraints gbcRuleTextArea = new GridBagConstraints();
-    gbcRuleTextArea.fill = GridBagConstraints.HORIZONTAL;
-    gbcRuleTextArea.weightx = 1.0;
-    gbcRuleTextArea.insets = new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0);
-    gbcRuleTextArea.gridx = 1;
-    gbcRuleTextArea.gridy = 3;
-    add(ruleTextArea, gbcRuleTextArea);
+    ruleSpinner =
+        new javax.swing.JSpinner(
+            new javax.swing.SpinnerNumberModel(
+                com.cellularautomata.engine.AutomataEngine.DEFAULT_RULE, 0, 255, 1));
+    UiStyles.applyControlHeight(ruleSpinner);
+    GridBagConstraints gbcRuleSpinner = new GridBagConstraints();
+    gbcRuleSpinner.fill = GridBagConstraints.HORIZONTAL;
+    gbcRuleSpinner.weightx = 1.0;
+    gbcRuleSpinner.insets = new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0);
+    gbcRuleSpinner.gridx = 1;
+    gbcRuleSpinner.gridy = 3;
+    add(ruleSpinner, gbcRuleSpinner);
   }
 
   private void addSeedControls() {
