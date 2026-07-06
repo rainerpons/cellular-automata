@@ -8,8 +8,10 @@ public class RuleValidatorTest {
 
   @Test
   public void testValidInputs() {
-    String[] validInputs = {"0", "255", " 30 "};
-    int[] expectedOutputs = {0, 255, 30};
+    String[] validInputs = {
+      "0", "255", " " + com.cellularautomata.engine.AutomataEngine.DEFAULT_RULE + " "
+    };
+    int[] expectedOutputs = {0, 255, com.cellularautomata.engine.AutomataEngine.DEFAULT_RULE};
 
     for (int i = 0; i < validInputs.length; i++) {
       OptionalInt result = RuleValidator.parseRule(validInputs[i]);

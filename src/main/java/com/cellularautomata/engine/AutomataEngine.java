@@ -8,6 +8,7 @@ public final class AutomataEngine {
   public static final int MIN_SIZE = 4;
   public static final int MAX_SIZE = 128;
   public static final int DEFAULT_SIZE = 8;
+  public static final int DEFAULT_RULE = 30;
 
   private AutomataEngine() {
     throw new IllegalStateException("Utility class");
