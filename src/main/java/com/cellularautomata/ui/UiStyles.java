@@ -18,12 +18,13 @@ final class UiStyles {
   static final int BUTTON_GAP_X = 5;
   static final int DISPLAY_HEADING_GAP = 15;
   static final int SECTION_HEADING_GAP = 15;
+  static final int PARAMETERS_HEADING_GAP = 12;
   static final int LABEL_TO_CONTROL_GAP = 5;
   static final int CONTROL_GROUP_GAP = 15;
   static final int FORM_ROW_BOTTOM_GAP = 10;
   static final int FORM_LABEL_COLUMN_GAP = 15;
-  static final int SECTION_SEPARATOR_TOP_GAP = 20;
-  static final int SECTION_SEPARATOR_BOTTOM_GAP = 36;
+  static final int SECTION_SEPARATOR_TOP_GAP = 28;
+  static final int SECTION_SEPARATOR_BOTTOM_GAP = 28;
 
   // Root layout spacing
   static final int APP_SPACING = 16;

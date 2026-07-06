@@ -54,7 +54,7 @@ class ParametersPanel extends JPanel {
     GridBagConstraints gbc = new GridBagConstraints();
     gbc.gridwidth = 2;
     gbc.anchor = GridBagConstraints.WEST;
-    gbc.insets = new Insets(0, 0, UiStyles.SECTION_HEADING_GAP, 0);
+    gbc.insets = new Insets(0, 0, UiStyles.PARAMETERS_HEADING_GAP, 0);
     gbc.gridx = 0;
     gbc.gridy = 0;
     add(heading, gbc);
