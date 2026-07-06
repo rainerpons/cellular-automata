@@ -4,7 +4,7 @@
   <h1>Cellular Automata</h1>
 
   <p>
-    <strong>A high-performance Java Swing application for exploring elementary cellular automata.</strong>
+    <strong>A high-performance Java application for exploring elementary cellular automata.</strong>
   </p>
 
   [![CI](https://github.com/rainerpons/cellular-automata/actions/workflows/ci.yml/badge.svg)](https://github.com/rainerpons/cellular-automata/actions/workflows/ci.yml)
@@ -14,17 +14,18 @@
 
 <!-- Hero Image Placeholder -->
 <div align="center">
-  <em>[ Hero image / GIF of the application running will go here ]</em>
+  <img src="https://i.redd.it/ypf6h1jjnhb31.gif" alt="Cellular Automata Example" />
+  <!-- <em>[ Hero image / GIF of the application running will go here ]</em> -->
   <p><i>A demonstration of how simple computational models produce incredibly complex behavior.</i></p>
 </div>
 
 ## Overview
 
-Cellular Automata is an interactive Java desktop application built to simulate and visualize elementary cellular automata. It allows users to explore mathematical rules (such as Rule 30 or Rule 110) in real time, adjusting simulation speeds, grid sizes, and initialization seeds to observe the resulting emergent behaviors.
+Cellular Automata is an interactive Java desktop application that simulates and visualizes elementary cellular automata. It allows users to experiment with different configurations and observe how simple mathematical rules can produce surprisingly complex and often beautiful patterns.
 
 Designed as a modern, polished software engineering project, it features a clean graphical user interface, robust build tooling, and adherence to modern Java coding standards.
 
-**[🌟 Visit the Landing Page for gallery images, rule examples, and downloads](https://rainerpons.github.io/cellular-automata)**
+**[🌟 Visit the Landing Page for gallery images, rule examples, and downloads](https://www.rainerpons.com/cellular-automata)**
 
 ## Features & Highlights
 
@@ -35,7 +36,9 @@ Designed as a modern, polished software engineering project, it features a clean
 
 ## Project History
 
-This project began as an educational foray into Java and the fascinating world of cellular automata. It has since been modernized and refactored into a polished portfolio piece. The legacy codebase was overhauled to introduce automated testing, static analysis (Checkstyle, SpotBugs), consistent formatting, and continuous integration via GitHub Actions.
+This project was originally developed in 2018 as a way to explore Java and the fascinating behavior of elementary cellular automata. Rather than replacing it with a brand new implementation years later, it was intentionally revisited as a legacy modernization project.
+
+The goal was to preserve the original functionality while improving the overall quality of the software through better architecture, automated testing, continuous integration, static analysis, code formatting, and a more polished user experience. The result is a project that showcases not only the application itself, but also the engineering practices used to evolve and maintain an existing codebase over time.
 
 ## Tech Stack
 
@@ -43,7 +46,8 @@ This project began as an educational foray into Java and the fascinating world o
 - **UI Framework**: Java Swing
 - **Build Tool**: Maven
 - **Testing**: JUnit 4
-- **Static Analysis & Formatting**: Google Java Format, Checkstyle, SpotBugs
+- **Static Analysis**: Checkstyle, SpotBugs
+- **Formatting**: Google Java Format
 - **CI/CD**: GitHub Actions
 
 ## Running Locally
