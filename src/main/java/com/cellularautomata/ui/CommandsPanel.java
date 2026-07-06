@@ -25,7 +25,7 @@ class CommandsPanel extends JPanel {
     GridBagConstraints gbcCommandsHeading = new GridBagConstraints();
     gbcCommandsHeading.gridwidth = 2;
     gbcCommandsHeading.anchor = GridBagConstraints.WEST;
-    gbcCommandsHeading.insets = new Insets(0, 0, UiStyles.HEADING_BOTTOM_GAP, 0);
+    gbcCommandsHeading.insets = new Insets(0, 0, UiStyles.SECTION_HEADING_GAP, 0);
     gbcCommandsHeading.gridx = 0;
     gbcCommandsHeading.gridy = 0;
     add(commandsHeading, gbcCommandsHeading);
