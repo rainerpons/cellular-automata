@@ -22,7 +22,7 @@ final class UiStyles {
   static final int CONTROL_GROUP_GAP = 15;
   static final int FORM_ROW_BOTTOM_GAP = 10;
   static final int FORM_LABEL_COLUMN_GAP = 15;
-  static final int SECTION_SEPARATOR_GAP = 16;
+  static final int SECTION_SEPARATOR_GAP = 32;
 
   // Root layout spacing
   static final int APP_SPACING = 16;
