@@ -103,6 +103,9 @@ class ParametersPanel extends JPanel {
         new javax.swing.JSpinner(
             new javax.swing.SpinnerNumberModel(
                 com.cellularautomata.engine.AutomataEngine.DEFAULT_RULE, 0, 255, 1));
+    javax.swing.JSpinner.DefaultEditor editor =
+        (javax.swing.JSpinner.DefaultEditor) ruleSpinner.getEditor();
+    editor.getTextField().setHorizontalAlignment(javax.swing.JTextField.LEFT);
     UiStyles.applyControlHeight(ruleSpinner);
     GridBagConstraints gbcRuleSpinner = new GridBagConstraints();
     gbcRuleSpinner.fill = GridBagConstraints.HORIZONTAL;
