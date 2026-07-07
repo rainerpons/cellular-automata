@@ -86,6 +86,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<effort>Max</effort>
+				</configuration>
 			</plugin>
 
 			<!-- Apache Maven JAR plugin -->

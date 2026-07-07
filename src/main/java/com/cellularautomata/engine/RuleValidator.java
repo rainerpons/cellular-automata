@@ -17,7 +17,7 @@ public final class RuleValidator {
    * @return an OptionalInt containing the rule if valid, or an empty OptionalInt if invalid
    */
   public static OptionalInt parseRule(String text) {
-    if (text == null || text.trim().isEmpty()) {
+    if (text == null || text.isBlank()) {
       return OptionalInt.empty();
     }
     try {

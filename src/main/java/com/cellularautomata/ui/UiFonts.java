@@ -4,7 +4,6 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Loads and registers the bundled IBM Plex Sans font at application startup. Falls back silently to
@@ -25,12 +24,12 @@ final class UiFonts {
   }
 
   private static void register(String resourcePath) {
-    try (InputStream stream = UiFonts.class.getResourceAsStream(resourcePath)) {
+    try (var stream = UiFonts.class.getResourceAsStream(resourcePath)) {
       if (stream == null) {
         System.err.println("Bundled font not found: " + resourcePath);
         return;
       }
-      Font font = Font.createFont(Font.TRUETYPE_FONT, stream);
+      var font = Font.createFont(Font.TRUETYPE_FONT, stream);
       GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
     } catch (FontFormatException | IOException e) {
       System.err.println("Could not load bundled font: " + resourcePath);

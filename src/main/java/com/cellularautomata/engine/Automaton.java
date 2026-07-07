@@ -36,7 +36,7 @@ public final class Automaton {
     if (seed == null) {
       throw new IllegalArgumentException("Initial seed cannot be null.");
     }
-    Map<Integer, Vector> map = new HashMap<>();
+    var map = new HashMap<Integer, Vector>();
     Vector successor = Generator.generateSuccessor(rule, seed);
     int generation = 0;
 
@@ -51,7 +51,7 @@ public final class Automaton {
 
   /** Outputs the generation count of neighborhood vectors and the vectors themselves as text. */
   public void displayVectorMap() {
-    for (Map.Entry<Integer, Vector> entry : map.entrySet()) {
+    for (var entry : map.entrySet()) {
       System.out.println("Generation " + entry.getKey() + ": " + entry.getValue().getState());
     }
   }

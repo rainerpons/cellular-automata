@@ -30,8 +30,8 @@ public final class AutomatonImage {
    */
   public static BufferedImage getImageFromMap(Map<Integer, Vector> map) {
     final int size = map.get(0).getSize();
-    BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
-    for (Map.Entry<Integer, Vector> entry : map.entrySet()) {
+    var image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+    for (var entry : map.entrySet()) {
       String state = entry.getValue().getState();
       for (int i = 0; i < state.length(); i++) {
         int j = entry.getKey();
@@ -55,7 +55,7 @@ public final class AutomatonImage {
    * @return new image with the desired width and height
    */
   public static BufferedImage resizeImage(int width, int height, BufferedImage image) {
-    BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    var resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     Graphics2D graphic = resizedImage.createGraphics();
     graphic.drawImage(image, 0, 0, width, height, null);
     graphic.dispose();

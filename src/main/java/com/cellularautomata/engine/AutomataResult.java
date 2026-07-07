@@ -1,7 +1,5 @@
 package com.cellularautomata.engine;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /** Encapsulates the result of generating a cellular automaton. */
@@ -23,7 +21,7 @@ public final class AutomataResult {
     if (originalSeed == null) {
       throw new IllegalArgumentException("originalSeed cannot be null");
     }
-    this.automatonMap = Collections.unmodifiableMap(new HashMap<>(automatonMap));
+    this.automatonMap = Map.copyOf(automatonMap);
     this.originalSeed = originalSeed;
   }
 
