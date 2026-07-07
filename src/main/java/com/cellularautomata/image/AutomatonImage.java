@@ -1,7 +1,6 @@
 package com.cellularautomata.image;
 
 import com.cellularautomata.engine.Vector;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -30,12 +29,12 @@ public final class AutomatonImage {
    */
   public static BufferedImage getImageFromMap(Map<Integer, Vector> map) {
     final int size = map.get(0).getSize();
-    BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
-    for (Map.Entry<Integer, Vector> entry : map.entrySet()) {
-      String state = entry.getValue().getState();
+    var image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+    for (var entry : map.entrySet()) {
+      var state = entry.getValue().getState();
       for (int i = 0; i < state.length(); i++) {
         int j = entry.getKey();
-        if ("1".equals(Character.toString(state.charAt(i)))) {
+        if (state.charAt(i) == '1') {
           image.setRGB(i, j, 0); // set to black
         } else {
           image.setRGB(i, j, 16777215); // set to white
@@ -55,8 +54,8 @@ public final class AutomatonImage {
    * @return new image with the desired width and height
    */
   public static BufferedImage resizeImage(int width, int height, BufferedImage image) {
-    BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-    Graphics2D graphic = resizedImage.createGraphics();
+    var resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    var graphic = resizedImage.createGraphics();
     graphic.drawImage(image, 0, 0, width, height, null);
     graphic.dispose();
     return resizedImage;
