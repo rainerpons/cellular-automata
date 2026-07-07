@@ -1,13 +1,13 @@
 .root {
     -fx-font-family: "IBM Plex Sans", sans-serif;
-    -fx-font-size: 13pt;
+    -fx-font-size: 13px;
     -fx-base: #3c3f41;
     -fx-control-inner-background: #2b2b2b;
     -fx-control-inner-background-alt: #2b2b2b;
     -fx-background: #3c3f41;
     -fx-accent: #3b82f6;
     -fx-default-button: #3b82f6;
-    -fx-focus-color: #3b82f6;
+    -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
     -fx-text-base-color: #bbbbbb;
 }
@@ -42,40 +42,49 @@
 }
 
 .dashed-border {
-    -fx-border-color: #888888;
-    -fx-border-style: segments(4, 4);
+    -fx-border-color: #666666;
+    -fx-border-style: segments(3, 3);
     -fx-border-width: 1;
 }
 
-.combo-box, .spinner, .slider {
+.combo-box, .slider {
     -fx-background-color: #4c5052;
 }
 
 .spinner {
-    -fx-background-color: #4c5052;
-    -fx-border-color: #5c5c5c;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
-    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
 }
 
 .spinner .text-field {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
+    -fx-background-color: #4c5052;
+    -fx-border-color: #5c5c5c;
+    -fx-border-radius: 3 0 0 3;
+    -fx-background-radius: 3 0 0 3;
     -fx-text-fill: #bbbbbb;
     -fx-padding: 0 5 0 5;
 }
 
-.spinner .increment-arrow-button, .spinner .decrement-arrow-button {
-    -fx-background-color: transparent;
-    -fx-background-insets: 0;
+.spinner .increment-arrow-button {
+    -fx-background-color: #4c5052;
+    -fx-border-color: #5c5c5c;
+    -fx-border-radius: 0 3 0 0;
+    -fx-background-radius: 0 3 0 0;
+}
+
+.spinner .decrement-arrow-button {
+    -fx-background-color: #4c5052;
+    -fx-border-color: #5c5c5c;
+    -fx-border-radius: 0 0 3 0;
+    -fx-background-radius: 0 0 3 0;
 }
 
 .spinner .increment-arrow-button:hover, .spinner .decrement-arrow-button:hover {
     -fx-background-color: #5c6062;
 }
 
-.spinner .increment-arrow, .spinner .decrement-arrow {
+.combo-box .arrow, .spinner .increment-arrow, .spinner .decrement-arrow {
     -fx-background-color: #bbbbbb;
 }
 

@@ -51,7 +51,7 @@ public class MainApp extends Application {
 
     setupActionListeners();
 
-    Scene scene = new Scene(root, 760, 500);
+    Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
     primaryStage.setScene(scene);
     primaryStage.show();
