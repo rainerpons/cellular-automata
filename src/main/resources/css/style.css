@@ -46,6 +46,16 @@
     -fx-opacity: 0.5;
 }
 
+.button:default {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-border-color: #2563eb;
+}
+
+.button:default:hover {
+    -fx-background-color: #2563eb;
+}
+
 .dashed-border {
     -fx-border-color: #666666;
     -fx-border-style: segments(3, 3);
@@ -60,6 +70,22 @@
     -fx-background-color: rgb(98, 102, 105);
     -fx-pref-height: 1px;
     -fx-background-radius: 0;
+}
+
+/* Fix Alert Dialog Styling */
+.dialog-pane {
+    -fx-background-color: #3c3f41;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+}
+
+.dialog-pane > *.button-bar > *.container {
+    -fx-background-color: #3c3f41;
+}
+
+.dialog-pane > *.label.content {
+    -fx-background-color: #3c3f41;
 }
 
 .spinner {
