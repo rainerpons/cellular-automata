@@ -10,16 +10,14 @@
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
     -fx-text-base-color: #e6e6e6;
-    -fx-font-weight: 500;
 }
 
 .label {
     -fx-text-fill: #e6e6e6;
-    -fx-font-weight: bold;
 }
 
-.h3 {
-    -fx-font-size: 16px;
+.label.h3, .h3 {
+    -fx-font-size: 16.5px;
     -fx-font-weight: bold;
 }
 
@@ -48,11 +46,6 @@
     -fx-opacity: 0.5;
 }
 
-.h3 {
-    -fx-font-weight: bold;
-    -fx-font-size: 1.1em;
-}
-
 .dashed-border {
     -fx-border-color: #666666;
     -fx-border-style: segments(3, 3);
@@ -65,7 +58,7 @@
 
 .slider .track {
     -fx-background-color: rgb(98, 102, 105);
-    -fx-pref-height: 2px;
+    -fx-pref-height: 1px;
     -fx-background-radius: 0;
 }
 

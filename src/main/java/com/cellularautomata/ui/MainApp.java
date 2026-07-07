@@ -103,6 +103,13 @@ public class MainApp extends Application {
     alert.setTitle("Rule Number Error");
     alert.setHeaderText(null);
     alert.setContentText("Rule must be a whole number between 0 and 255.");
+
+    // Apply the application stylesheet to the dialog
+    alert
+        .getDialogPane()
+        .getStylesheets()
+        .add(getClass().getResource("/css/style.css").toExternalForm());
+
     alert.showAndWait();
   }
 }
