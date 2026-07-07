@@ -15,6 +15,12 @@
 
 .label {
     -fx-text-fill: #e6e6e6;
+    -fx-font-weight: bold;
+}
+
+.h3 {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
 }
 
 .button, .combo-box, .spinner {
@@ -59,8 +65,8 @@
 
 .slider .track {
     -fx-background-color: rgb(98, 102, 105);
-    -fx-pref-height: 3px;
-    -fx-background-radius: 1.5px;
+    -fx-pref-height: 2px;
+    -fx-background-radius: 0;
 }
 
 .spinner {
@@ -93,6 +99,14 @@
 
 .combo-box .arrow, .spinner .increment-arrow, .spinner .decrement-arrow {
     -fx-background-color: rgb(173, 173, 173);
+}
+
+.combo-box .arrow-button {
+    -fx-padding: 0 5 0 5;
+}
+
+.combo-box .arrow {
+    -fx-shape: "M 0 0 h 7 l -3.5 4 z";
 }
 
 .combo-box .list-view {

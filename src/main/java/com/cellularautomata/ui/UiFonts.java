@@ -11,19 +11,18 @@ final class UiFonts {
 
   /** Attempts to register IBM Plex Sans. Failures are logged to stderr and do not propagate. */
   static void registerBundledFonts() {
-    register("/fonts/IBMPlexSans-Regular.ttf");
-    register("/fonts/IBMPlexSans-Bold.ttf");
-  }
-
-  private static void register(String resourcePath) {
-    try (InputStream stream = UiFonts.class.getResourceAsStream(resourcePath)) {
-      if (stream == null) {
-        System.err.println("Bundled font not found: " + resourcePath);
+    String resourcePath = "/fonts/IBMPlexSans-Regular.ttf";
+    String boldResourcePath = "/fonts/IBMPlexSans-Bold.ttf";
+    try (InputStream stream = UiFonts.class.getResourceAsStream(resourcePath);
+        InputStream boldStream = UiFonts.class.getResourceAsStream(boldResourcePath)) {
+      if (stream == null || boldStream == null) {
+        System.err.println("Bundled font not found: " + resourcePath + " or " + boldResourcePath);
         return;
       }
-      Font.loadFont(stream, 13);
+      Font.loadFont(stream, 12.5);
+      Font.loadFont(boldStream, 12.5);
     } catch (java.io.IOException e) {
-      System.err.println("Could not load bundled font: " + resourcePath);
+      System.err.println("Could not load bundled font: " + e.getMessage());
     }
   }
 }

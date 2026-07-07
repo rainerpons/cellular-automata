@@ -7,8 +7,11 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.util.StringConverter;
 
 /**
  * The parameters section of the sidebar. Provides controls for configuring the automaton size, rule
@@ -81,6 +84,37 @@ final class ParametersPanel extends GridPane {
 
     ruleSpinner = new Spinner<>(0, 255, DEFAULT_RULE, 1);
     ruleSpinner.setEditable(true);
+
+    SpinnerValueFactory<Integer> valueFactory = ruleSpinner.getValueFactory();
+    valueFactory.setConverter(
+        new StringConverter<Integer>() {
+          @Override
+          public String toString(Integer value) {
+            return value == null ? "" : value.toString();
+          }
+
+          @Override
+          public Integer fromString(String string) {
+            try {
+              if (string == null || string.isEmpty()) return valueFactory.getValue();
+              int val = Integer.parseInt(string);
+              return Math.max(0, Math.min(255, val));
+            } catch (NumberFormatException e) {
+              return valueFactory.getValue();
+            }
+          }
+        });
+
+    ruleSpinner
+        .getEditor()
+        .setTextFormatter(
+            new TextFormatter<>(
+                change -> {
+                  if (!change.getControlNewText().matches("\\d*")) {
+                    return null;
+                  }
+                  return change;
+                }));
     ruleSpinner.getEditor().setAlignment(Pos.CENTER_LEFT);
     UiStyles.applyControlHeight(ruleSpinner);
     ruleSpinner.setMaxWidth(Double.MAX_VALUE);
