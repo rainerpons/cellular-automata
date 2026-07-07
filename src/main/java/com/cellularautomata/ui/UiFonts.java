@@ -21,7 +21,7 @@ final class UiFonts {
         System.err.println("Bundled font not found: " + resourcePath);
         return;
       }
-      Font.loadFont(stream, 13);
+      Font.loadFont(stream, 12);
     } catch (java.io.IOException e) {
       System.err.println("Could not load bundled font: " + resourcePath);
     }

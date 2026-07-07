@@ -1,6 +1,7 @@
 .root {
     -fx-font-family: "IBM Plex Sans", sans-serif;
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
+    -fx-font-smoothing-type: lcd;
     -fx-base: #3c3f41;
     -fx-control-inner-background: #2b2b2b;
     -fx-control-inner-background-alt: #2b2b2b;
@@ -9,16 +10,17 @@
     -fx-default-button: #3b82f6;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
-    -fx-text-base-color: #bbbbbb;
+    -fx-text-base-color: #e6e6e6;
 }
 
 .label {
-    -fx-text-fill: #bbbbbb;
+    -fx-text-fill: #e6e6e6;
+    -fx-font-weight: 500;
 }
 
 .button {
     -fx-background-color: #4c5052;
-    -fx-text-fill: #bbbbbb;
+    -fx-text-fill: #e6e6e6;
     -fx-border-color: #5c5c5c;
     -fx-border-radius: 3;
     -fx-background-radius: 3;
@@ -59,24 +61,24 @@
 
 .spinner .text-field {
     -fx-background-color: #4c5052;
-    -fx-border-color: #5c5c5c;
-    -fx-border-radius: 3 0 0 3;
+    -fx-border-color: transparent #5c5c5c transparent transparent;
+    -fx-border-width: 0 1 0 0;
+    -fx-border-radius: 0;
     -fx-background-radius: 3 0 0 3;
-    -fx-text-fill: #bbbbbb;
-    -fx-padding: 0 5 0 5;
+    -fx-text-fill: #e6e6e6;
+}
+
+.spinner .increment-arrow-button, .spinner .decrement-arrow-button {
+    -fx-background-color: #4c5052;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
 }
 
 .spinner .increment-arrow-button {
-    -fx-background-color: #4c5052;
-    -fx-border-color: #5c5c5c;
-    -fx-border-radius: 0 3 0 0;
     -fx-background-radius: 0 3 0 0;
 }
 
 .spinner .decrement-arrow-button {
-    -fx-background-color: #4c5052;
-    -fx-border-color: #5c5c5c;
-    -fx-border-radius: 0 0 3 0;
     -fx-background-radius: 0 0 3 0;
 }
 
@@ -93,5 +95,15 @@
 }
 
 .combo-box .list-cell {
-    -fx-text-fill: #bbbbbb;
+    -fx-text-fill: #e6e6e6;
+}
+
+.separator {
+    -fx-padding: 0;
+}
+
+.separator .line {
+    -fx-border-style: solid;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: #555555;
 }
