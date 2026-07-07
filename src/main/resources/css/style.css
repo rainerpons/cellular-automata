@@ -46,16 +46,6 @@
     -fx-opacity: 0.5;
 }
 
-.button:default {
-    -fx-background-color: #3b82f6;
-    -fx-text-fill: white;
-    -fx-border-color: #2563eb;
-}
-
-.button:default:hover {
-    -fx-background-color: #2563eb;
-}
-
 .dashed-border {
     -fx-border-color: #666666;
     -fx-border-style: segments(3, 3);

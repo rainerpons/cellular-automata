@@ -42,7 +42,7 @@ public class Main {
 
           @Override
           public void write(byte[] buf, int off, int len) {
-            String s = new String(buf, off, len);
+            String s = new String(buf, off, len, java.nio.charset.StandardCharsets.UTF_8);
             if (s.contains("WARNING: Unsupported JavaFX configuration")) {
               return;
             }

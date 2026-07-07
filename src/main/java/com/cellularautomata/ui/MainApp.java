@@ -27,9 +27,9 @@ public class MainApp extends Application {
   private Vector seed;
   private int rule;
 
-  private DisplayPanel displayPanel;
-  private ParametersPanel parametersPanel;
-  private CommandsPanel commandsPanel;
+  private DisplayPanel displayPanel = new DisplayPanel();
+  private ParametersPanel parametersPanel = new ParametersPanel();
+  private CommandsPanel commandsPanel = new CommandsPanel();
   private SidebarPanel sidebarPanel;
 
   @Override
@@ -39,9 +39,6 @@ public class MainApp extends Application {
     primaryStage.setTitle("Cellular Automata");
     primaryStage.setResizable(false);
 
-    displayPanel = new DisplayPanel();
-    parametersPanel = new ParametersPanel();
-    commandsPanel = new CommandsPanel();
     sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
 
     HBox root = new HBox(UiStyles.APP_SPACING);
@@ -109,6 +106,10 @@ public class MainApp extends Application {
         .getDialogPane()
         .getStylesheets()
         .add(getClass().getResource("/css/style.css").toExternalForm());
+
+    if (alert.getDialogPane().getScene() != null) {
+      alert.getDialogPane().getScene().setFill(javafx.scene.paint.Color.web("#3c3f41"));
+    }
 
     alert.showAndWait();
   }
