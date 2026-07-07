@@ -1,72 +1,55 @@
 package com.cellularautomata.ui;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
 /**
  * The commands section of the sidebar. Contains the Generate and Save action buttons and exposes
- * listener registration methods so {@link MainFrame} can wire up behavior without knowing about the
- * button internals.
+ * listener registration methods so MainApp can wire up behavior without knowing about the button
+ * internals.
  */
-class CommandsPanel extends JPanel {
-  private final JButton displayButton;
-  private final JButton saveButton;
+final class CommandsPanel extends GridPane {
+  private final Button displayButton;
+  private final Button saveButton;
 
   CommandsPanel() {
-    setLayout(new GridBagLayout());
+    setHgap(UiStyles.BUTTON_GAP_X);
 
     // Add section heading.
-    final JLabel commandsHeading = UiStyles.createHeading("Commands");
-    GridBagConstraints gbcCommandsHeading = new GridBagConstraints();
-    gbcCommandsHeading.gridwidth = 2;
-    gbcCommandsHeading.anchor = GridBagConstraints.WEST;
-    gbcCommandsHeading.insets = new Insets(0, 0, UiStyles.SECTION_HEADING_GAP, 0);
-    gbcCommandsHeading.gridx = 0;
-    gbcCommandsHeading.gridy = 0;
-    add(commandsHeading, gbcCommandsHeading);
+    final Label commandsHeading = UiStyles.createHeading("Commands");
+    GridPane.setColumnSpan(commandsHeading, 2);
+    GridPane.setMargin(commandsHeading, new Insets(0, 0, UiStyles.SECTION_HEADING_GAP, 0));
+    add(commandsHeading, 0, 0);
 
     // Add command buttons.
-    displayButton = new JButton("Generate automaton");
+    displayButton = new Button("Generate automaton");
     UiStyles.applyControlHeight(displayButton);
-    GridBagConstraints gbcDisplayButton = new GridBagConstraints();
-    gbcDisplayButton.fill = GridBagConstraints.HORIZONTAL;
-    gbcDisplayButton.weightx = 0.5;
-    gbcDisplayButton.insets = new Insets(0, 0, 0, UiStyles.BUTTON_GAP_X);
-    gbcDisplayButton.gridx = 0;
-    gbcDisplayButton.gridy = 1;
-    add(displayButton, gbcDisplayButton);
+    displayButton.setMaxWidth(Double.MAX_VALUE);
+    GridPane.setHgrow(displayButton, Priority.ALWAYS);
+    add(displayButton, 0, 1);
 
-    saveButton = new JButton("Save image");
+    saveButton = new Button("Save image");
     UiStyles.applyControlHeight(saveButton);
-    saveButton.setEnabled(false);
-    GridBagConstraints gbcSaveButton = new GridBagConstraints();
-    gbcSaveButton.fill = GridBagConstraints.HORIZONTAL;
-    gbcSaveButton.weightx = 0.5;
-    gbcSaveButton.gridx = 1;
-    gbcSaveButton.gridy = 1;
-    add(saveButton, gbcSaveButton);
+    saveButton.setDisable(true);
+    saveButton.setMaxWidth(Double.MAX_VALUE);
+    GridPane.setHgrow(saveButton, Priority.ALWAYS);
+    add(saveButton, 1, 1);
   }
 
-  @Override
-  public java.awt.Dimension getMaximumSize() {
-    // Prevent BoxLayout from stretching this panel beyond its natural height.
-    return new java.awt.Dimension(Integer.MAX_VALUE, getPreferredSize().height);
+  void addGenerateListener(EventHandler<ActionEvent> listener) {
+    displayButton.setOnAction(listener);
   }
 
-  void addGenerateListener(ActionListener listener) {
-    displayButton.addActionListener(listener);
-  }
-
-  void addSaveListener(ActionListener listener) {
-    saveButton.addActionListener(listener);
+  void addSaveListener(EventHandler<ActionEvent> listener) {
+    saveButton.setOnAction(listener);
   }
 
   void setSaveEnabled(boolean enabled) {
-    saveButton.setEnabled(enabled);
+    saveButton.setDisable(!enabled);
   }
 }

@@ -1,8 +1,7 @@
 package com.cellularautomata.ui;
 
-import java.awt.Dimension;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
 
 /**
  * Shared styling constants and component helpers for the UI package. Centralises spacing, sizing,
@@ -32,16 +31,14 @@ final class UiStyles {
   private UiStyles() {}
 
   // Component factories and styling helpers
-  static JLabel createHeading(String text) {
-    JLabel heading = new JLabel(text);
-    heading.putClientProperty("FlatLaf.styleClass", HEADING_STYLE_CLASS);
+  static Label createHeading(String text) {
+    Label heading = new Label(text);
+    heading.getStyleClass().add(HEADING_STYLE_CLASS);
     return heading;
   }
 
-  static void applyControlHeight(JComponent component) {
-    Dimension prefSize = component.getPreferredSize();
-    component.setPreferredSize(new Dimension(prefSize.width, CONTROL_HEIGHT));
-    Dimension minSize = component.getMinimumSize();
-    component.setMinimumSize(new Dimension(minSize.width, CONTROL_HEIGHT));
+  static void applyControlHeight(Control component) {
+    component.setMinHeight(CONTROL_HEIGHT);
+    component.setPrefHeight(CONTROL_HEIGHT);
   }
 }

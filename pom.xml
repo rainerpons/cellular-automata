@@ -15,11 +15,16 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- FlatLaf Look and Feel -->
+		<!-- JavaFX -->
 		<dependency>
-			<groupId>com.formdev</groupId>
-			<artifactId>flatlaf</artifactId>
-			<version>3.6</version>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>25</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>25</version>
 		</dependency>
 	</dependencies>
 

@@ -1,54 +1,57 @@
 package com.cellularautomata.ui;
 
-import java.awt.Component;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 
 /**
  * The left column of the application window. Displays the section heading and the generated
  * automaton image, or a placeholder prompt before generation.
  */
-class DisplayPanel extends JPanel {
-  private final JLabel automatonLabel;
+final class DisplayPanel extends VBox {
+  private final Label placeholderLabel;
+  private final ImageView automatonImageView;
+  private final StackPane imageContainer;
 
   DisplayPanel() {
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
     // Add section heading.
-    JLabel displayHeading = UiStyles.createHeading("Display");
-    displayHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
-    displayHeading.setBorder(
-        BorderFactory.createEmptyBorder(0, 0, UiStyles.DISPLAY_HEADING_GAP, 0));
-    add(displayHeading);
+    Label displayHeading = UiStyles.createHeading("Display");
+    VBox.setMargin(displayHeading, new Insets(0, 0, UiStyles.DISPLAY_HEADING_GAP, 0));
+    getChildren().add(displayHeading);
 
     // Add placeholder label, replaced by the automaton image after generation.
-    automatonLabel =
-        new JLabel(
-            "<html><center>Click the Generate automaton button to begin.<br><br>"
-                + "Select size, rule, and seed type.</center></html>");
-    automatonLabel.setHorizontalAlignment(JLabel.CENTER);
-    automatonLabel.setVerticalAlignment(JLabel.CENTER);
-    automatonLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    placeholderLabel =
+        new Label(
+            "Click the Generate automaton button to begin.\n\nSelect size, rule, and seed type.");
+    placeholderLabel.setTextAlignment(TextAlignment.CENTER);
+    placeholderLabel.setAlignment(Pos.CENTER);
+    placeholderLabel.getStyleClass().add("dashed-border");
+    placeholderLabel.setMinSize(400, 400);
+    placeholderLabel.setPrefSize(400, 400);
+    placeholderLabel.setMaxSize(400, 400);
 
-    java.awt.Color borderColor = javax.swing.UIManager.getColor("Component.borderColor");
-    if (borderColor == null) {
-      borderColor = java.awt.Color.GRAY;
-    }
-    automatonLabel.setBorder(BorderFactory.createDashedBorder(borderColor, 3.0f, 3.0f));
+    automatonImageView = new ImageView();
+    automatonImageView.setPreserveRatio(true);
 
-    java.awt.Dimension previewSize = new java.awt.Dimension(400, 400);
-    automatonLabel.setPreferredSize(previewSize);
-    automatonLabel.setMinimumSize(previewSize);
-    automatonLabel.setMaximumSize(previewSize);
-    add(automatonLabel);
+    imageContainer = new StackPane();
+    imageContainer.setMinSize(400, 400);
+    imageContainer.setPrefSize(400, 400);
+    imageContainer.setMaxSize(400, 400);
+    imageContainer.getChildren().add(placeholderLabel);
+
+    getChildren().add(imageContainer);
   }
 
-  void setAutomatonImage(ImageIcon icon) {
-    automatonLabel.setText(null);
-    automatonLabel.setIcon(icon);
-    automatonLabel.setBorder(null);
+  void setAutomatonImage(Image icon) {
+    imageContainer.getChildren().remove(placeholderLabel);
+    automatonImageView.setImage(icon);
+    if (!imageContainer.getChildren().contains(automatonImageView)) {
+      imageContainer.getChildren().add(automatonImageView);
+    }
   }
 }
