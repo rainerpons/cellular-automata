@@ -82,10 +82,21 @@ final class ParametersPanel extends GridPane {
     GridPane.setMargin(ruleLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
     add(ruleLabel, 0, 3);
 
-    ruleSpinner = new Spinner<>(0, 255, DEFAULT_RULE, 1);
-    ruleSpinner.setEditable(true);
+    SpinnerValueFactory<Integer> valueFactory =
+        new SpinnerValueFactory<Integer>() {
+          @Override
+          public void decrement(int steps) {
+            int current = getValue() == null ? 0 : getValue();
+            setValue(Math.max(0, current - steps));
+          }
 
-    SpinnerValueFactory<Integer> valueFactory = ruleSpinner.getValueFactory();
+          @Override
+          public void increment(int steps) {
+            int current = getValue() == null ? 0 : getValue();
+            setValue(Math.min(255, current + steps));
+          }
+        };
+    valueFactory.setValue(DEFAULT_RULE);
     valueFactory.setConverter(
         new StringConverter<Integer>() {
           @Override
@@ -96,14 +107,20 @@ final class ParametersPanel extends GridPane {
           @Override
           public Integer fromString(String string) {
             try {
-              if (string == null || string.isEmpty()) return valueFactory.getValue();
-              int val = Integer.parseInt(string);
-              return Math.max(0, Math.min(255, val));
+              if (string == null || string.isEmpty()) {
+                return valueFactory.getValue();
+              }
+              return Integer.parseInt(
+                  string); // DO NOT clamp so MainApp can validate and reject it!
             } catch (NumberFormatException e) {
               return valueFactory.getValue();
             }
           }
         });
+
+    ruleSpinner = new Spinner<>();
+    ruleSpinner.setValueFactory(valueFactory);
+    ruleSpinner.setEditable(true);
 
     ruleSpinner
         .getEditor()
