@@ -10,6 +10,7 @@
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
     -fx-text-base-color: #e6e6e6;
+    -fx-font-weight: 500;
 }
 
 .label {
@@ -91,7 +92,7 @@
 }
 
 .combo-box .arrow, .spinner .increment-arrow, .spinner .decrement-arrow {
-    -fx-background-color: #bbbbbb;
+    -fx-background-color: rgb(173, 173, 173);
 }
 
 .combo-box .list-view {
