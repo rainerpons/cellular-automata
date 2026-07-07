@@ -90,7 +90,7 @@ jobs:
         cache: maven
 
     - name: Generate JavaDocs
-      run: mvn javadoc:javadoc
+      run: mvn compile javadoc:javadoc
 
   package:
     name: Package Application
