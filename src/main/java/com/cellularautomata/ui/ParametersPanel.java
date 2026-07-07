@@ -27,8 +27,6 @@ final class ParametersPanel extends GridPane {
 
   ParametersPanel() {
     setHgap(UiStyles.FORM_LABEL_COLUMN_GAP);
-    // VGap handled via custom margins or keeping it simple with setVgap
-    setVgap(UiStyles.FORM_ROW_BOTTOM_GAP);
 
     // Add section heading.
     addHeading();
@@ -78,6 +76,7 @@ final class ParametersPanel extends GridPane {
 
   private void addRuleControls() {
     Label ruleLabel = new Label("Rule number");
+    GridPane.setMargin(ruleLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
     add(ruleLabel, 0, 3);
 
     ruleSpinner = new Spinner<>(0, 255, DEFAULT_RULE, 1);
@@ -86,6 +85,7 @@ final class ParametersPanel extends GridPane {
     UiStyles.applyControlHeight(ruleSpinner);
     ruleSpinner.setMaxWidth(Double.MAX_VALUE);
     GridPane.setHgrow(ruleSpinner, Priority.ALWAYS);
+    GridPane.setMargin(ruleSpinner, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
     add(ruleSpinner, 1, 3);
   }
 

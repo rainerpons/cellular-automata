@@ -46,6 +46,7 @@ public class MainApp extends Application {
 
     HBox root = new HBox(UiStyles.APP_SPACING);
     root.setPadding(new Insets(UiStyles.APP_SPACING));
+    HBox.setHgrow(sidebarPanel, javafx.scene.layout.Priority.ALWAYS);
     root.getChildren().addAll(displayPanel, sidebarPanel);
 
     setupActionListeners();
