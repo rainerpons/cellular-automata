@@ -26,7 +26,7 @@ public final class Generator {
    */
   public static String generateRule(int rule) {
     ElementaryRule.validate(rule);
-    String binary = Integer.toBinaryString(rule);
+    var binary = Integer.toBinaryString(rule);
     while (binary.length() < 8) {
       binary = "0".concat(binary);
     }
@@ -40,10 +40,10 @@ public final class Generator {
    * @return initial seed as binary string
    */
   public static Vector generateSeed(int size) {
-    String seed = "";
+    var seed = "";
     if (size > 0) {
       for (int i = 0; i < size; i++) {
-        double rand = Math.random();
+        var rand = Math.random();
         if (rand < 0.5) {
           seed = seed.concat("1");
         } else {
@@ -61,9 +61,9 @@ public final class Generator {
    * @return sparse initial seed as binary string
    */
   public static Vector generateSparseSeed(int size) {
-    String seed = "";
+    var seed = "";
     if (size > 0) {
-      int rand = RANDOM.nextInt(size);
+      var rand = RANDOM.nextInt(size);
       for (int i = 0; i < rand; i++) {
         seed = seed.concat("0");
       }
@@ -82,7 +82,7 @@ public final class Generator {
    * @return alternating initial seed as binary string
    */
   public static Vector generateAlternatingSeed(int size) {
-    String seed = "";
+    var seed = "";
     if (size > 0) {
       for (int i = 0; i < size; i++) {
         if (i % 2 == 0) {
@@ -107,39 +107,13 @@ public final class Generator {
     if (current == null) {
       throw new IllegalArgumentException("Vector cannot be null.");
     }
-    String successor = "";
-    String temp = "0".concat(current.getState()).concat("0");
-    String gen = generateRule(rule);
+    var successor = "";
+    var temp = "0".concat(current.getState()).concat("0");
+    var gen = generateRule(rule);
     for (int i = 0; i < current.getSize(); i++) {
-      String sub = temp.substring(i, i + 3);
-      switch (sub) {
-        case "111":
-          successor = successor.concat(Character.toString(gen.charAt(0)));
-          break;
-        case "110":
-          successor = successor.concat(Character.toString(gen.charAt(1)));
-          break;
-        case "101":
-          successor = successor.concat(Character.toString(gen.charAt(2)));
-          break;
-        case "100":
-          successor = successor.concat(Character.toString(gen.charAt(3)));
-          break;
-        case "011":
-          successor = successor.concat(Character.toString(gen.charAt(4)));
-          break;
-        case "010":
-          successor = successor.concat(Character.toString(gen.charAt(5)));
-          break;
-        case "001":
-          successor = successor.concat(Character.toString(gen.charAt(6)));
-          break;
-        case "000":
-          successor = successor.concat(Character.toString(gen.charAt(7)));
-          break;
-        default:
-          throw new IllegalStateException();
-      }
+      var sub = temp.substring(i, i + 3);
+      var index = 7 - Integer.parseInt(sub, 2);
+      successor = successor.concat(Character.toString(gen.charAt(index)));
     }
     return new Vector(successor);
   }

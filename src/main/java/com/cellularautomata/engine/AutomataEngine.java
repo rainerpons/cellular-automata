@@ -23,16 +23,13 @@ public final class AutomataEngine {
       throw new IllegalArgumentException("Seed type cannot be null");
     }
 
-    Vector seed;
-    if (seedType.equalsIgnoreCase("uniform")) {
-      seed = Generator.generateSeed(size);
-    } else if (seedType.equalsIgnoreCase("sparse")) {
-      seed = Generator.generateSparseSeed(size);
-    } else if (seedType.equalsIgnoreCase("alternating")) {
-      seed = Generator.generateAlternatingSeed(size);
-    } else {
-      throw new IllegalArgumentException("Unsupported seed type: " + seedType);
-    }
+    var seed =
+        switch (seedType.toLowerCase(java.util.Locale.ROOT)) {
+          case "uniform" -> Generator.generateSeed(size);
+          case "sparse" -> Generator.generateSparseSeed(size);
+          case "alternating" -> Generator.generateAlternatingSeed(size);
+          default -> throw new IllegalArgumentException("Unsupported seed type: " + seedType);
+        };
 
     Map<Integer, Vector> map = Automaton.initializeVectorMap(rule, seed);
     return new AutomataResult(map, seed);

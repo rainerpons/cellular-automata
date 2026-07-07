@@ -12,6 +12,7 @@ import org.junit.Test;
 public class GeneratorTest {
 
   private static final int RULE_30 = 30;
+
   /** Asserts that a local update rule is valid. */
   @Test
   public void testGenerateRulePositive() {

@@ -14,6 +14,7 @@ import org.junit.Test;
  */
 public class AutomatonTest {
   private static final int RULE_30 = 30;
+
   /** The map we wish to set up and test. */
   Map<Integer, Vector> map;
 

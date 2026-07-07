@@ -36,8 +36,8 @@ public final class Automaton {
     if (seed == null) {
       throw new IllegalArgumentException("Initial seed cannot be null.");
     }
-    Map<Integer, Vector> map = new HashMap<>();
-    Vector successor = Generator.generateSuccessor(rule, seed);
+    var map = new HashMap<Integer, Vector>();
+    var successor = Generator.generateSuccessor(rule, seed);
     int generation = 0;
 
     map.put(generation, seed);
