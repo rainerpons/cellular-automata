@@ -1,6 +1,6 @@
 .root {
     -fx-font-family: "IBM Plex Sans", sans-serif;
-    -fx-font-size: 13px;
+    -fx-font-size: 12.5px;
     -fx-base: #3c3f41;
     -fx-control-inner-background: #2b2b2b;
     -fx-control-inner-background-alt: #2b2b2b;
@@ -17,9 +17,9 @@
 }
 
 .button, .combo-box, .spinner {
-    -fx-background-color: #4c5052;
+    -fx-background-color: rgb(70, 73, 75);
     -fx-background-insets: 0;
-    -fx-border-color: #7a7a7a;
+    -fx-border-color: rgb(97, 99, 101);
     -fx-border-width: 1;
     -fx-border-radius: 3;
     -fx-background-radius: 3;
@@ -57,9 +57,9 @@
 }
 
 .slider .track {
-    -fx-background-color: #4c5052;
-    -fx-pref-height: 4px;
-    -fx-background-radius: 2px;
+    -fx-background-color: rgb(98, 102, 105);
+    -fx-pref-height: 3px;
+    -fx-background-radius: 1.5px;
 }
 
 .spinner {
@@ -69,7 +69,7 @@
 
 .spinner .text-field {
     -fx-background-color: transparent;
-    -fx-border-color: transparent #7a7a7a transparent transparent;
+    -fx-border-color: transparent rgb(97, 99, 101) transparent transparent;
     -fx-border-width: 0 1 0 0;
     -fx-border-radius: 0;
     -fx-background-radius: 0;
