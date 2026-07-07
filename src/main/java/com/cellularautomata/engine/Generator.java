@@ -112,34 +112,20 @@ public final class Generator {
     String gen = generateRule(rule);
     for (int i = 0; i < current.getSize(); i++) {
       String sub = temp.substring(i, i + 3);
-      switch (sub) {
-        case "111":
-          successor = successor.concat(Character.toString(gen.charAt(0)));
-          break;
-        case "110":
-          successor = successor.concat(Character.toString(gen.charAt(1)));
-          break;
-        case "101":
-          successor = successor.concat(Character.toString(gen.charAt(2)));
-          break;
-        case "100":
-          successor = successor.concat(Character.toString(gen.charAt(3)));
-          break;
-        case "011":
-          successor = successor.concat(Character.toString(gen.charAt(4)));
-          break;
-        case "010":
-          successor = successor.concat(Character.toString(gen.charAt(5)));
-          break;
-        case "001":
-          successor = successor.concat(Character.toString(gen.charAt(6)));
-          break;
-        case "000":
-          successor = successor.concat(Character.toString(gen.charAt(7)));
-          break;
-        default:
-          throw new IllegalStateException();
-      }
+      successor =
+          successor.concat(
+              Character.toString(
+                  switch (sub) {
+                    case "111" -> gen.charAt(0);
+                    case "110" -> gen.charAt(1);
+                    case "101" -> gen.charAt(2);
+                    case "100" -> gen.charAt(3);
+                    case "011" -> gen.charAt(4);
+                    case "010" -> gen.charAt(5);
+                    case "001" -> gen.charAt(6);
+                    case "000" -> gen.charAt(7);
+                    default -> throw new IllegalStateException();
+                  }));
     }
     return new Vector(successor);
   }
