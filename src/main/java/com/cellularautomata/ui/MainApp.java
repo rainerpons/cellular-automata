@@ -4,6 +4,7 @@ import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ParametersPanel;
 import com.cellularautomata.ui.panels.SidebarPanel;
+import com.cellularautomata.ui.shared.UiStyles;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;

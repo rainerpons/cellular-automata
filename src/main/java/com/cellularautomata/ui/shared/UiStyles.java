@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.shared;
 
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;

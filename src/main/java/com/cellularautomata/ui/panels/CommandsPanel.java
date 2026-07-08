@@ -1,6 +1,6 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.ui.UiStyles;
+import com.cellularautomata.ui.shared.UiStyles;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;

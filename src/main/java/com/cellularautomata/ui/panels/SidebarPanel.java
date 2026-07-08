@@ -1,6 +1,6 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.ui.UiStyles;
+import com.cellularautomata.ui.shared.UiStyles;
 import javafx.geometry.Insets;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.Priority;
