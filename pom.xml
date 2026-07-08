@@ -26,6 +26,13 @@
 			<artifactId>javafx-swing</artifactId>
 			<version>25</version>
 		</dependency>
+		<!-- SpotBugs annotations -->
+		<dependency>
+			<groupId>com.github.spotbugs</groupId>
+			<artifactId>spotbugs-annotations</artifactId>
+			<version>4.8.6</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 	<properties>
@@ -150,6 +157,16 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.6.3</version>
+			</plugin>
+
+			<!-- JavaFX Maven plugin -->
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.8</version>
+				<configuration>
+					<mainClass>com.cellularautomata.app.Main</mainClass>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

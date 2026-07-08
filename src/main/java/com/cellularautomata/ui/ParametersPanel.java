@@ -68,6 +68,8 @@ final class ParametersPanel extends GridPane {
     sizeSlider = new Slider(MIN_SIZE, MAX_SIZE, DEFAULT_SIZE);
     sizeSlider.setBlockIncrement(1);
     sizeSlider.setMajorTickUnit(1);
+    sizeSlider.setMinorTickCount(0);
+    sizeSlider.setSnapToTicks(true);
     sizeSlider
         .valueProperty()
         .addListener(

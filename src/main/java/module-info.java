@@ -1,7 +1,7 @@
 module com.cellularautomata {
   requires javafx.controls;
   requires javafx.swing;
-  requires java.logging;
+  requires static com.github.spotbugs.annotations;
 
   exports com.cellularautomata.app;
   exports com.cellularautomata.ui;
