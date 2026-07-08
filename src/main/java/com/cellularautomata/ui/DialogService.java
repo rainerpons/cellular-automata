@@ -7,10 +7,27 @@ public class DialogService {
 
   /** Displays an error dialog indicating that the rule number is invalid. */
   public void showRuleError() {
+    Alert alert =
+        createStyledErrorDialog(
+            "Rule Number Error", "Rule must be a whole number between 0 and 255.");
+    alert.showAndWait();
+  }
+
+  /** Displays an error dialog indicating that the image could not be saved. */
+  public void showSaveError() {
+    Alert alert =
+        createStyledErrorDialog(
+            "Save Failed",
+            "The automaton image could not be saved.\n"
+                + "Please check that the selected location is writable and try again.");
+    alert.showAndWait();
+  }
+
+  private Alert createStyledErrorDialog(String title, String message) {
     Alert alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle("Rule Number Error");
+    alert.setTitle(title);
     alert.setHeaderText(null);
-    alert.setContentText("Rule must be a whole number between 0 and 255.");
+    alert.setContentText(message);
 
     // Apply the application stylesheet to the dialog
     alert
@@ -22,27 +39,6 @@ public class DialogService {
       alert.getDialogPane().getScene().setFill(javafx.scene.paint.Color.web("#3c3f41"));
     }
 
-    alert.showAndWait();
-  }
-
-  /** Displays an error dialog indicating that the image could not be saved. */
-  public void showSaveError() {
-    Alert alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle("Save Failed");
-    alert.setHeaderText(null);
-    alert.setContentText(
-        "The automaton image could not be saved.\n"
-            + "Please check that the selected location is writable and try again.");
-
-    alert
-        .getDialogPane()
-        .getStylesheets()
-        .add(getClass().getResource("/css/style.css").toExternalForm());
-
-    if (alert.getDialogPane().getScene() != null) {
-      alert.getDialogPane().getScene().setFill(javafx.scene.paint.Color.web("#3c3f41"));
-    }
-
-    alert.showAndWait();
+    return alert;
   }
 }
