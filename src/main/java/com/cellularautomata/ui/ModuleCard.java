@@ -1,13 +1,15 @@
 package com.cellularautomata.ui;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /** A visual card representing a module selection. */
-public class ModuleCard extends VBox {
+public class ModuleCard extends StackPane {
 
   private final RadioButton radio;
 
@@ -20,11 +22,13 @@ public class ModuleCard extends VBox {
   public ModuleCard(String titleText, String descText) {
     getStyleClass().add("module-card");
 
-    // Header with radio button
-    HBox headerBox = new HBox();
     radio = new RadioButton();
     radio.setMouseTransparent(true); // Let the card handle clicks
-    headerBox.getChildren().add(radio);
+    StackPane.setAlignment(radio, Pos.TOP_LEFT);
+    StackPane.setMargin(radio, new Insets(-15, 0, 0, -15));
+
+    VBox content = new VBox(15);
+    content.setAlignment(Pos.TOP_CENTER);
 
     // Placeholder icon area
     Region placeholder = new Region();
@@ -38,8 +42,10 @@ public class ModuleCard extends VBox {
     Label desc = new Label(descText);
     desc.getStyleClass().add("module-card-desc");
     desc.setWrapText(true);
+    desc.setMinHeight(Region.USE_PREF_SIZE);
 
-    getChildren().addAll(headerBox, placeholder, title, desc);
+    content.getChildren().addAll(placeholder, title, desc);
+    getChildren().addAll(radio, content);
   }
 
   /**

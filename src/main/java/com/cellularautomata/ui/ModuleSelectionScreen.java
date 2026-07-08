@@ -3,7 +3,9 @@ package com.cellularautomata.ui;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
@@ -44,9 +46,6 @@ public class ModuleSelectionScreen extends VBox {
             "Totalistic",
             "Uses the sum of neighboring cell states to determine the next cell state.");
 
-    elementary.setOnMouseClicked(e -> selectCard(elementary));
-    totalistic.setOnMouseClicked(e -> selectCard(totalistic));
-
     cards.getChildren().addAll(elementary, totalistic);
 
     // Footer
@@ -56,11 +55,30 @@ public class ModuleSelectionScreen extends VBox {
     Button continueButton = new Button("Continue");
     continueButton.getStyleClass().add("continue-button");
     continueButton.setPrefWidth(540); // Matches two 260 width cards + 20 spacing
+    continueButton.setDisable(true);
+
+    StackPane buttonWrapper = new StackPane(continueButton);
+    Tooltip continueTooltip = new Tooltip("Select a module to continue.");
+    continueTooltip.getStyleClass().add("tooltip");
+    Tooltip.install(buttonWrapper, continueTooltip);
+
+    elementary.setOnMouseClicked(
+        e -> {
+          selectCard(elementary);
+          continueButton.setDisable(false);
+          Tooltip.uninstall(buttonWrapper, continueTooltip);
+        });
+    totalistic.setOnMouseClicked(
+        e -> {
+          selectCard(totalistic);
+          continueButton.setDisable(false);
+          Tooltip.uninstall(buttonWrapper, continueTooltip);
+        });
 
     Label footerText = new Label("You can switch modules at any time from settings.");
     footerText.getStyleClass().add("module-selection-footer");
 
-    footer.getChildren().addAll(continueButton, footerText);
+    footer.getChildren().addAll(buttonWrapper, footerText);
 
     getChildren().addAll(header, cards, footer);
   }
