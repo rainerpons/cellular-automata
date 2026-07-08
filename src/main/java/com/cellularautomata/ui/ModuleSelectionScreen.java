@@ -57,7 +57,7 @@ public class ModuleSelectionScreen extends VBox {
     cards.getChildren().addAll(elementary, totalistic);
 
     // Footer
-    VBox footer = new VBox(UiStyles.APP_SPACING);
+    VBox footer = new VBox(16);
     footer.setAlignment(Pos.CENTER);
 
     Button continueButton = new Button("Continue");
