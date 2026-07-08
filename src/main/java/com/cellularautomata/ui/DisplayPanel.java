@@ -30,7 +30,7 @@ final class DisplayPanel extends VBox {
             "Click the Generate automaton button to begin.\n\nSelect size, rule, and seed type.");
     placeholderLabel.setTextAlignment(TextAlignment.CENTER);
     placeholderLabel.setAlignment(Pos.CENTER);
-    placeholderLabel.getStyleClass().add("dashed-border");
+    placeholderLabel.getStyleClass().add("placeholder");
     placeholderLabel.setMinSize(400, 400);
     placeholderLabel.setPrefSize(400, 400);
     placeholderLabel.setMaxSize(400, 400);

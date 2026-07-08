@@ -1,3 +1,6 @@
+/* ==========================================
+ * Global Variables & Root 
+ * ========================================== */
 .root {
     -fx-font-family: "IBM Plex Sans", sans-serif;
     -fx-font-size: 12.5px;
@@ -12,8 +15,21 @@
     -fx-text-base-color: #e6e6e6;
 }
 
+/* ==========================================
+ * Typography
+ * ========================================== */
 .label {
     -fx-text-fill: #e6e6e6;
+}
+
+.h1 {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.h2 {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
 }
 
 .label.h3, .h3 {
@@ -21,6 +37,9 @@
     -fx-font-weight: bold;
 }
 
+/* ==========================================
+ * Buttons & Controls
+ * ========================================== */
 .button, .combo-box, .spinner {
     -fx-background-color: rgb(70, 73, 75);
     -fx-background-insets: 0;
@@ -46,43 +65,36 @@
     -fx-opacity: 0.5;
 }
 
-.dashed-border {
-    -fx-border-color: #666666;
-    -fx-border-style: segments(3, 3);
-    -fx-border-width: 1;
+.continue-button {
+    -fx-background-color: #5856d6; /* Purple-ish from mockup, or we can use primary accent? "The screen uses existing theme... but the Continue button exists." Wait, existing theme button is #3b82f6. The feedback didn't explicitly say to change the button color from default. Let's stick to the default blue. */
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
 }
 
+.continue-button:hover {
+    -fx-background-color: #4a90e2;
+}
+
+/* Sliders */
 .slider {
     -fx-background-color: transparent;
 }
-
 .slider .track {
     -fx-background-color: rgb(98, 102, 105);
     -fx-pref-height: 1px;
     -fx-background-radius: 0;
 }
 
-/* Fix Alert Dialog Styling */
-.dialog-pane {
-    -fx-background-color: #3c3f41;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-    -fx-background-insets: 0;
-}
-
-.dialog-pane > *.button-bar > *.container {
-    -fx-background-color: #3c3f41;
-}
-
-.dialog-pane > *.label.content {
-    -fx-background-color: #3c3f41;
-}
-
+/* Spinners & ComboBoxes */
 .spinner {
     -fx-padding: 0;
     -fx-background-insets: 0;
 }
-
 .spinner .text-field {
     -fx-background-color: transparent;
     -fx-border-color: transparent rgb(97, 99, 101) transparent transparent;
@@ -93,7 +105,6 @@
     -fx-padding: 0 5 0 5;
     -fx-background-insets: 0;
 }
-
 .spinner .increment-arrow-button, .spinner .decrement-arrow-button {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
@@ -101,42 +112,62 @@
     -fx-background-radius: 0;
     -fx-padding: 0 5 0 5;
 }
-
 .spinner .increment-arrow-button:hover, .spinner .decrement-arrow-button:hover {
     -fx-background-color: #5c6062;
 }
-
 .combo-box .arrow, .spinner .increment-arrow, .spinner .decrement-arrow {
     -fx-background-color: rgb(173, 173, 173);
 }
-
 .combo-box .arrow-button {
     -fx-padding: 0 5 0 5;
 }
-
 .combo-box .arrow {
     -fx-shape: "M 0 0 h 7 l -3.5 4 z";
 }
-
 .combo-box .list-view {
     -fx-background-color: #3c3f41;
 }
-
 .combo-box .list-cell {
     -fx-text-fill: #e6e6e6;
+}
+
+/* ==========================================
+ * Placeholders & Dividers
+ * ========================================== */
+.placeholder {
+    -fx-border-color: #666666;
+    -fx-border-style: segments(3, 3);
+    -fx-border-width: 1;
 }
 
 .separator {
     -fx-padding: 0;
 }
-
 .separator .line {
     -fx-border-style: solid;
     -fx-border-width: 1 0 0 0;
     -fx-border-color: #555555;
 }
 
-/* Module Selection Screen */
+/* ==========================================
+ * Dialogs
+ * ========================================== */
+.dialog-pane {
+    -fx-background-color: #3c3f41;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+}
+.dialog-pane > *.button-bar > *.container {
+    -fx-background-color: #3c3f41;
+}
+.dialog-pane > *.label.content {
+    -fx-background-color: #3c3f41;
+}
+
+/* ==========================================
+ * Module Selection Screen
+ * ========================================== */
 .module-selection-screen {
     -fx-padding: 40;
     -fx-alignment: center;
@@ -156,6 +187,9 @@
     -fx-spacing: 20;
 }
 
+/* ==========================================
+ * Module Cards
+ * ========================================== */
 .module-card {
     -fx-background-color: rgb(43, 43, 43);
     -fx-border-color: rgb(97, 99, 101);
@@ -167,21 +201,24 @@
     -fx-pref-height: 240;
     -fx-spacing: 15;
     -fx-alignment: top-center;
+    -fx-cursor: hand;
 }
 
-.module-card-icon-placeholder {
-    -fx-fill: transparent;
-    -fx-stroke: rgb(97, 99, 101);
-    -fx-stroke-width: 1.5;
-    -fx-stroke-dash-array: 5 5;
-    -fx-stroke-type: inside;
+.module-card:hover {
+    -fx-background-color: rgb(47, 47, 47);
 }
 
-.module-card-title {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #e6e6e6;
-    -fx-alignment: center;
+.module-card-selected {
+    -fx-background-color: rgb(47, 47, 47);
+    -fx-border-color: #4ADE80;
+}
+
+.module-card-selected .radio-button .radio {
+    -fx-border-color: #4ADE80;
+}
+
+.module-card-selected .radio-button .dot {
+    -fx-background-color: #4ADE80;
 }
 
 .module-card-desc {
@@ -196,4 +233,3 @@
     -fx-text-fill: #808080;
     -fx-font-size: 12px;
 }
-
