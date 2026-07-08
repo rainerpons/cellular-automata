@@ -221,23 +221,25 @@
 
 .module-card .radio-button .radio {
     -fx-background-color: #b0b0b0, #2b2b2b;
-    -fx-background-insets: 0, 1.5;
+    -fx-background-insets: 0, 1;
     -fx-background-radius: 100%;
-    -fx-padding: 6;
+    -fx-padding: 4;
 }
 
 .module-card .radio-button .dot {
     -fx-background-color: transparent;
     -fx-background-radius: 100%;
-    -fx-padding: 2.5;
+    -fx-padding: 3;
 }
 
 .module-card-selected .radio-button .radio {
     -fx-background-color: #4ADE80, #2b2b2b;
+    -fx-background-insets: 0, 1;
 }
 
 .module-card-selected .radio-button:selected .dot {
     -fx-background-color: #4ADE80;
+    -fx-background-insets: 0;
 }
 
 .module-card-desc {
