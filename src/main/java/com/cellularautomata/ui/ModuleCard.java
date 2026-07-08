@@ -11,6 +11,8 @@ import javafx.scene.layout.VBox;
 /** A visual card representing a module selection. */
 public class ModuleCard extends StackPane {
 
+  private static final Insets RADIO_BUTTON_MARGIN = new Insets(-15, 0, 0, -15);
+
   private final RadioButton radio;
 
   /**
@@ -25,7 +27,7 @@ public class ModuleCard extends StackPane {
     radio = new RadioButton();
     radio.setMouseTransparent(true); // Let the card handle clicks
     StackPane.setAlignment(radio, Pos.TOP_LEFT);
-    StackPane.setMargin(radio, new Insets(-15, 0, 0, -15));
+    StackPane.setMargin(radio, RADIO_BUTTON_MARGIN);
 
     VBox content = new VBox(15);
     content.setAlignment(Pos.TOP_CENTER);

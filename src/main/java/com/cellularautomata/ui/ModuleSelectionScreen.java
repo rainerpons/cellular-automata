@@ -14,6 +14,14 @@ import javafx.scene.text.TextAlignment;
 /** The application entry point screen for selecting a module. */
 public class ModuleSelectionScreen extends VBox {
 
+  private static final double CONTINUE_BUTTON_WIDTH = 540;
+  private static final double FOOTER_SPACING = 14;
+  private static final double ICON_SIZE = 64;
+
+  private final Button continueButton;
+  private final Tooltip continueTooltip;
+  private final StackPane buttonWrapper;
+
   private ModuleCard selectedCard;
 
   /** Constructs the module selection screen. */
@@ -37,8 +45,8 @@ public class ModuleSelectionScreen extends VBox {
         new ImageView(
             new Image(
                 ModuleSelectionScreen.class.getResourceAsStream("/cellular-automata-icon.png")));
-    icon.setFitWidth(64);
-    icon.setFitHeight(64);
+    icon.setFitWidth(ICON_SIZE);
+    icon.setFitHeight(ICON_SIZE);
     icon.setPreserveRatio(true);
 
     header.getChildren().addAll(icon, title, subtitle);
@@ -57,31 +65,21 @@ public class ModuleSelectionScreen extends VBox {
     cards.getChildren().addAll(elementary, totalistic);
 
     // Footer
-    VBox footer = new VBox(14);
+    VBox footer = new VBox(FOOTER_SPACING);
     footer.setAlignment(Pos.CENTER);
 
-    Button continueButton = new Button("Continue");
+    continueButton = new Button("Continue");
     continueButton.getStyleClass().add("continue-button");
-    continueButton.setPrefWidth(540); // Matches two 260 width cards + 20 spacing
+    continueButton.setPrefWidth(CONTINUE_BUTTON_WIDTH); // Matches two 260 width cards + 20 spacing
     continueButton.setDisable(true);
 
-    StackPane buttonWrapper = new StackPane(continueButton);
-    Tooltip continueTooltip = new Tooltip("Select a module to continue.");
+    buttonWrapper = new StackPane(continueButton);
+    continueTooltip = new Tooltip("Select a module to continue.");
     continueTooltip.getStyleClass().add("tooltip");
     Tooltip.install(buttonWrapper, continueTooltip);
 
-    elementary.setOnMouseClicked(
-        e -> {
-          selectCard(elementary);
-          continueButton.setDisable(false);
-          Tooltip.uninstall(buttonWrapper, continueTooltip);
-        });
-    totalistic.setOnMouseClicked(
-        e -> {
-          selectCard(totalistic);
-          continueButton.setDisable(false);
-          Tooltip.uninstall(buttonWrapper, continueTooltip);
-        });
+    elementary.setOnMouseClicked(e -> handleCardSelection(elementary));
+    totalistic.setOnMouseClicked(e -> handleCardSelection(totalistic));
 
     Label footerText = new Label("You can switch modules at any time from settings.");
     footerText.getStyleClass().add("module-selection-footer");
@@ -91,11 +89,14 @@ public class ModuleSelectionScreen extends VBox {
     getChildren().addAll(header, cards, footer);
   }
 
-  private void selectCard(ModuleCard card) {
+  private void handleCardSelection(ModuleCard card) {
     if (selectedCard != null) {
       selectedCard.setSelected(false);
     }
     selectedCard = card;
     selectedCard.setSelected(true);
+
+    continueButton.setDisable(false);
+    Tooltip.uninstall(buttonWrapper, continueTooltip);
   }
 }
