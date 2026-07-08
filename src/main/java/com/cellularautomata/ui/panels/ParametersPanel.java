@@ -1,5 +1,6 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.panels;
 
+import com.cellularautomata.ui.shared.UiStyles;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,7 +19,7 @@ import javafx.util.StringConverter;
  * number, and seed type. Exposes read-only accessors so {@link MainApp} can retrieve the current
  * values without knowing the internal control types.
  */
-final class ParametersPanel extends GridPane {
+public final class ParametersPanel extends GridPane {
   static final int MIN_SIZE = 4;
   static final int MAX_SIZE = 128;
   static final int DEFAULT_SIZE = 8;
@@ -28,7 +29,8 @@ final class ParametersPanel extends GridPane {
   private Spinner<Integer> ruleSpinner;
   private ComboBox<String> seedComboBox;
 
-  ParametersPanel() {
+  /** Constructs the parameters panel. */
+  public ParametersPanel() {
     setHgap(UiStyles.FORM_LABEL_COLUMN_GAP);
 
     // Add section heading.
@@ -40,15 +42,30 @@ final class ParametersPanel extends GridPane {
     addSeedControls();
   }
 
-  int getSizeValue() {
+  /**
+   * Gets the size value.
+   *
+   * @return the size value
+   */
+  public int getSizeValue() {
     return (int) sizeSlider.getValue();
   }
 
-  String getRuleText() {
+  /**
+   * Gets the rule text.
+   *
+   * @return the rule text
+   */
+  public String getRuleText() {
     return ruleSpinner.getEditor().getText();
   }
 
-  String getSeedType() {
+  /**
+   * Gets the seed type.
+   *
+   * @return the seed type
+   */
+  public String getSeedType() {
     return seedComboBox.getValue();
   }
 

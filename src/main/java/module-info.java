@@ -1,5 +1,6 @@
 module com.cellularautomata {
   requires javafx.controls;
+  requires transitive javafx.graphics;
   requires javafx.swing;
   requires static com.github.spotbugs.annotations;
 

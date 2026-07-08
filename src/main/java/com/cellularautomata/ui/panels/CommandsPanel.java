@@ -1,5 +1,6 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.panels;
 
+import com.cellularautomata.ui.shared.UiStyles;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -13,11 +14,12 @@ import javafx.scene.layout.Priority;
  * listener registration methods so MainApp can wire up behavior without knowing about the button
  * internals.
  */
-final class CommandsPanel extends GridPane {
+public final class CommandsPanel extends GridPane {
   private final Button displayButton;
   private final Button saveButton;
 
-  CommandsPanel() {
+  /** Constructs the commands panel. */
+  public CommandsPanel() {
     setHgap(UiStyles.BUTTON_GAP_X);
 
     // Add section heading.
@@ -41,15 +43,30 @@ final class CommandsPanel extends GridPane {
     add(saveButton, 1, 1);
   }
 
-  void addGenerateListener(EventHandler<ActionEvent> listener) {
+  /**
+   * Adds a generate listener.
+   *
+   * @param listener the listener
+   */
+  public void addGenerateListener(EventHandler<ActionEvent> listener) {
     displayButton.setOnAction(listener);
   }
 
-  void addSaveListener(EventHandler<ActionEvent> listener) {
+  /**
+   * Adds a save listener.
+   *
+   * @param listener the listener
+   */
+  public void addSaveListener(EventHandler<ActionEvent> listener) {
     saveButton.setOnAction(listener);
   }
 
-  void setSaveEnabled(boolean enabled) {
+  /**
+   * Sets save enabled.
+   *
+   * @param enabled enabled
+   */
+  public void setSaveEnabled(boolean enabled) {
     saveButton.setDisable(!enabled);
   }
 }

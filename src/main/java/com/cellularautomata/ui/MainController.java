@@ -5,7 +5,9 @@ import com.cellularautomata.engine.AutomataResult;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.cellularautomata.ui.panels.CommandsPanel;
+import com.cellularautomata.ui.panels.DisplayPanel;
+import com.cellularautomata.ui.panels.ParametersPanel;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +17,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
 /** Controller responsible for coordinating actions between the UI panels and the core engine. */
-public class MainController {
+class MainController {
   private final DisplayPanel displayPanel;
   private final ParametersPanel parametersPanel;
   private final CommandsPanel commandsPanel;
@@ -33,8 +35,7 @@ public class MainController {
    * @param commandsPanel the commands panel
    * @param dialogService the dialog service
    */
-  @SuppressFBWarnings("EI_EXPOSE_REP2")
-  public MainController(
+  MainController(
       DisplayPanel displayPanel,
       ParametersPanel parametersPanel,
       CommandsPanel commandsPanel,

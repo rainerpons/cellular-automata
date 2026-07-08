@@ -1,5 +1,10 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.ui.panels.CommandsPanel;
+import com.cellularautomata.ui.panels.DisplayPanel;
+import com.cellularautomata.ui.panels.ParametersPanel;
+import com.cellularautomata.ui.panels.SidebarPanel;
+import com.cellularautomata.ui.shared.UiStyles;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -17,8 +22,11 @@ public class MainApp extends Application {
   private final CommandsPanel commandsPanel = new CommandsPanel();
   private final SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
   private final DialogService dialogService = new DialogService();
-  private final MainController mainController =
-      new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
+
+  /** Constructs the main application and wires up the controller. */
+  public MainApp() {
+    new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
+  }
 
   @Override
   public void start(Stage primaryStage) {
@@ -27,6 +35,16 @@ public class MainApp extends Application {
     primaryStage.setTitle("Cellular Automata");
     primaryStage.setResizable(false);
 
+    ModuleSelectionScreen moduleSelectionScreen = new ModuleSelectionScreen();
+    Scene scene = new Scene(moduleSelectionScreen);
+    scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+
+    primaryStage.setScene(scene);
+    primaryStage.show();
+  }
+
+  @SuppressWarnings("unused")
+  private Scene createElementaryWorkspace() {
     HBox root = new HBox(UiStyles.APP_SPACING);
     root.setPadding(new Insets(UiStyles.APP_SPACING));
     HBox.setHgrow(sidebarPanel, javafx.scene.layout.Priority.ALWAYS);
@@ -34,7 +52,6 @@ public class MainApp extends Application {
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
-    primaryStage.setScene(scene);
-    primaryStage.show();
+    return scene;
   }
 }
