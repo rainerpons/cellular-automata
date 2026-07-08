@@ -5,7 +5,6 @@ import com.cellularautomata.engine.AutomataResult;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +32,7 @@ public class MainController {
    * @param commandsPanel the commands panel
    * @param dialogService the dialog service
    */
-  @SuppressFBWarnings("EI_EXPOSE_REP2")
-  public MainController(
+  MainController(
       DisplayPanel displayPanel,
       ParametersPanel parametersPanel,
       CommandsPanel commandsPanel,

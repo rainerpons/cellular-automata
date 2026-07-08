@@ -17,8 +17,11 @@ public class MainApp extends Application {
   private final CommandsPanel commandsPanel = new CommandsPanel();
   private final SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
   private final DialogService dialogService = new DialogService();
-  private final MainController mainController =
-      new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
+
+  /** Constructs the main application. */
+  public MainApp() {
+    new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
+  }
 
   @Override
   public void start(Stage primaryStage) {
