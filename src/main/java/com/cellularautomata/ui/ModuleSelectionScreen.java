@@ -41,10 +41,9 @@ public class ModuleSelectionScreen extends VBox {
     subtitle.setAlignment(Pos.CENTER);
     subtitle.setTextAlignment(TextAlignment.CENTER);
 
-    ImageView icon =
-        new ImageView(
-            new Image(
-                ModuleSelectionScreen.class.getResourceAsStream("/cellular-automata-icon.png")));
+    ImageView icon = new ImageView(
+        new Image(
+            ModuleSelectionScreen.class.getResourceAsStream("/cellular-automata-icon.png")));
     icon.setFitWidth(ICON_SIZE);
     icon.setFitHeight(ICON_SIZE);
     icon.setPreserveRatio(true);
@@ -56,11 +55,9 @@ public class ModuleSelectionScreen extends VBox {
     cards.setAlignment(Pos.CENTER);
     cards.getStyleClass().add("module-selection-cards");
 
-    ModuleCard elementary =
-        new ModuleCard("Elementary", "Uses nearby cells to determine the next cell state.");
-    ModuleCard totalistic =
-        new ModuleCard(
-            "Totalistic", "Uses the sum of nearby cell states to determine the next cell state.");
+    ModuleCard elementary = new ModuleCard("Elementary", "Uses nearby cells to determine the next cell state.");
+    ModuleCard totalistic = new ModuleCard(
+        "Totalistic", "Uses the sum of nearby cell states to determine the next cell state.");
 
     cards.getChildren().addAll(elementary, totalistic);
 
@@ -70,7 +67,7 @@ public class ModuleSelectionScreen extends VBox {
 
     continueButton = new Button("Continue");
     continueButton.getStyleClass().add("continue-button");
-    continueButton.setPrefWidth(CONTINUE_BUTTON_WIDTH); // Matches two 260 width cards + 20 spacing
+    continueButton.setPrefWidth(CONTINUE_BUTTON_WIDTH);
     continueButton.setDisable(true);
 
     buttonWrapper = new StackPane(continueButton);
