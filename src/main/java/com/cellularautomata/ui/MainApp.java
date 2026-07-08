@@ -12,12 +12,13 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
-  private DisplayPanel displayPanel = new DisplayPanel();
-  private ParametersPanel parametersPanel = new ParametersPanel();
-  private CommandsPanel commandsPanel = new CommandsPanel();
-  private SidebarPanel sidebarPanel;
-  private DialogService dialogService = new DialogService();
-  private MainController mainController;
+  private final DisplayPanel displayPanel = new DisplayPanel();
+  private final ParametersPanel parametersPanel = new ParametersPanel();
+  private final CommandsPanel commandsPanel = new CommandsPanel();
+  private final SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+  private final DialogService dialogService = new DialogService();
+  private final MainController mainController =
+      new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
 
   @Override
   public void start(Stage primaryStage) {
@@ -26,16 +27,10 @@ public class MainApp extends Application {
     primaryStage.setTitle("Cellular Automata");
     primaryStage.setResizable(false);
 
-    sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
-
     HBox root = new HBox(UiStyles.APP_SPACING);
     root.setPadding(new Insets(UiStyles.APP_SPACING));
     HBox.setHgrow(sidebarPanel, javafx.scene.layout.Priority.ALWAYS);
     root.getChildren().addAll(displayPanel, sidebarPanel);
-
-    // Initialize the controller to wire everything up
-    mainController =
-        new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());

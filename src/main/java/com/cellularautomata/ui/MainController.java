@@ -84,6 +84,7 @@ public class MainController {
       AutomatonImage.saveImage(resizedAutomatonImage, file);
     } catch (IOException ie) {
       ie.printStackTrace();
+      dialogService.showSaveError();
     }
   }
 }
