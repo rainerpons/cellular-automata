@@ -135,3 +135,65 @@
     -fx-border-width: 1 0 0 0;
     -fx-border-color: #555555;
 }
+
+/* Module Selection Screen */
+.module-selection-screen {
+    -fx-padding: 40;
+    -fx-alignment: center;
+    -fx-spacing: 40;
+}
+
+.module-selection-header {
+    -fx-spacing: 15;
+}
+
+.module-selection-subtitle {
+    -fx-text-fill: #b0b0b0;
+    -fx-font-size: 14px;
+}
+
+.module-selection-cards {
+    -fx-spacing: 20;
+}
+
+.module-card {
+    -fx-background-color: rgb(43, 43, 43);
+    -fx-border-color: rgb(97, 99, 101);
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 30;
+    -fx-pref-width: 260;
+    -fx-pref-height: 240;
+    -fx-spacing: 15;
+    -fx-alignment: top-center;
+}
+
+.module-card-icon-placeholder {
+    -fx-fill: transparent;
+    -fx-stroke: rgb(97, 99, 101);
+    -fx-stroke-width: 1.5;
+    -fx-stroke-dash-array: 5 5;
+    -fx-stroke-type: inside;
+}
+
+.module-card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e6e6e6;
+    -fx-alignment: center;
+}
+
+.module-card-desc {
+    -fx-text-fill: #b0b0b0;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.module-selection-footer {
+    -fx-text-fill: #808080;
+    -fx-font-size: 12px;
+}
+
