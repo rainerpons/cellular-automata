@@ -4,6 +4,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -31,7 +33,14 @@ public class ModuleSelectionScreen extends VBox {
     subtitle.setAlignment(Pos.CENTER);
     subtitle.setTextAlignment(TextAlignment.CENTER);
 
-    ProjectIcon icon = new ProjectIcon();
+    ImageView icon =
+        new ImageView(
+            new Image(
+                ModuleSelectionScreen.class.getResourceAsStream("/cellular-automata-icon.png")));
+    icon.setFitWidth(64);
+    icon.setFitHeight(64);
+    icon.setPreserveRatio(true);
+
     header.getChildren().addAll(icon, title, subtitle);
 
     // Cards
@@ -43,8 +52,7 @@ public class ModuleSelectionScreen extends VBox {
         new ModuleCard("Elementary", "Uses nearby cells to determine the next cell state.");
     ModuleCard totalistic =
         new ModuleCard(
-            "Totalistic",
-            "Uses the sum of neighboring cell states to determine the next cell state.");
+            "Totalistic", "Uses the sum of nearby cell states to determine the next cell state.");
 
     cards.getChildren().addAll(elementary, totalistic);
 

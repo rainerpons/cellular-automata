@@ -68,7 +68,7 @@
 .continue-button {
     -fx-background-color: #4ADE80;
     -fx-border-color: transparent;
-    -fx-text-fill: #16161a;
+    -fx-text-fill: #e6e6e6;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 12;
@@ -200,6 +200,7 @@
 
 .module-selection-subtitle {
     -fx-text-fill: #b0b0b0;
+    -fx-font-size: 14px;
 }
 
 .module-selection-cards {
@@ -236,16 +237,16 @@
 }
 
 .module-card .radio-button .radio {
-    -fx-background-color: #3c3f41, #2b2b2b;
-    -fx-background-insets: 0, 1;
+    -fx-background-color: #b0b0b0, #2b2b2b;
+    -fx-background-insets: 0, 2;
     -fx-background-radius: 1em;
-    -fx-padding: 5;
+    -fx-padding: 8;
 }
 
 .module-card .radio-button .dot {
     -fx-background-color: transparent;
     -fx-background-radius: 1em;
-    -fx-padding: 3;
+    -fx-padding: 4;
 }
 
 .module-card-selected .radio-button .radio {
