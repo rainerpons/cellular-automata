@@ -1,5 +1,6 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.panels;
 
+import com.cellularautomata.ui.UiStyles;
 import javafx.geometry.Insets;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.Priority;
@@ -10,8 +11,14 @@ import javafx.scene.layout.VBox;
  * The right column of the application window. Stacks ParametersPanel and CommandsPanel vertically
  * with a separator between them and owns the sidebar padding and alignment contract.
  */
-final class SidebarPanel extends VBox {
-  SidebarPanel(ParametersPanel parametersPanel, CommandsPanel commandsPanel) {
+public final class SidebarPanel extends VBox {
+  /**
+   * Constructs the sidebar panel.
+   *
+   * @param parametersPanel the parameters panel
+   * @param commandsPanel the commands panel
+   */
+  public SidebarPanel(ParametersPanel parametersPanel, CommandsPanel commandsPanel) {
     // Stack panels with a separator between them.
     getChildren().add(parametersPanel);
 

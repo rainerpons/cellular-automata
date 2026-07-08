@@ -1,5 +1,9 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.ui.panels.CommandsPanel;
+import com.cellularautomata.ui.panels.DisplayPanel;
+import com.cellularautomata.ui.panels.ParametersPanel;
+import com.cellularautomata.ui.panels.SidebarPanel;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -18,7 +22,7 @@ public class MainApp extends Application {
   private final SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
   private final DialogService dialogService = new DialogService();
 
-  /** Constructs the main application. */
+  /** Constructs the main application and wires up the controller. */
   public MainApp() {
     new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
   }
