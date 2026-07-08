@@ -1,0 +1,137 @@
+.root {
+    -fx-font-family: "IBM Plex Sans", sans-serif;
+    -fx-font-size: 12.5px;
+    -fx-base: #3c3f41;
+    -fx-control-inner-background: #2b2b2b;
+    -fx-control-inner-background-alt: #2b2b2b;
+    -fx-background: #3c3f41;
+    -fx-accent: #3b82f6;
+    -fx-default-button: #3b82f6;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-text-base-color: #e6e6e6;
+}
+
+.label {
+    -fx-text-fill: #e6e6e6;
+}
+
+.label.h3, .h3 {
+    -fx-font-size: 16.5px;
+    -fx-font-weight: bold;
+}
+
+.button, .combo-box, .spinner {
+    -fx-background-color: rgb(70, 73, 75);
+    -fx-background-insets: 0;
+    -fx-border-color: rgb(97, 99, 101);
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+.button {
+    -fx-text-fill: #e6e6e6;
+}
+
+.button:hover {
+    -fx-background-color: #5c6062;
+}
+
+.button:pressed {
+    -fx-background-color: #3c3f41;
+}
+
+.button:disabled {
+    -fx-opacity: 0.5;
+}
+
+.dashed-border {
+    -fx-border-color: #666666;
+    -fx-border-style: segments(3, 3);
+    -fx-border-width: 1;
+}
+
+.slider {
+    -fx-background-color: transparent;
+}
+
+.slider .track {
+    -fx-background-color: rgb(98, 102, 105);
+    -fx-pref-height: 1px;
+    -fx-background-radius: 0;
+}
+
+/* Fix Alert Dialog Styling */
+.dialog-pane {
+    -fx-background-color: #3c3f41;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+}
+
+.dialog-pane > *.button-bar > *.container {
+    -fx-background-color: #3c3f41;
+}
+
+.dialog-pane > *.label.content {
+    -fx-background-color: #3c3f41;
+}
+
+.spinner {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.spinner .text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent rgb(97, 99, 101) transparent transparent;
+    -fx-border-width: 0 1 0 0;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-text-fill: #e6e6e6;
+    -fx-padding: 0 5 0 5;
+    -fx-background-insets: 0;
+}
+
+.spinner .increment-arrow-button, .spinner .decrement-arrow-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0 5 0 5;
+}
+
+.spinner .increment-arrow-button:hover, .spinner .decrement-arrow-button:hover {
+    -fx-background-color: #5c6062;
+}
+
+.combo-box .arrow, .spinner .increment-arrow, .spinner .decrement-arrow {
+    -fx-background-color: rgb(173, 173, 173);
+}
+
+.combo-box .arrow-button {
+    -fx-padding: 0 5 0 5;
+}
+
+.combo-box .arrow {
+    -fx-shape: "M 0 0 h 7 l -3.5 4 z";
+}
+
+.combo-box .list-view {
+    -fx-background-color: #3c3f41;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #e6e6e6;
+}
+
+.separator {
+    -fx-padding: 0;
+}
+
+.separator .line {
+    -fx-border-style: solid;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: #555555;
+}

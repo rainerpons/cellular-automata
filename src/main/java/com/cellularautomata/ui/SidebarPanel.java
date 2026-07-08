@@ -1,32 +1,32 @@
 package com.cellularautomata.ui;
 
-import java.awt.Dimension;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
+import javafx.geometry.Insets;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 
 /**
- * The right column of the application window. Stacks {@link ParametersPanel} and {@link
- * CommandsPanel} vertically with a separator between them and owns the sidebar padding and
- * alignment contract.
+ * The right column of the application window. Stacks ParametersPanel and CommandsPanel vertically
+ * with a separator between them and owns the sidebar padding and alignment contract.
  */
-class SidebarPanel extends JPanel {
+final class SidebarPanel extends VBox {
   SidebarPanel(ParametersPanel parametersPanel, CommandsPanel commandsPanel) {
-    // Configure layout and spacing.
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
     // Stack panels with a separator between them.
-    add(parametersPanel);
-    add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_TOP_GAP)));
+    getChildren().add(parametersPanel);
 
-    JSeparator separator = new JSeparator();
-    separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-    add(separator);
+    Separator separator = new Separator();
+    VBox.setMargin(
+        separator,
+        new Insets(
+            UiStyles.SECTION_SEPARATOR_TOP_GAP, 0, UiStyles.SECTION_SEPARATOR_BOTTOM_GAP, 0));
+    getChildren().add(separator);
 
-    add(Box.createRigidArea(new Dimension(0, UiStyles.SECTION_SEPARATOR_BOTTOM_GAP)));
-    add(commandsPanel);
+    getChildren().add(commandsPanel);
+
     // Consume remaining sidebar height so sidebar sections stay grouped at the top
-    add(Box.createVerticalGlue());
+    Region spacer = new Region();
+    VBox.setVgrow(spacer, Priority.ALWAYS);
+    getChildren().add(spacer);
   }
 }

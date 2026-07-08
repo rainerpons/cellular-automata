@@ -1,0 +1,40 @@
+package com.cellularautomata.ui;
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+
+/**
+ * The MainApp class owns JavaFX UI setup and event wiring, while delegating generation and image
+ * work.
+ */
+public class MainApp extends Application {
+
+  private final DisplayPanel displayPanel = new DisplayPanel();
+  private final ParametersPanel parametersPanel = new ParametersPanel();
+  private final CommandsPanel commandsPanel = new CommandsPanel();
+  private final SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+  private final DialogService dialogService = new DialogService();
+  private final MainController mainController =
+      new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
+
+  @Override
+  public void start(Stage primaryStage) {
+    UiFonts.registerBundledFonts();
+
+    primaryStage.setTitle("Cellular Automata");
+    primaryStage.setResizable(false);
+
+    HBox root = new HBox(UiStyles.APP_SPACING);
+    root.setPadding(new Insets(UiStyles.APP_SPACING));
+    HBox.setHgrow(sidebarPanel, javafx.scene.layout.Priority.ALWAYS);
+    root.getChildren().addAll(displayPanel, sidebarPanel);
+
+    Scene scene = new Scene(root);
+    scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+    primaryStage.setScene(scene);
+    primaryStage.show();
+  }
+}

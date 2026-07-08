@@ -15,11 +15,23 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- FlatLaf Look and Feel -->
+		<!-- JavaFX -->
 		<dependency>
-			<groupId>com.formdev</groupId>
-			<artifactId>flatlaf</artifactId>
-			<version>3.6</version>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>25</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>25</version>
+		</dependency>
+		<!-- SpotBugs annotations -->
+		<dependency>
+			<groupId>com.github.spotbugs</groupId>
+			<artifactId>spotbugs-annotations</artifactId>
+			<version>4.8.6</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
@@ -44,8 +56,9 @@
 				<version>2.29</version>
 				<executions>
 					<execution>
+						<phase>verify</phase>
 						<goals>
-							<goal>format</goal>
+							<goal>check</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -63,6 +76,14 @@
 						<version>13.7.0</version>
 					</dependency>
 				</dependencies>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<configLocation>google_checks.xml</configLocation>
 					<encoding>UTF-8</encoding>
@@ -71,7 +92,7 @@
 					<violationSeverity>warning</violationSeverity>
 					<linkXRef>false</linkXRef>
 				</configuration>
-				</plugin>
+			</plugin>
 
 			<!-- SpotBugs plugin -->
 			<plugin>
@@ -135,7 +156,20 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.6.3</version>
+			</plugin>
+
+			<!-- JavaFX Maven plugin -->
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.8</version>
+				<configuration>
+					<mainClass>com.cellularautomata/com.cellularautomata.app.Main</mainClass>
+					<options>
+						<option>--enable-native-access=javafx.graphics</option>
+					</options>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
