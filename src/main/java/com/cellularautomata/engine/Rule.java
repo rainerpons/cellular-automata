@@ -3,11 +3,6 @@ package com.cellularautomata.engine;
 /** Defines the transition behavior for a family of cellular automata rules. */
 public interface Rule {
 
-  /**
-   * Gets the rule number.
-   *
-   * @return the rule number
-   */
   int getRuleNumber();
 
   /**
