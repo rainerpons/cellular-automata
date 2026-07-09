@@ -62,7 +62,6 @@ public enum WorkspaceConfig {
     return defaultRule;
   }
 
-  @SuppressWarnings("checkstyle:MissingJavadocMethod")
   public boolean supportsGeneration() {
     return supportsGeneration;
   }
@@ -73,7 +72,7 @@ public enum WorkspaceConfig {
    * @param ruleNumber the rule number to instantiate
    * @return a new Rule instance
    */
-  public Rule createRule(int ruleNumber) {
+  public Rule instantiateRule(int ruleNumber) {
     return switch (this) {
       case ELEMENTARY -> new ElementaryRule(ruleNumber);
       case TOTALISTIC -> new TotalisticRule(ruleNumber);

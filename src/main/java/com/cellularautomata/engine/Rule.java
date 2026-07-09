@@ -3,7 +3,6 @@ package com.cellularautomata.engine;
 /** Defines the transition behavior for a family of cellular automata rules. */
 public interface Rule {
 
-  @SuppressWarnings("checkstyle:MissingJavadocMethod")
   int getRuleNumber();
 
   /**
