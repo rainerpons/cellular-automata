@@ -3,6 +3,10 @@ package com.cellularautomata.engine;
 /** Implementation of Rule for Elementary cellular automata. */
 public final class ElementaryRule implements Rule {
 
+  public static final int MIN_RULE_NUMBER = 0;
+  public static final int MAX_RULE_NUMBER = 255;
+  public static final int DEFAULT_RULE_NUMBER = 30;
+
   private final int ruleNumber;
   private final String binaryRule;
 
@@ -35,7 +39,7 @@ public final class ElementaryRule implements Rule {
     if (neighborhood == null || neighborhood.length() != 3) {
       throw new IllegalArgumentException("Neighborhood must be exactly 3 characters");
     }
-    int index = 7 - Integer.parseInt(neighborhood, 2);
+    int index = (binaryRule.length() - 1) - Integer.parseInt(neighborhood, 2);
     return binaryRule.charAt(index);
   }
 
@@ -46,6 +50,6 @@ public final class ElementaryRule implements Rule {
    * @return true if the rule is between 0 and 255 (inclusive)
    */
   public static boolean isValid(int rule) {
-    return rule >= 0 && rule <= 255;
+    return rule >= MIN_RULE_NUMBER && rule <= MAX_RULE_NUMBER;
   }
 }
