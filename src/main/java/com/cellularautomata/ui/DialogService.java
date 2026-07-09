@@ -5,11 +5,17 @@ import javafx.scene.control.Alert;
 /** Service responsible for creating and displaying dialogs to the user. */
 public class DialogService {
 
-  /** Displays an error dialog indicating that the rule number is invalid. */
-  public void showRuleError() {
+  /**
+   * Displays an error dialog indicating that the rule number is invalid.
+   *
+   * @param minRule the minimum valid rule number
+   * @param maxRule the maximum valid rule number
+   */
+  public void showRuleError(int minRule, int maxRule) {
     Alert alert =
         createStyledErrorDialog(
-            "Rule Number Error", "Rule must be a whole number between 0 and 255.");
+            "Rule Number Error",
+            "Rule must be a whole number between " + minRule + " and " + maxRule + ".");
     alert.showAndWait();
   }
 

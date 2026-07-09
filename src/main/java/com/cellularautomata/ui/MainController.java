@@ -63,7 +63,7 @@ class MainController {
         RuleValidator.parseRule(
             parametersPanel.getRuleText(), config.getMinRule(), config.getMaxRule());
     if (!parsedRule.isPresent()) {
-      dialogService.showRuleError();
+      dialogService.showRuleError(config.getMinRule(), config.getMaxRule());
       return;
     }
 
