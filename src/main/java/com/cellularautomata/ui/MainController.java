@@ -5,7 +5,6 @@ import com.cellularautomata.engine.AutomataEngine;
 import com.cellularautomata.engine.AutomataResult;
 import com.cellularautomata.engine.Rule;
 import com.cellularautomata.engine.RuleValidator;
-import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
@@ -27,7 +26,6 @@ class MainController {
   private final WorkspaceConfig config;
 
   private BufferedImage resizedAutomatonImage;
-  private Vector seed;
   private Rule rule;
 
   /**
@@ -72,7 +70,6 @@ class MainController {
     AutomataResult result =
         AutomataEngine.generate(
             rule, parametersPanel.getSizeValue(), parametersPanel.getSeedType());
-    seed = result.getOriginalSeed();
 
     BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
     resizedAutomatonImage = AutomatonImage.resizeImage(400, 400, automatonImage);
@@ -83,7 +80,19 @@ class MainController {
 
   private void saveAutomatonImage() {
     FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialFileName(AutomatonImage.getFileName(rule.getRuleNumber(), seed));
+
+    File desktop = new File(System.getProperty("user.home"), "Desktop");
+    if (desktop.exists() && desktop.isDirectory()) {
+      fileChooser.setInitialDirectory(desktop);
+    } else {
+      File home = new File(System.getProperty("user.home"));
+      if (home.exists() && home.isDirectory()) {
+        fileChooser.setInitialDirectory(home);
+      }
+    }
+
+    fileChooser.setInitialFileName(
+        AutomatonImage.getFileName(config, rule.getRuleNumber(), parametersPanel.getSizeValue()));
     Window window = displayPanel.getScene().getWindow();
     File file = fileChooser.showSaveDialog(window);
     if (file == null) {

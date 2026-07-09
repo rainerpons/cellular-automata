@@ -1,9 +1,12 @@
 package com.cellularautomata.image;
 
+import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.Vector;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import javax.imageio.ImageIO;
 
@@ -62,14 +65,17 @@ public final class AutomatonImage {
   }
 
   /**
-   * Creates the name of a file given a rule number and an initial seed.
+   * Creates the name of a file given a workspace configuration, rule number, and lattice size.
    *
+   * @param config the workspace configuration
    * @param rule local update rule number
-   * @param seed initial neighborhood vector
-   * @return a filename which includes the rule number and initial seed
+   * @param size lattice size
+   * @return a filename following the convention: workspace_rule{rule}_size{size}_{timestamp}.png
    */
-  public static String getFileName(int rule, Vector seed) {
-    return "rule" + rule + "_seed" + seed.getState() + ".jpg";
+  public static String getFileName(WorkspaceConfig config, int rule, int size) {
+    String timestamp =
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss"));
+    return config.name().toLowerCase() + "_rule" + rule + "_size" + size + "_" + timestamp + ".png";
   }
 
   /**
@@ -83,6 +89,6 @@ public final class AutomatonImage {
     if (!file.createNewFile()) {
       System.err.println("Warning: file already exists, overwriting: " + file.getPath());
     }
-    ImageIO.write(image, "JPG", file);
+    ImageIO.write(image, "PNG", file);
   }
 }
