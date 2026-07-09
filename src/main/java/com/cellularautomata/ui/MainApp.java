@@ -1,5 +1,6 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ParametersPanel;
@@ -17,16 +18,10 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
-  private final DisplayPanel displayPanel = new DisplayPanel();
-  private final ParametersPanel parametersPanel = new ParametersPanel();
-  private final CommandsPanel commandsPanel = new CommandsPanel();
-  private final SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
   private final DialogService dialogService = new DialogService();
 
-  /** Constructs the main application and wires up the controller. */
-  public MainApp() {
-    new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
-  }
+  /** Constructs the main application. */
+  public MainApp() {}
 
   @Override
   public void start(Stage primaryStage) {
@@ -36,6 +31,8 @@ public class MainApp extends Application {
     primaryStage.setResizable(false);
 
     ModuleSelectionScreen moduleSelectionScreen = new ModuleSelectionScreen();
+    moduleSelectionScreen.setOnContinue(config -> launchWorkspace(primaryStage, config));
+
     Scene scene = new Scene(moduleSelectionScreen);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
@@ -43,8 +40,18 @@ public class MainApp extends Application {
     primaryStage.show();
   }
 
-  @SuppressWarnings("unused")
-  private Scene createElementaryWorkspace() {
+  private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
+    primaryStage.setTitle(config.getWindowTitle());
+
+    DisplayPanel displayPanel = new DisplayPanel();
+    ParametersPanel parametersPanel = new ParametersPanel(config);
+    CommandsPanel commandsPanel = new CommandsPanel();
+    SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+
+    if (config.supportsGeneration()) {
+      new MainController(displayPanel, parametersPanel, commandsPanel, dialogService, config);
+    }
+
     HBox root = new HBox(UiStyles.APP_SPACING);
     root.setPadding(new Insets(UiStyles.APP_SPACING));
     HBox.setHgrow(sidebarPanel, javafx.scene.layout.Priority.ALWAYS);
@@ -52,6 +59,6 @@ public class MainApp extends Application {
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
-    return scene;
+    primaryStage.setScene(scene);
   }
 }

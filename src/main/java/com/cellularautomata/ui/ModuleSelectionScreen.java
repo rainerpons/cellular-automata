@@ -1,6 +1,8 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.ui.shared.UiStyles;
+import java.util.function.Consumer;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,6 +26,7 @@ public class ModuleSelectionScreen extends VBox {
   private final StackPane buttonWrapper;
 
   private ModuleCard selectedCard;
+  private Consumer<WorkspaceConfig> onContinue;
 
   /** Constructs the module selection screen. */
   public ModuleSelectionScreen() {
@@ -58,10 +61,15 @@ public class ModuleSelectionScreen extends VBox {
     cards.getStyleClass().add("module-selection-cards");
 
     ModuleCard elementary =
-        new ModuleCard("Elementary", "Uses nearby cells to determine the next cell state.");
+        new ModuleCard(
+            WorkspaceConfig.ELEMENTARY,
+            "Elementary",
+            "Uses nearby cells to determine the next cell state.");
     ModuleCard totalistic =
         new ModuleCard(
-            "Totalistic", "Uses the sum of nearby cell states to determine the next cell state.");
+            WorkspaceConfig.TOTALISTIC,
+            "Totalistic",
+            "Uses the sum of nearby cell states to determine the next cell state.");
 
     cards.getChildren().addAll(elementary, totalistic);
 
@@ -87,7 +95,24 @@ public class ModuleSelectionScreen extends VBox {
 
     footer.getChildren().addAll(buttonWrapper, footerText);
 
+    continueButton.setOnAction(
+        e -> {
+          if (onContinue == null || selectedCard == null) {
+            return;
+          }
+          onContinue.accept(selectedCard.getConfig());
+        });
+
     getChildren().addAll(header, cards, footer);
+  }
+
+  /**
+   * Sets the callback to be invoked when the user selects a module and clicks continue.
+   *
+   * @param onContinue the callback
+   */
+  public void setOnContinue(Consumer<WorkspaceConfig> onContinue) {
+    this.onContinue = onContinue;
   }
 
   private void handleCardSelection(ModuleCard card) {

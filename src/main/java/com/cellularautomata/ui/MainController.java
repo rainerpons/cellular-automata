@@ -1,5 +1,6 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.AutomataEngine;
 import com.cellularautomata.engine.AutomataResult;
 import com.cellularautomata.engine.RuleValidator;
@@ -22,6 +23,7 @@ class MainController {
   private final ParametersPanel parametersPanel;
   private final CommandsPanel commandsPanel;
   private final DialogService dialogService;
+  private final WorkspaceConfig config;
 
   private BufferedImage resizedAutomatonImage;
   private Vector seed;
@@ -34,16 +36,19 @@ class MainController {
    * @param parametersPanel the parameters panel
    * @param commandsPanel the commands panel
    * @param dialogService the dialog service
+   * @param config the workspace configuration
    */
   MainController(
       DisplayPanel displayPanel,
       ParametersPanel parametersPanel,
       CommandsPanel commandsPanel,
-      DialogService dialogService) {
+      DialogService dialogService,
+      WorkspaceConfig config) {
     this.displayPanel = displayPanel;
     this.parametersPanel = parametersPanel;
     this.commandsPanel = commandsPanel;
     this.dialogService = dialogService;
+    this.config = config;
     setupActionListeners();
   }
 
@@ -53,7 +58,9 @@ class MainController {
   }
 
   private void generateAutomaton() {
-    OptionalInt parsedRule = RuleValidator.parseRule(parametersPanel.getRuleText());
+    OptionalInt parsedRule =
+        RuleValidator.parseRule(
+            parametersPanel.getRuleText(), config.getMinRule(), config.getMaxRule());
     if (!parsedRule.isPresent()) {
       dialogService.showRuleError();
       return;

@@ -1,5 +1,6 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.config.WorkspaceConfig;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -14,14 +15,17 @@ public class ModuleCard extends StackPane {
   private static final Insets RADIO_BUTTON_MARGIN = new Insets(-15, 0, 0, -15);
 
   private final RadioButton radio;
+  private final WorkspaceConfig config;
 
   /**
    * Constructs a new module card.
    *
+   * @param config the configuration of the workspace
    * @param titleText the title of the module
    * @param descText the description of the module
    */
-  public ModuleCard(String titleText, String descText) {
+  public ModuleCard(WorkspaceConfig config, String titleText, String descText) {
+    this.config = config;
     getStyleClass().add("module-card");
 
     radio = new RadioButton();
@@ -64,5 +68,14 @@ public class ModuleCard extends StackPane {
     } else {
       getStyleClass().remove("module-card-selected");
     }
+  }
+
+  /**
+   * Gets the workspace configuration associated with this card.
+   *
+   * @return the workspace configuration
+   */
+  public WorkspaceConfig getConfig() {
+    return config;
   }
 }

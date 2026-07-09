@@ -1,5 +1,6 @@
 package com.cellularautomata.ui.panels;
 
+import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.ui.shared.UiStyles;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -16,21 +17,28 @@ import javafx.util.StringConverter;
 
 /**
  * The parameters section of the sidebar. Provides controls for configuring the automaton size, rule
- * number, and seed type. Exposes read-only accessors so {@link MainApp} can retrieve the current
- * values without knowing the internal control types.
+ * number, and seed type. Exposes read-only accessors for external consumers to retrieve the current
+ * values without exposing internal control implementations.
  */
 public final class ParametersPanel extends GridPane {
   static final int MIN_SIZE = 4;
   static final int MAX_SIZE = 128;
   static final int DEFAULT_SIZE = 8;
-  static final int DEFAULT_RULE = 30;
+
+  private final WorkspaceConfig config;
 
   private Slider sizeSlider;
   private Spinner<Integer> ruleSpinner;
   private ComboBox<String> seedComboBox;
 
-  /** Constructs the parameters panel. */
-  public ParametersPanel() {
+  /**
+   * Constructs the parameters panel.
+   *
+   * @param config the workspace configuration
+   */
+  public ParametersPanel(WorkspaceConfig config) {
+    this.config = config;
+
     setHgap(UiStyles.FORM_LABEL_COLUMN_GAP);
 
     // Add section heading.
@@ -105,17 +113,17 @@ public final class ParametersPanel extends GridPane {
         new SpinnerValueFactory<Integer>() {
           @Override
           public void decrement(int steps) {
-            int current = getValue() == null ? 0 : getValue();
-            setValue(Math.max(0, current - steps));
+            int current = getValue() == null ? config.getMinRule() : getValue();
+            setValue(Math.max(config.getMinRule(), current - steps));
           }
 
           @Override
           public void increment(int steps) {
-            int current = getValue() == null ? 0 : getValue();
-            setValue(Math.min(255, current + steps));
+            int current = getValue() == null ? config.getMinRule() : getValue();
+            setValue(Math.min(config.getMaxRule(), current + steps));
           }
         };
-    valueFactory.setValue(DEFAULT_RULE);
+    valueFactory.setValue(config.getDefaultRule());
     valueFactory.setConverter(
         new StringConverter<Integer>() {
           @Override
