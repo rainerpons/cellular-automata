@@ -96,9 +96,10 @@ public class ModuleSelectionScreen extends VBox {
 
     continueButton.setOnAction(
         e -> {
-          if (onContinue != null && selectedCard != null) {
-            onContinue.accept(selectedCard.getModuleType());
+          if (onContinue == null || selectedCard == null) {
+            return;
           }
+          onContinue.accept(selectedCard.getModuleType());
         });
 
     getChildren().addAll(header, cards, footer);

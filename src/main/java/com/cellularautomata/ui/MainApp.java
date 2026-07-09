@@ -17,6 +17,14 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
+  private static final int ELEMENTARY_MIN_RULE = 0;
+  private static final int ELEMENTARY_MAX_RULE = 255;
+  private static final int ELEMENTARY_DEFAULT_RULE = 30;
+
+  private static final int TOTALISTIC_MIN_RULE = 0;
+  private static final int TOTALISTIC_MAX_RULE = 15;
+  private static final int TOTALISTIC_DEFAULT_RULE = 0;
+
   private final DialogService dialogService = new DialogService();
 
   /** Constructs the main application. */
@@ -80,10 +88,22 @@ public class MainApp extends Application {
   }
 
   private void launchElementaryWorkspace(Stage primaryStage) {
-    launchWorkspace(primaryStage, "Cellular Automata (Elementary)", 0, 255, 30, true);
+    launchWorkspace(
+        primaryStage,
+        "Cellular Automata (Elementary)",
+        ELEMENTARY_MIN_RULE,
+        ELEMENTARY_MAX_RULE,
+        ELEMENTARY_DEFAULT_RULE,
+        true);
   }
 
   private void launchTotalisticWorkspace(Stage primaryStage) {
-    launchWorkspace(primaryStage, "Cellular Automata (Totalistic)", 0, 15, 0, false);
+    launchWorkspace(
+        primaryStage,
+        "Cellular Automata (Totalistic)",
+        TOTALISTIC_MIN_RULE,
+        TOTALISTIC_MAX_RULE,
+        TOTALISTIC_DEFAULT_RULE,
+        false);
   }
 }
