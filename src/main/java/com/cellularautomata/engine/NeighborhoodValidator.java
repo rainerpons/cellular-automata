@@ -8,10 +8,12 @@ public final class NeighborhoodValidator {
   }
 
   /**
-   * Validates that a neighborhood is exactly 3 characters long and contains only binary digits (0 or 1).
+   * Validates that a neighborhood is exactly 3 characters long and contains only binary digits (0
+   * or 1).
    *
    * @param neighborhood the neighborhood string to validate
-   * @throws IllegalArgumentException if the neighborhood is null, not 3 characters long, or contains non-binary digits
+   * @throws IllegalArgumentException if the neighborhood is null, not 3 characters long, or
+   *     contains non-binary digits
    */
   public static void validateBinaryRadiusOne(String neighborhood) {
     if (neighborhood == null || neighborhood.length() != 3) {
