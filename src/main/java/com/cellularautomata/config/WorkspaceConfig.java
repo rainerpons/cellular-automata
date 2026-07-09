@@ -1,12 +1,25 @@
 package com.cellularautomata.config;
 
+import com.cellularautomata.engine.ElementaryRule;
+import com.cellularautomata.engine.TotalisticRule;
+
 /** Defines the configuration and constraints for a cellular automata workspace. */
 public enum WorkspaceConfig {
   /** Elementary cellular automata workspace configuration. */
-  ELEMENTARY("Cellular Automata (Elementary)", 0, 255, 30, true),
+  ELEMENTARY(
+      "Cellular Automata (Elementary)",
+      ElementaryRule.MIN_RULE_NUMBER,
+      ElementaryRule.MAX_RULE_NUMBER,
+      ElementaryRule.DEFAULT_RULE_NUMBER,
+      true),
 
   /** Totalistic cellular automata workspace configuration. */
-  TOTALISTIC("Cellular Automata (Totalistic)", 0, 15, 7, true);
+  TOTALISTIC(
+      "Cellular Automata (Totalistic)",
+      TotalisticRule.MIN_RULE_NUMBER,
+      TotalisticRule.MAX_RULE_NUMBER,
+      TotalisticRule.DEFAULT_RULE_NUMBER,
+      true);
 
   private final String windowTitle;
   private final int minRule;
