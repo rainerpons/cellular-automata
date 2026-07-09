@@ -17,8 +17,8 @@ import javafx.util.StringConverter;
 
 /**
  * The parameters section of the sidebar. Provides controls for configuring the automaton size, rule
- * number, and seed type. Exposes read-only accessors so {@link MainApp} can retrieve the current
- * values without knowing the internal control types.
+ * number, and seed type. Exposes read-only accessors for external consumers to retrieve the current
+ * values without exposing internal control implementations.
  */
 public final class ParametersPanel extends GridPane {
   static final int MIN_SIZE = 4;
