@@ -1,5 +1,7 @@
 package com.cellularautomata.config;
 
+import com.cellularautomata.engine.Rule;
+
 import com.cellularautomata.engine.ElementaryRule;
 import com.cellularautomata.engine.TotalisticRule;
 
@@ -36,48 +38,36 @@ public enum WorkspaceConfig {
     this.supportsGeneration = supportsGeneration;
   }
 
-  /**
-   * Gets the application window title for this workspace.
-   *
-   * @return the application window title for this workspace
-   */
   public String getWindowTitle() {
     return windowTitle;
   }
 
-  /**
-   * Gets the minimum allowed rule number.
-   *
-   * @return the minimum allowed rule number
-   */
   public int getMinRule() {
     return minRule;
   }
 
-  /**
-   * Gets the maximum allowed rule number.
-   *
-   * @return the maximum allowed rule number
-   */
   public int getMaxRule() {
     return maxRule;
   }
 
-  /**
-   * Gets the default rule number.
-   *
-   * @return the default rule number
-   */
   public int getDefaultRule() {
     return defaultRule;
   }
 
-  /**
-   * Indicates whether the workspace supports generation yet.
-   *
-   * @return true if generation is supported, false otherwise.
-   */
   public boolean supportsGeneration() {
     return supportsGeneration;
+  }
+
+  /**
+   * Instantiates the concrete Rule implementation corresponding to this workspace.
+   *
+   * @param ruleNumber the rule number to instantiate
+   * @return a new Rule instance
+   */
+  public Rule createRule(int ruleNumber) {
+    return switch (this) {
+      case ELEMENTARY -> new ElementaryRule(ruleNumber);
+      case TOTALISTIC -> new TotalisticRule(ruleNumber);
+    };
   }
 }

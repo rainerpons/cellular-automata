@@ -3,10 +3,8 @@ package com.cellularautomata.ui;
 import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.AutomataEngine;
 import com.cellularautomata.engine.AutomataResult;
-import com.cellularautomata.engine.ElementaryRule;
 import com.cellularautomata.engine.Rule;
 import com.cellularautomata.engine.RuleValidator;
-import com.cellularautomata.engine.TotalisticRule;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.ui.panels.CommandsPanel;
@@ -70,11 +68,7 @@ class MainController {
     }
 
     int parsedRuleInt = parsedRule.getAsInt();
-    rule =
-        switch (config) {
-          case ELEMENTARY -> new ElementaryRule(parsedRuleInt);
-          case TOTALISTIC -> new TotalisticRule(parsedRuleInt);
-        };
+    rule = config.createRule(parsedRuleInt);
     AutomataResult result =
         AutomataEngine.generate(
             rule, parametersPanel.getSizeValue(), parametersPanel.getSeedType());
