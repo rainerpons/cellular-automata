@@ -37,15 +37,11 @@ public final class TotalisticRule implements Rule {
 
   @Override
   public char evaluate(String neighborhood) {
-    if (neighborhood == null || neighborhood.length() != 3) {
-      throw new IllegalArgumentException("Neighborhood must be exactly 3 characters");
-    }
+    NeighborhoodValidator.validateBinaryRadiusOne(neighborhood);
     int sum = 0;
     for (int i = 0; i < neighborhood.length(); i++) {
       if (neighborhood.charAt(i) == '1') {
         sum++;
-      } else if (neighborhood.charAt(i) != '0') {
-        throw new IllegalArgumentException("Neighborhood state must be binary (0 or 1)");
       }
     }
     int index = (binaryRule.length() - 1) - sum;

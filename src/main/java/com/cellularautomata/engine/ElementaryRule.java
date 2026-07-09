@@ -37,9 +37,7 @@ public final class ElementaryRule implements Rule {
 
   @Override
   public char evaluate(String neighborhood) {
-    if (neighborhood == null || neighborhood.length() != 3) {
-      throw new IllegalArgumentException("Neighborhood must be exactly 3 characters");
-    }
+    NeighborhoodValidator.validateBinaryRadiusOne(neighborhood);
     int index = (binaryRule.length() - 1) - Integer.parseInt(neighborhood, 2);
     return binaryRule.charAt(index);
   }
