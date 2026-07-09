@@ -67,7 +67,7 @@ public class ElementaryRuleTest {
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidNeighborhoodCharacters() {
     ElementaryRule rule30 = new ElementaryRule(30);
-    // Integer.parseInt throws NumberFormatException for non-binary characters
+    // NeighborhoodValidator throws IllegalArgumentException for non-binary characters
     rule30.evaluate("1a0");
   }
 }
