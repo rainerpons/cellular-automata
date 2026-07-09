@@ -6,7 +6,7 @@ public enum WorkspaceConfig {
   ELEMENTARY("Cellular Automata (Elementary)", 0, 255, 30, true),
 
   /** Totalistic cellular automata workspace configuration. */
-  TOTALISTIC("Cellular Automata (Totalistic)", 0, 15, 0, false);
+  TOTALISTIC("Cellular Automata (Totalistic)", 0, 15, 7, true);
 
   private final String windowTitle;
   private final int minRule;
