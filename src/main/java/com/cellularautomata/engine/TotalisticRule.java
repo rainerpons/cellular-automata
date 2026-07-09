@@ -6,7 +6,7 @@ public final class TotalisticRule implements Rule {
   public static final int MIN_RULE_NUMBER = 0;
   public static final int MAX_RULE_NUMBER = 15;
   public static final int DEFAULT_RULE_NUMBER = 7;
-  public static final int RULE_WIDTH = 4;
+  private static final int RULE_WIDTH = 4;
 
   private final int ruleNumber;
   private final String binaryRule;
