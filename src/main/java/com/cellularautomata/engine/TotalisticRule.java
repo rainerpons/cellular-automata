@@ -3,6 +3,10 @@ package com.cellularautomata.engine;
 /** Implementation of Rule for Totalistic cellular automata. */
 public final class TotalisticRule implements Rule {
 
+  public static final int MIN_RULE_NUMBER = 0;
+  public static final int MAX_RULE_NUMBER = 15;
+  public static final int DEFAULT_RULE_NUMBER = 7;
+
   private final int ruleNumber;
   private final String binaryRule;
 
@@ -19,7 +23,9 @@ public final class TotalisticRule implements Rule {
     this.ruleNumber = ruleNumber;
 
     String binary = Integer.toBinaryString(ruleNumber);
-    while (binary.length() < 4) {
+    // Determine padding based on maximum rule number
+    int paddingLength = Integer.toBinaryString(MAX_RULE_NUMBER).length();
+    while (binary.length() < paddingLength) {
       binary = "0".concat(binary);
     }
     this.binaryRule = binary;
@@ -43,7 +49,7 @@ public final class TotalisticRule implements Rule {
         throw new IllegalArgumentException("Neighborhood state must be binary (0 or 1)");
       }
     }
-    int index = 3 - sum;
+    int index = (binaryRule.length() - 1) - sum;
     return binaryRule.charAt(index);
   }
 
@@ -54,6 +60,6 @@ public final class TotalisticRule implements Rule {
    * @return true if the rule is between 0 and 15 (inclusive)
    */
   public static boolean isValid(int rule) {
-    return rule >= 0 && rule <= 15;
+    return rule >= MIN_RULE_NUMBER && rule <= MAX_RULE_NUMBER;
   }
 }
