@@ -168,4 +168,17 @@ public class GeneratorTest {
       Assert.assertEquals(expected[generation], current.getState());
     }
   }
+
+  /**
+   * Asserts successor generation works correctly with TotalisticRule to verify abstraction
+   * boundary.
+   */
+  @Test
+  public void testGenerateSuccessorTotalisticRule() {
+    Rule rule15 = new TotalisticRule(15);
+    // 15 in totalistic yields 1 for all valid neighborhoods.
+    Vector current = new Vector("00000000");
+    Vector successor = Generator.generateSuccessor(rule15, current);
+    Assert.assertEquals("11111111", successor.getState());
+  }
 }
