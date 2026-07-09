@@ -70,11 +70,11 @@ class MainController {
     }
 
     int parsedRuleInt = parsedRule.getAsInt();
-    if (config == WorkspaceConfig.ELEMENTARY) {
-      rule = new ElementaryRule(parsedRuleInt);
-    } else {
-      rule = new TotalisticRule(parsedRuleInt);
-    }
+    rule =
+        switch (config) {
+          case ELEMENTARY -> new ElementaryRule(parsedRuleInt);
+          case TOTALISTIC -> new TotalisticRule(parsedRuleInt);
+        };
     AutomataResult result =
         AutomataEngine.generate(
             rule, parametersPanel.getSizeValue(), parametersPanel.getSeedType());
