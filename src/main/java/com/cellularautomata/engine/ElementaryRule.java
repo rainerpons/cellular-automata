@@ -1,10 +1,42 @@
 package com.cellularautomata.engine;
 
-/** Utility class for elementary cellular automaton rule validation. */
-public final class ElementaryRule {
+/** Implementation of Rule for Elementary cellular automata. */
+public final class ElementaryRule implements Rule {
 
-  private ElementaryRule() {
-    throw new IllegalStateException("ElementaryRule is a utility class.");
+  private final int ruleNumber;
+  private final String binaryRule;
+
+  /**
+   * Constructs an ElementaryRule and calculates its binary representation.
+   *
+   * @param ruleNumber elementary rule number
+   * @throws IllegalArgumentException if the rule is invalid
+   */
+  public ElementaryRule(int ruleNumber) {
+    if (!isValid(ruleNumber)) {
+      throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
+    }
+    this.ruleNumber = ruleNumber;
+
+    String binary = Integer.toBinaryString(ruleNumber);
+    while (binary.length() < 8) {
+      binary = "0".concat(binary);
+    }
+    this.binaryRule = binary;
+  }
+
+  @Override
+  public int getRuleNumber() {
+    return ruleNumber;
+  }
+
+  @Override
+  public char evaluate(String neighborhood) {
+    if (neighborhood == null || neighborhood.length() != 3) {
+      throw new IllegalArgumentException("Neighborhood must be exactly 3 characters");
+    }
+    int index = 7 - Integer.parseInt(neighborhood, 2);
+    return binaryRule.charAt(index);
   }
 
   /**
@@ -15,17 +47,5 @@ public final class ElementaryRule {
    */
   public static boolean isValid(int rule) {
     return rule >= 0 && rule <= 255;
-  }
-
-  /**
-   * Validates an elementary cellular automaton rule.
-   *
-   * @param rule elementary rule number
-   * @throws IllegalArgumentException if the rule is invalid
-   */
-  public static void validate(int rule) {
-    if (!isValid(rule)) {
-      throw new IllegalArgumentException("Invalid rule number: " + rule);
-    }
   }
 }
