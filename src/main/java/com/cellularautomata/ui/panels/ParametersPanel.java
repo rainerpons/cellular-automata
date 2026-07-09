@@ -23,14 +23,27 @@ public final class ParametersPanel extends GridPane {
   static final int MIN_SIZE = 4;
   static final int MAX_SIZE = 128;
   static final int DEFAULT_SIZE = 8;
-  static final int DEFAULT_RULE = 30;
+
+  private final int minRule;
+  private final int maxRule;
+  private final int defaultRule;
 
   private Slider sizeSlider;
   private Spinner<Integer> ruleSpinner;
   private ComboBox<String> seedComboBox;
 
-  /** Constructs the parameters panel. */
-  public ParametersPanel() {
+  /**
+   * Constructs the parameters panel.
+   *
+   * @param minRule the minimum allowed rule number
+   * @param maxRule the maximum allowed rule number
+   * @param defaultRule the default rule number
+   */
+  public ParametersPanel(int minRule, int maxRule, int defaultRule) {
+    this.minRule = minRule;
+    this.maxRule = maxRule;
+    this.defaultRule = defaultRule;
+
     setHgap(UiStyles.FORM_LABEL_COLUMN_GAP);
 
     // Add section heading.
@@ -105,17 +118,17 @@ public final class ParametersPanel extends GridPane {
         new SpinnerValueFactory<Integer>() {
           @Override
           public void decrement(int steps) {
-            int current = getValue() == null ? 0 : getValue();
-            setValue(Math.max(0, current - steps));
+            int current = getValue() == null ? minRule : getValue();
+            setValue(Math.max(minRule, current - steps));
           }
 
           @Override
           public void increment(int steps) {
-            int current = getValue() == null ? 0 : getValue();
-            setValue(Math.min(255, current + steps));
+            int current = getValue() == null ? minRule : getValue();
+            setValue(Math.min(maxRule, current + steps));
           }
         };
-    valueFactory.setValue(DEFAULT_RULE);
+    valueFactory.setValue(defaultRule);
     valueFactory.setConverter(
         new StringConverter<Integer>() {
           @Override
