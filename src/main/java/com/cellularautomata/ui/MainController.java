@@ -3,7 +3,10 @@ package com.cellularautomata.ui;
 import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.AutomataEngine;
 import com.cellularautomata.engine.AutomataResult;
+import com.cellularautomata.engine.ElementaryRule;
+import com.cellularautomata.engine.Rule;
 import com.cellularautomata.engine.RuleValidator;
+import com.cellularautomata.engine.TotalisticRule;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.ui.panels.CommandsPanel;
@@ -27,7 +30,7 @@ class MainController {
 
   private BufferedImage resizedAutomatonImage;
   private Vector seed;
-  private int rule;
+  private Rule rule;
 
   /**
    * Constructs the main controller to wire up the application logic.
@@ -66,7 +69,12 @@ class MainController {
       return;
     }
 
-    rule = parsedRule.getAsInt();
+    int parsedRuleInt = parsedRule.getAsInt();
+    if (config == WorkspaceConfig.ELEMENTARY) {
+      rule = new ElementaryRule(parsedRuleInt);
+    } else {
+      rule = new TotalisticRule(parsedRuleInt);
+    }
     AutomataResult result =
         AutomataEngine.generate(
             rule, parametersPanel.getSizeValue(), parametersPanel.getSeedType());
@@ -81,7 +89,7 @@ class MainController {
 
   private void saveAutomatonImage() {
     FileChooser fileChooser = new FileChooser();
-    fileChooser.setInitialFileName(AutomatonImage.getFileName(rule, seed));
+    fileChooser.setInitialFileName(AutomatonImage.getFileName(rule.getRuleNumber(), seed));
     Window window = displayPanel.getScene().getWindow();
     File file = fileChooser.showSaveDialog(window);
     if (file == null) {
