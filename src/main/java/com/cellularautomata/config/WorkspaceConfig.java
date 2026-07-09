@@ -1,8 +1,7 @@
 package com.cellularautomata.config;
 
-import com.cellularautomata.engine.Rule;
-
 import com.cellularautomata.engine.ElementaryRule;
+import com.cellularautomata.engine.Rule;
 import com.cellularautomata.engine.TotalisticRule;
 
 /** Defines the configuration and constraints for a cellular automata workspace. */
@@ -63,6 +62,7 @@ public enum WorkspaceConfig {
     return defaultRule;
   }
 
+  @SuppressWarnings("checkstyle:MissingJavadocMethod")
   public boolean supportsGeneration() {
     return supportsGeneration;
   }
