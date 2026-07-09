@@ -27,8 +27,7 @@ public final class Generator {
     StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       for (int i = 0; i < size; i++) {
-        var rand = Math.random();
-        if (rand < 0.5) {
+        if (RANDOM.nextBoolean()) {
           seed.append('1');
         } else {
           seed.append('0');
