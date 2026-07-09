@@ -1,9 +1,9 @@
 package com.cellularautomata.ui;
 
 import com.cellularautomata.config.WorkspaceConfig;
-import com.cellularautomata.engine.AutomataEngine;
-import com.cellularautomata.engine.AutomataResult;
 import com.cellularautomata.engine.RuleValidator;
+import com.cellularautomata.engine.automata.AutomataEngine;
+import com.cellularautomata.engine.automata.AutomataResult;
 import com.cellularautomata.engine.rules.Rule;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.ui.panels.CommandsPanel;

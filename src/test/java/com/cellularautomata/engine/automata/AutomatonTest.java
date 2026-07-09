@@ -1,5 +1,6 @@
-package com.cellularautomata.engine;
+package com.cellularautomata.engine.automata;
 
+import com.cellularautomata.engine.Vector;
 import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.Rule;
 import java.util.HashMap;
