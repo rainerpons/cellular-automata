@@ -14,14 +14,17 @@ public class ModuleCard extends StackPane {
   private static final Insets RADIO_BUTTON_MARGIN = new Insets(-15, 0, 0, -15);
 
   private final RadioButton radio;
+  private final ModuleType moduleType;
 
   /**
    * Constructs a new module card.
    *
+   * @param moduleType the type of the module
    * @param titleText the title of the module
    * @param descText the description of the module
    */
-  public ModuleCard(String titleText, String descText) {
+  public ModuleCard(ModuleType moduleType, String titleText, String descText) {
+    this.moduleType = moduleType;
     getStyleClass().add("module-card");
 
     radio = new RadioButton();
@@ -64,5 +67,14 @@ public class ModuleCard extends StackPane {
     } else {
       getStyleClass().remove("module-card-selected");
     }
+  }
+
+  /**
+   * Gets the module type associated with this card.
+   *
+   * @return the module type
+   */
+  public ModuleType getModuleType() {
+    return moduleType;
   }
 }

@@ -17,16 +17,10 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
-  private final DisplayPanel displayPanel = new DisplayPanel();
-  private final ParametersPanel parametersPanel = new ParametersPanel();
-  private final CommandsPanel commandsPanel = new CommandsPanel();
-  private final SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
   private final DialogService dialogService = new DialogService();
 
-  /** Constructs the main application and wires up the controller. */
-  public MainApp() {
-    new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
-  }
+  /** Constructs the main application. */
+  public MainApp() {}
 
   @Override
   public void start(Stage primaryStage) {
@@ -36,6 +30,20 @@ public class MainApp extends Application {
     primaryStage.setResizable(false);
 
     ModuleSelectionScreen moduleSelectionScreen = new ModuleSelectionScreen();
+    moduleSelectionScreen.setOnContinue(
+        moduleType -> {
+          switch (moduleType) {
+            case ELEMENTARY:
+              launchElementaryWorkspace(primaryStage);
+              break;
+            case TOTALISTIC:
+              launchTotalisticWorkspace(primaryStage);
+              break;
+            default:
+              throw new IllegalArgumentException("Unknown module type: " + moduleType);
+          }
+        });
+
     Scene scene = new Scene(moduleSelectionScreen);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
@@ -43,8 +51,14 @@ public class MainApp extends Application {
     primaryStage.show();
   }
 
-  @SuppressWarnings("unused")
-  private Scene createElementaryWorkspace() {
+  private void launchElementaryWorkspace(Stage primaryStage) {
+    DisplayPanel displayPanel = new DisplayPanel();
+    ParametersPanel parametersPanel = new ParametersPanel();
+    CommandsPanel commandsPanel = new CommandsPanel();
+    SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+
+    new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
+
     HBox root = new HBox(UiStyles.APP_SPACING);
     root.setPadding(new Insets(UiStyles.APP_SPACING));
     HBox.setHgrow(sidebarPanel, javafx.scene.layout.Priority.ALWAYS);
@@ -52,6 +66,24 @@ public class MainApp extends Application {
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
-    return scene;
+    primaryStage.setScene(scene);
+  }
+
+  private void launchTotalisticWorkspace(Stage primaryStage) {
+    DisplayPanel displayPanel = new DisplayPanel();
+    ParametersPanel parametersPanel = new ParametersPanel();
+    CommandsPanel commandsPanel = new CommandsPanel();
+    SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+
+    // Totalistic generation behavior is intentionally out of scope for this issue.
+
+    HBox root = new HBox(UiStyles.APP_SPACING);
+    root.setPadding(new Insets(UiStyles.APP_SPACING));
+    HBox.setHgrow(sidebarPanel, javafx.scene.layout.Priority.ALWAYS);
+    root.getChildren().addAll(displayPanel, sidebarPanel);
+
+    Scene scene = new Scene(root);
+    scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
+    primaryStage.setScene(scene);
   }
 }
