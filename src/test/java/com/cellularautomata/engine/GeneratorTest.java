@@ -57,20 +57,17 @@ public class GeneratorTest {
     Assert.assertEquals("", negativeSize.getState());
   }
 
-  /** Asserts that an initial seed has alternating cell states. */
+  /** Asserts that repeated alternating seed generation toggles phases. */
   @Test
-  public void testGenerateAlternatingSeed() {
-    String expected = "10101010";
-    String actual = Generator.generateAlternatingSeed(8).getState();
-    Assert.assertEquals(expected, actual);
-  }
+  public void testGenerateAlternatingSeedTogglesPhases() {
+    String first = Generator.generateAlternatingSeed(8).getState();
+    String second = Generator.generateAlternatingSeed(8).getState();
+    String third = Generator.generateAlternatingSeed(8).getState();
 
-  /** Asserts alternating seeds for small sizes follow the even-one odd-zero pattern. */
-  @Test
-  public void testGenerateAlternatingSeedSmallSizes() {
-    Assert.assertEquals("1", Generator.generateAlternatingSeed(1).getState());
-    Assert.assertEquals("10", Generator.generateAlternatingSeed(2).getState());
-    Assert.assertEquals("10101", Generator.generateAlternatingSeed(5).getState());
+    Assert.assertNotEquals(first, second);
+    Assert.assertEquals(first, third);
+    Assert.assertTrue(first.equals("10101010") || first.equals("01010101"));
+    Assert.assertTrue(second.equals("10101010") || second.equals("01010101"));
   }
 
   /** Asserts that non-positive alternating seed sizes produce an empty vector. */
@@ -85,8 +82,7 @@ public class GeneratorTest {
   @Test
   public void testGenerateSuccessor() {
     String expected = "10101011";
-    String actual =
-        Generator.generateSuccessor(RULE_30, Generator.generateAlternatingSeed(8)).getState();
+    String actual = Generator.generateSuccessor(RULE_30, new Vector("10101010")).getState();
     Assert.assertEquals(expected, actual);
   }
 

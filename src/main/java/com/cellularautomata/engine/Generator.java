@@ -12,6 +12,9 @@ public final class Generator {
   /** Shared random number generator. */
   private static final Random RANDOM = new Random();
 
+  /** State for the alternating seed to toggle between phases on each generation. */
+  private static boolean alternatingStartsWithOne = true;
+
   /** Prevents the instantiation of the <code>Generator</code> class. */
   private Generator() {
     throw new IllegalStateException("Generator is a utility class.");
@@ -68,12 +71,13 @@ public final class Generator {
     StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       for (int i = 0; i < size; i++) {
-        if (i % 2 == 0) {
+        if ((i % 2 == 0) == alternatingStartsWithOne) {
           seed.append('1');
         } else {
           seed.append('0');
         }
       }
+      alternatingStartsWithOne = !alternatingStartsWithOne;
     }
     return new Vector(seed.toString());
   }
