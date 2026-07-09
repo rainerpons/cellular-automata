@@ -48,9 +48,7 @@ public class MainApp extends Application {
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
 
-    if (config.supportsGeneration()) {
-      new MainController(displayPanel, parametersPanel, commandsPanel, dialogService, config);
-    }
+    new MainController(displayPanel, parametersPanel, commandsPanel, dialogService, config);
 
     HBox root = new HBox(UiStyles.APP_SPACING);
     root.setPadding(new Insets(UiStyles.APP_SPACING));

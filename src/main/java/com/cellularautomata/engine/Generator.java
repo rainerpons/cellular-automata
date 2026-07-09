@@ -1,5 +1,6 @@
 package com.cellularautomata.engine;
 
+import com.cellularautomata.engine.rules.Rule;
 import java.util.Random;
 
 /**
@@ -12,25 +13,12 @@ public final class Generator {
   /** Shared random number generator. */
   private static final Random RANDOM = new Random();
 
+  /** State for the alternating seed to toggle between phases on each generation. */
+  private static boolean alternatingStartsWithOne = true;
+
   /** Prevents the instantiation of the <code>Generator</code> class. */
   private Generator() {
     throw new IllegalStateException("Generator is a utility class.");
-  }
-
-  /**
-   * Generates a local update rule based on an integer value from 0 to 255 (inclusive).
-   *
-   * @param rule local update rule number
-   * @return rule as binary string
-   * @throws IllegalArgumentException if the rule is invalid
-   */
-  public static String generateRule(int rule) {
-    ElementaryRule.validate(rule);
-    var binary = Integer.toBinaryString(rule);
-    while (binary.length() < 8) {
-      binary = "0".concat(binary);
-    }
-    return binary;
   }
 
   /**
@@ -40,18 +28,17 @@ public final class Generator {
    * @return initial seed as binary string
    */
   public static Vector generateSeed(int size) {
-    var seed = "";
+    StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       for (int i = 0; i < size; i++) {
-        var rand = Math.random();
-        if (rand < 0.5) {
-          seed = seed.concat("1");
+        if (RANDOM.nextBoolean()) {
+          seed.append('1');
         } else {
-          seed = seed.concat("0");
+          seed.append('0');
         }
       }
     }
-    return new Vector(seed);
+    return new Vector(seed.toString());
   }
 
   /**
@@ -61,18 +48,18 @@ public final class Generator {
    * @return sparse initial seed as binary string
    */
   public static Vector generateSparseSeed(int size) {
-    var seed = "";
+    StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       var rand = RANDOM.nextInt(size);
       for (int i = 0; i < rand; i++) {
-        seed = seed.concat("0");
+        seed.append('0');
       }
-      seed = seed.concat("1");
+      seed.append('1');
       for (int i = rand + 1; i < size; i++) {
-        seed = seed.concat("0");
+        seed.append('0');
       }
     }
-    return new Vector(seed);
+    return new Vector(seed.toString());
   }
 
   /**
@@ -82,39 +69,41 @@ public final class Generator {
    * @return alternating initial seed as binary string
    */
   public static Vector generateAlternatingSeed(int size) {
-    var seed = "";
+    StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       for (int i = 0; i < size; i++) {
-        if (i % 2 == 0) {
-          seed = seed.concat("1");
+        if ((i % 2 == 0) == alternatingStartsWithOne) {
+          seed.append('1');
         } else {
-          seed = seed.concat("0");
+          seed.append('0');
         }
       }
+      alternatingStartsWithOne = !alternatingStartsWithOne;
     }
-    return new Vector(seed);
+    return new Vector(seed.toString());
   }
 
   /**
-   * Generates a successive neighborhood vector given a local update rule and a vector.
+   * Generates a successive neighborhood vector given a rule and a vector.
    *
-   * @param rule local update rule number
+   * @param rule the rule to apply
    * @param current vector to determine the successor
    * @return successive neighborhood vector based on the rule and the seed
-   * @throws IllegalArgumentException if the rule is invalid or the vector is null
+   * @throws IllegalArgumentException if the rule or the vector is null
    */
-  public static Vector generateSuccessor(int rule, Vector current) {
+  public static Vector generateSuccessor(Rule rule, Vector current) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null.");
+    }
     if (current == null) {
       throw new IllegalArgumentException("Vector cannot be null.");
     }
-    var successor = "";
+    StringBuilder successor = new StringBuilder(current.getSize());
     var temp = "0".concat(current.getState()).concat("0");
-    var gen = generateRule(rule);
     for (int i = 0; i < current.getSize(); i++) {
-      var sub = temp.substring(i, i + 3);
-      var index = 7 - Integer.parseInt(sub, 2);
-      successor = successor.concat(Character.toString(gen.charAt(index)));
+      var neighborhood = temp.substring(i, i + 3);
+      successor.append(rule.evaluate(neighborhood));
     }
-    return new Vector(successor);
+    return new Vector(successor.toString());
   }
 }

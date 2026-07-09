@@ -1,70 +1,70 @@
 package com.cellularautomata.config;
 
+import com.cellularautomata.engine.rules.ElementaryRule;
+import com.cellularautomata.engine.rules.Rule;
+import com.cellularautomata.engine.rules.TotalisticRule;
+
 /** Defines the configuration and constraints for a cellular automata workspace. */
 public enum WorkspaceConfig {
   /** Elementary cellular automata workspace configuration. */
-  ELEMENTARY("Cellular Automata (Elementary)", 0, 255, 30, true),
+  ELEMENTARY(
+      "Cellular Automata (Elementary)",
+      ElementaryRule.MIN_RULE_NUMBER,
+      ElementaryRule.MAX_RULE_NUMBER,
+      ElementaryRule.DEFAULT_RULE_NUMBER),
 
   /** Totalistic cellular automata workspace configuration. */
-  TOTALISTIC("Cellular Automata (Totalistic)", 0, 15, 0, false);
+  TOTALISTIC(
+      "Cellular Automata (Totalistic)",
+      TotalisticRule.MIN_RULE_NUMBER,
+      TotalisticRule.MAX_RULE_NUMBER,
+      TotalisticRule.DEFAULT_RULE_NUMBER);
 
+  /** The application window title for this workspace. */
   private final String windowTitle;
-  private final int minRule;
-  private final int maxRule;
-  private final int defaultRule;
-  private final boolean supportsGeneration;
 
-  WorkspaceConfig(
-      String windowTitle, int minRule, int maxRule, int defaultRule, boolean supportsGeneration) {
+  /** The minimum allowed rule number. */
+  private final int minRule;
+
+  /** The maximum allowed rule number. */
+  private final int maxRule;
+
+  /** The default rule number. */
+  private final int defaultRule;
+
+  WorkspaceConfig(String windowTitle, int minRule, int maxRule, int defaultRule) {
     this.windowTitle = windowTitle;
     this.minRule = minRule;
     this.maxRule = maxRule;
     this.defaultRule = defaultRule;
-    this.supportsGeneration = supportsGeneration;
   }
 
-  /**
-   * Gets the application window title for this workspace.
-   *
-   * @return the application window title for this workspace
-   */
   public String getWindowTitle() {
     return windowTitle;
   }
 
-  /**
-   * Gets the minimum allowed rule number.
-   *
-   * @return the minimum allowed rule number
-   */
   public int getMinRule() {
     return minRule;
   }
 
-  /**
-   * Gets the maximum allowed rule number.
-   *
-   * @return the maximum allowed rule number
-   */
   public int getMaxRule() {
     return maxRule;
   }
 
-  /**
-   * Gets the default rule number.
-   *
-   * @return the default rule number
-   */
   public int getDefaultRule() {
     return defaultRule;
   }
 
   /**
-   * Indicates whether the workspace supports generation yet.
+   * Instantiates the concrete Rule implementation corresponding to this workspace.
    *
-   * @return true if generation is supported, false otherwise.
+   * @param ruleNumber the rule number to instantiate
+   * @return a new Rule instance
    */
-  public boolean supportsGeneration() {
-    return supportsGeneration;
+  public Rule instantiateRule(int ruleNumber) {
+    return switch (this) {
+      case ELEMENTARY -> new ElementaryRule(ruleNumber);
+      case TOTALISTIC -> new TotalisticRule(ruleNumber);
+    };
   }
 }
