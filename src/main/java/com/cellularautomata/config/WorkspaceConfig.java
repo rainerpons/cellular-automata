@@ -23,10 +23,19 @@ public enum WorkspaceConfig {
       TotalisticRule.DEFAULT_RULE_NUMBER,
       true);
 
+  /** The application window title for this workspace. */
   private final String windowTitle;
+
+  /** The minimum allowed rule number. */
   private final int minRule;
+
+  /** The maximum allowed rule number. */
   private final int maxRule;
+
+  /** The default rule number. */
   private final int defaultRule;
+
+  /** Indicates whether the workspace supports generation yet. */
   private final boolean supportsGeneration;
 
   WorkspaceConfig(
