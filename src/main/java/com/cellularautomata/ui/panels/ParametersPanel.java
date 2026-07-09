@@ -1,5 +1,6 @@
 package com.cellularautomata.ui.panels;
 
+import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.ui.shared.UiStyles;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -24,9 +25,7 @@ public final class ParametersPanel extends GridPane {
   static final int MAX_SIZE = 128;
   static final int DEFAULT_SIZE = 8;
 
-  private final int minRule;
-  private final int maxRule;
-  private final int defaultRule;
+  private final WorkspaceConfig config;
 
   private Slider sizeSlider;
   private Spinner<Integer> ruleSpinner;
@@ -35,14 +34,10 @@ public final class ParametersPanel extends GridPane {
   /**
    * Constructs the parameters panel.
    *
-   * @param minRule the minimum allowed rule number
-   * @param maxRule the maximum allowed rule number
-   * @param defaultRule the default rule number
+   * @param config the workspace configuration
    */
-  public ParametersPanel(int minRule, int maxRule, int defaultRule) {
-    this.minRule = minRule;
-    this.maxRule = maxRule;
-    this.defaultRule = defaultRule;
+  public ParametersPanel(WorkspaceConfig config) {
+    this.config = config;
 
     setHgap(UiStyles.FORM_LABEL_COLUMN_GAP);
 
@@ -118,17 +113,17 @@ public final class ParametersPanel extends GridPane {
         new SpinnerValueFactory<Integer>() {
           @Override
           public void decrement(int steps) {
-            int current = getValue() == null ? minRule : getValue();
-            setValue(Math.max(minRule, current - steps));
+            int current = getValue() == null ? config.getMinRule() : getValue();
+            setValue(Math.max(config.getMinRule(), current - steps));
           }
 
           @Override
           public void increment(int steps) {
-            int current = getValue() == null ? minRule : getValue();
-            setValue(Math.min(maxRule, current + steps));
+            int current = getValue() == null ? config.getMinRule() : getValue();
+            setValue(Math.min(config.getMaxRule(), current + steps));
           }
         };
-    valueFactory.setValue(defaultRule);
+    valueFactory.setValue(config.getDefaultRule());
     valueFactory.setConverter(
         new StringConverter<Integer>() {
           @Override

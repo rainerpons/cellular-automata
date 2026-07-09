@@ -11,11 +11,25 @@
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
     -fx-text-base-color: #e6e6e6;
+
+    /* Custom Theme Colors */
+    -fx-app-background: #3c3f41;
+    -fx-control-bg: rgb(70, 73, 75);
+    -fx-control-bg-hover: #5c6062;
+    -fx-control-border: rgb(97, 99, 101);
+    -fx-accent-green: #4ADE80;
+    -fx-accent-green-hover: #38b668;
+    -fx-text-primary: #e6e6e6;
+    -fx-text-secondary: #b0b0b0;
+    -fx-text-disabled: #808080;
+    -fx-text-dark: #2b2b2b;
+    -fx-card-bg: rgb(43, 43, 43);
+    -fx-card-bg-hover: rgb(47, 47, 47);
 }
 
 /* Typography */
 .label {
-    -fx-text-fill: #e6e6e6;
+    -fx-text-fill: -fx-text-primary;
 }
 
 .h1 {
@@ -35,24 +49,24 @@
 
 /* Buttons & Controls */
 .button, .combo-box, .spinner {
-    -fx-background-color: rgb(70, 73, 75);
+    -fx-background-color: -fx-control-bg;
     -fx-background-insets: 0;
-    -fx-border-color: rgb(97, 99, 101);
+    -fx-border-color: -fx-control-border;
     -fx-border-width: 1;
     -fx-border-radius: 3;
     -fx-background-radius: 3;
 }
 
 .button {
-    -fx-text-fill: #e6e6e6;
+    -fx-text-fill: -fx-text-primary;
 }
 
 .button:hover {
-    -fx-background-color: #5c6062;
+    -fx-background-color: -fx-control-bg-hover;
 }
 
 .button:pressed {
-    -fx-background-color: #3c3f41;
+    -fx-background-color: -fx-app-background;
 }
 
 .button:disabled {
@@ -60,9 +74,9 @@
 }
 
 .continue-button {
-    -fx-background-color: #4ADE80;
+    -fx-background-color: -fx-accent-green;
     -fx-border-color: transparent;
-    -fx-text-fill: #2b2b2b;
+    -fx-text-fill: -fx-text-dark;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 12;
@@ -71,21 +85,21 @@
 }
 
 .continue-button:hover {
-    -fx-background-color: #38b668;
+    -fx-background-color: -fx-accent-green-hover;
 }
 
 .continue-button:disabled {
-    -fx-background-color: rgb(70, 73, 75);
-    -fx-border-color: rgb(97, 99, 101);
-    -fx-text-fill: #808080;
+    -fx-background-color: -fx-control-bg;
+    -fx-border-color: -fx-control-border;
+    -fx-text-fill: -fx-text-disabled;
     -fx-opacity: 0.5;
 }
 
 .tooltip {
-    -fx-background-color: #2b2b2b;
-    -fx-text-fill: #e6e6e6;
+    -fx-background-color: -fx-control-inner-background;
+    -fx-text-fill: -fx-text-primary;
     -fx-font-size: 12px;
-    -fx-border-color: rgb(97, 99, 101);
+    -fx-border-color: -fx-control-border;
     -fx-border-width: 1;
     -fx-border-radius: 4;
     -fx-background-radius: 4;
@@ -107,11 +121,11 @@
 }
 .spinner .text-field {
     -fx-background-color: transparent;
-    -fx-border-color: transparent rgb(97, 99, 101) transparent transparent;
+    -fx-border-color: transparent -fx-control-border transparent transparent;
     -fx-border-width: 0 1 0 0;
     -fx-border-radius: 0;
     -fx-background-radius: 0;
-    -fx-text-fill: #e6e6e6;
+    -fx-text-fill: -fx-text-primary;
     -fx-padding: 0 5 0 5;
     -fx-background-insets: 0;
 }
@@ -123,7 +137,7 @@
     -fx-padding: 0 5 0 5;
 }
 .spinner .increment-arrow-button:hover, .spinner .decrement-arrow-button:hover {
-    -fx-background-color: #5c6062;
+    -fx-background-color: -fx-control-bg-hover;
 }
 .combo-box .arrow, .spinner .increment-arrow, .spinner .decrement-arrow {
     -fx-background-color: rgb(173, 173, 173);
@@ -135,19 +149,19 @@
     -fx-shape: "M 0 0 h 7 l -3.5 4 z";
 }
 .combo-box-popup .list-view {
-    -fx-background-color: rgb(97, 99, 101), rgb(70, 73, 75);
+    -fx-background-color: -fx-control-border, -fx-control-bg;
     -fx-background-insets: 0, 1;
-    -fx-control-inner-background: rgb(70, 73, 75);
+    -fx-control-inner-background: -fx-control-bg;
 }
 .combo-box-popup .list-cell {
     -fx-background-color: -fx-control-inner-background;
-    -fx-text-fill: #e6e6e6;
+    -fx-text-fill: -fx-text-primary;
 }
 .combo-box-popup .list-cell:filled:hover,
 .combo-box-popup .list-cell:filled:selected,
 .combo-box-popup .list-cell:filled:selected:hover {
-    -fx-background-color: #4ADE80;
-    -fx-text-fill: #2b2b2b;
+    -fx-background-color: -fx-accent-green;
+    -fx-text-fill: -fx-text-dark;
 }
 
 /* Placeholders & Dividers */
@@ -169,16 +183,16 @@
 
 /* Dialogs */
 .dialog-pane {
-    -fx-background-color: #3c3f41;
+    -fx-background-color: -fx-app-background;
     -fx-border-color: transparent;
     -fx-border-width: 0;
     -fx-background-insets: 0;
 }
 .dialog-pane > *.button-bar > *.container {
-    -fx-background-color: #3c3f41;
+    -fx-background-color: -fx-app-background;
 }
 .dialog-pane > *.label.content {
-    -fx-background-color: #3c3f41;
+    -fx-background-color: -fx-app-background;
 }
 
 /* Module Selection Screen */
@@ -193,7 +207,7 @@
 }
 
 .module-selection-subtitle {
-    -fx-text-fill: #b0b0b0;
+    -fx-text-fill: -fx-text-secondary;
     -fx-font-size: 14px;
 }
 
@@ -202,14 +216,14 @@
 }
 
 .module-selection-footer {
-    -fx-text-fill: #808080;
+    -fx-text-fill: -fx-text-disabled;
     -fx-font-size: 12px;
 }
 
 /* Module Cards */
 .module-card {
-    -fx-background-color: rgb(43, 43, 43);
-    -fx-border-color: rgb(97, 99, 101);
+    -fx-background-color: -fx-card-bg;
+    -fx-border-color: -fx-control-border;
     -fx-border-width: 1;
     -fx-border-radius: 8;
     -fx-background-radius: 8;
@@ -220,16 +234,16 @@
 }
 
 .module-card:hover {
-    -fx-background-color: rgb(47, 47, 47);
+    -fx-background-color: -fx-card-bg-hover;
 }
 
 .module-card-selected {
-    -fx-background-color: rgb(47, 47, 47);
-    -fx-border-color: #4ADE80;
+    -fx-background-color: -fx-card-bg-hover;
+    -fx-border-color: -fx-accent-green;
 }
 
 .module-card .radio-button .radio {
-    -fx-background-color: #b0b0b0, #2b2b2b;
+    -fx-background-color: -fx-text-secondary, -fx-control-inner-background;
     -fx-background-insets: 0, 1;
     -fx-background-radius: 100%;
     -fx-padding: 4;
@@ -242,17 +256,17 @@
 }
 
 .module-card-selected .radio-button .radio {
-    -fx-background-color: #4ADE80, #2b2b2b;
+    -fx-background-color: -fx-accent-green, -fx-control-inner-background;
     -fx-background-insets: 0, 1;
 }
 
 .module-card-selected .radio-button:selected .dot {
-    -fx-background-color: #4ADE80;
+    -fx-background-color: -fx-accent-green;
     -fx-background-insets: 0;
 }
 
 .module-card-desc {
-    -fx-text-fill: #b0b0b0;
+    -fx-text-fill: -fx-text-secondary;
     -fx-font-size: 13px;
     -fx-wrap-text: true;
     -fx-text-alignment: center;

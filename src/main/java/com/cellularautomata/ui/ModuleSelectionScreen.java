@@ -1,5 +1,6 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.function.Consumer;
 import javafx.geometry.Pos;
@@ -25,7 +26,7 @@ public class ModuleSelectionScreen extends VBox {
   private final StackPane buttonWrapper;
 
   private ModuleCard selectedCard;
-  private Consumer<ModuleType> onContinue;
+  private Consumer<WorkspaceConfig> onContinue;
 
   /** Constructs the module selection screen. */
   public ModuleSelectionScreen() {
@@ -61,12 +62,12 @@ public class ModuleSelectionScreen extends VBox {
 
     ModuleCard elementary =
         new ModuleCard(
-            ModuleType.ELEMENTARY,
+            WorkspaceConfig.ELEMENTARY,
             "Elementary",
             "Uses nearby cells to determine the next cell state.");
     ModuleCard totalistic =
         new ModuleCard(
-            ModuleType.TOTALISTIC,
+            WorkspaceConfig.TOTALISTIC,
             "Totalistic",
             "Uses the sum of nearby cell states to determine the next cell state.");
 
@@ -99,7 +100,7 @@ public class ModuleSelectionScreen extends VBox {
           if (onContinue == null || selectedCard == null) {
             return;
           }
-          onContinue.accept(selectedCard.getModuleType());
+          onContinue.accept(selectedCard.getConfig());
         });
 
     getChildren().addAll(header, cards, footer);
@@ -110,7 +111,7 @@ public class ModuleSelectionScreen extends VBox {
    *
    * @param onContinue the callback
    */
-  public void setOnContinue(Consumer<ModuleType> onContinue) {
+  public void setOnContinue(Consumer<WorkspaceConfig> onContinue) {
     this.onContinue = onContinue;
   }
 

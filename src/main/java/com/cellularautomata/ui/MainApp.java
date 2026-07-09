@@ -1,5 +1,6 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ParametersPanel;
@@ -17,14 +18,6 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
-  private static final int ELEMENTARY_MIN_RULE = 0;
-  private static final int ELEMENTARY_MAX_RULE = 255;
-  private static final int ELEMENTARY_DEFAULT_RULE = 30;
-
-  private static final int TOTALISTIC_MIN_RULE = 0;
-  private static final int TOTALISTIC_MAX_RULE = 15;
-  private static final int TOTALISTIC_DEFAULT_RULE = 0;
-
   private final DialogService dialogService = new DialogService();
 
   /** Constructs the main application. */
@@ -38,19 +31,7 @@ public class MainApp extends Application {
     primaryStage.setResizable(false);
 
     ModuleSelectionScreen moduleSelectionScreen = new ModuleSelectionScreen();
-    moduleSelectionScreen.setOnContinue(
-        moduleType -> {
-          switch (moduleType) {
-            case ELEMENTARY:
-              launchElementaryWorkspace(primaryStage);
-              break;
-            case TOTALISTIC:
-              launchTotalisticWorkspace(primaryStage);
-              break;
-            default:
-              throw new IllegalArgumentException("Unknown module type: " + moduleType);
-          }
-        });
+    moduleSelectionScreen.setOnContinue(config -> launchWorkspace(primaryStage, config));
 
     Scene scene = new Scene(moduleSelectionScreen);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
@@ -59,22 +40,16 @@ public class MainApp extends Application {
     primaryStage.show();
   }
 
-  private void launchWorkspace(
-      Stage primaryStage,
-      String title,
-      int minRule,
-      int maxRule,
-      int defaultRule,
-      boolean enableGeneration) {
-    primaryStage.setTitle(title);
+  private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
+    primaryStage.setTitle(config.getWindowTitle());
 
     DisplayPanel displayPanel = new DisplayPanel();
-    ParametersPanel parametersPanel = new ParametersPanel(minRule, maxRule, defaultRule);
+    ParametersPanel parametersPanel = new ParametersPanel(config);
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
 
-    if (enableGeneration) {
-      new MainController(displayPanel, parametersPanel, commandsPanel, dialogService);
+    if (config.isEnableGeneration()) {
+      new MainController(displayPanel, parametersPanel, commandsPanel, dialogService, config);
     }
 
     HBox root = new HBox(UiStyles.APP_SPACING);
@@ -85,25 +60,5 @@ public class MainApp extends Application {
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
     primaryStage.setScene(scene);
-  }
-
-  private void launchElementaryWorkspace(Stage primaryStage) {
-    launchWorkspace(
-        primaryStage,
-        "Cellular Automata (Elementary)",
-        ELEMENTARY_MIN_RULE,
-        ELEMENTARY_MAX_RULE,
-        ELEMENTARY_DEFAULT_RULE,
-        true);
-  }
-
-  private void launchTotalisticWorkspace(Stage primaryStage) {
-    launchWorkspace(
-        primaryStage,
-        "Cellular Automata (Totalistic)",
-        TOTALISTIC_MIN_RULE,
-        TOTALISTIC_MAX_RULE,
-        TOTALISTIC_DEFAULT_RULE,
-        false);
   }
 }
