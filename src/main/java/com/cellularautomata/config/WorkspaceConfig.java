@@ -11,16 +11,14 @@ public enum WorkspaceConfig {
       "Cellular Automata (Elementary)",
       ElementaryRule.MIN_RULE_NUMBER,
       ElementaryRule.MAX_RULE_NUMBER,
-      ElementaryRule.DEFAULT_RULE_NUMBER,
-      true),
+      ElementaryRule.DEFAULT_RULE_NUMBER),
 
   /** Totalistic cellular automata workspace configuration. */
   TOTALISTIC(
       "Cellular Automata (Totalistic)",
       TotalisticRule.MIN_RULE_NUMBER,
       TotalisticRule.MAX_RULE_NUMBER,
-      TotalisticRule.DEFAULT_RULE_NUMBER,
-      true);
+      TotalisticRule.DEFAULT_RULE_NUMBER);
 
   /** The application window title for this workspace. */
   private final String windowTitle;
@@ -34,16 +32,11 @@ public enum WorkspaceConfig {
   /** The default rule number. */
   private final int defaultRule;
 
-  /** Indicates whether the workspace supports generation yet. */
-  private final boolean supportsGeneration;
-
-  WorkspaceConfig(
-      String windowTitle, int minRule, int maxRule, int defaultRule, boolean supportsGeneration) {
+  WorkspaceConfig(String windowTitle, int minRule, int maxRule, int defaultRule) {
     this.windowTitle = windowTitle;
     this.minRule = minRule;
     this.maxRule = maxRule;
     this.defaultRule = defaultRule;
-    this.supportsGeneration = supportsGeneration;
   }
 
   public String getWindowTitle() {
@@ -60,10 +53,6 @@ public enum WorkspaceConfig {
 
   public int getDefaultRule() {
     return defaultRule;
-  }
-
-  public boolean supportsGeneration() {
-    return supportsGeneration;
   }
 
   /**
