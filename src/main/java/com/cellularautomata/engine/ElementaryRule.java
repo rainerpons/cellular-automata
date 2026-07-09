@@ -6,6 +6,7 @@ public final class ElementaryRule implements Rule {
   public static final int MIN_RULE_NUMBER = 0;
   public static final int MAX_RULE_NUMBER = 255;
   public static final int DEFAULT_RULE_NUMBER = 30;
+  public static final int RULE_WIDTH = 8;
 
   private final int ruleNumber;
   private final String binaryRule;
@@ -23,7 +24,7 @@ public final class ElementaryRule implements Rule {
     this.ruleNumber = ruleNumber;
 
     String binary = Integer.toBinaryString(ruleNumber);
-    while (binary.length() < 8) {
+    while (binary.length() < RULE_WIDTH) {
       binary = "0".concat(binary);
     }
     this.binaryRule = binary;
