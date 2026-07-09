@@ -24,18 +24,18 @@ public final class Generator {
    * @return initial seed as binary string
    */
   public static Vector generateSeed(int size) {
-    var seed = "";
+    StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       for (int i = 0; i < size; i++) {
         var rand = Math.random();
         if (rand < 0.5) {
-          seed = seed.concat("1");
+          seed.append('1');
         } else {
-          seed = seed.concat("0");
+          seed.append('0');
         }
       }
     }
-    return new Vector(seed);
+    return new Vector(seed.toString());
   }
 
   /**
@@ -45,18 +45,18 @@ public final class Generator {
    * @return sparse initial seed as binary string
    */
   public static Vector generateSparseSeed(int size) {
-    var seed = "";
+    StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       var rand = RANDOM.nextInt(size);
       for (int i = 0; i < rand; i++) {
-        seed = seed.concat("0");
+        seed.append('0');
       }
-      seed = seed.concat("1");
+      seed.append('1');
       for (int i = rand + 1; i < size; i++) {
-        seed = seed.concat("0");
+        seed.append('0');
       }
     }
-    return new Vector(seed);
+    return new Vector(seed.toString());
   }
 
   /**
@@ -66,17 +66,17 @@ public final class Generator {
    * @return alternating initial seed as binary string
    */
   public static Vector generateAlternatingSeed(int size) {
-    var seed = "";
+    StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       for (int i = 0; i < size; i++) {
         if (i % 2 == 0) {
-          seed = seed.concat("1");
+          seed.append('1');
         } else {
-          seed = seed.concat("0");
+          seed.append('0');
         }
       }
     }
-    return new Vector(seed);
+    return new Vector(seed.toString());
   }
 
   /**
@@ -94,12 +94,12 @@ public final class Generator {
     if (current == null) {
       throw new IllegalArgumentException("Vector cannot be null.");
     }
-    var successor = "";
+    StringBuilder successor = new StringBuilder(current.getSize());
     var temp = "0".concat(current.getState()).concat("0");
     for (int i = 0; i < current.getSize(); i++) {
       var neighborhood = temp.substring(i, i + 3);
-      successor = successor.concat(Character.toString(rule.evaluate(neighborhood)));
+      successor.append(rule.evaluate(neighborhood));
     }
-    return new Vector(successor);
+    return new Vector(successor.toString());
   }
 }
