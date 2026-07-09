@@ -68,7 +68,7 @@ class MainController {
     }
 
     int parsedRuleInt = parsedRule.getAsInt();
-    rule = config.createRule(parsedRuleInt);
+    rule = config.instantiateRule(parsedRuleInt);
     AutomataResult result =
         AutomataEngine.generate(
             rule, parametersPanel.getSizeValue(), parametersPanel.getSeedType());
