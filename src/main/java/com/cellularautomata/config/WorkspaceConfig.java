@@ -12,15 +12,15 @@ public enum WorkspaceConfig {
   private final int minRule;
   private final int maxRule;
   private final int defaultRule;
-  private final boolean enableGeneration;
+  private final boolean supportsGeneration;
 
   WorkspaceConfig(
-      String windowTitle, int minRule, int maxRule, int defaultRule, boolean enableGeneration) {
+      String windowTitle, int minRule, int maxRule, int defaultRule, boolean supportsGeneration) {
     this.windowTitle = windowTitle;
     this.minRule = minRule;
     this.maxRule = maxRule;
     this.defaultRule = defaultRule;
-    this.enableGeneration = enableGeneration;
+    this.supportsGeneration = supportsGeneration;
   }
 
   /**
@@ -62,9 +62,9 @@ public enum WorkspaceConfig {
   /**
    * Indicates whether the workspace supports generation yet.
    *
-   * @return true if generation is enabled, false otherwise.
+   * @return true if generation is supported, false otherwise.
    */
-  public boolean isEnableGeneration() {
-    return enableGeneration;
+  public boolean supportsGeneration() {
+    return supportsGeneration;
   }
 }

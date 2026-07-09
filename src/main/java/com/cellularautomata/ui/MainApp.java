@@ -48,7 +48,7 @@ public class MainApp extends Application {
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
 
-    if (config.isEnableGeneration()) {
+    if (config.supportsGeneration()) {
       new MainController(displayPanel, parametersPanel, commandsPanel, dialogService, config);
     }
 
