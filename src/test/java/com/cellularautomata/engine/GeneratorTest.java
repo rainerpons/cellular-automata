@@ -11,52 +11,7 @@ import org.junit.Test;
  */
 public class GeneratorTest {
 
-  private static final int RULE_30 = 30;
-
-  /** Asserts that a local update rule is valid. */
-  @Test
-  public void testGenerateRulePositive() {
-    String expected = "00011110";
-    String actual = Generator.generateRule(RULE_30);
-    Assert.assertEquals(expected, actual);
-  }
-
-  /** Asserts that invalid rule numbers are rejected. */
-  @Test
-  public void testGenerateRuleInvalid() {
-    int[] invalidRules = {-1, 256};
-    for (int rule : invalidRules) {
-      try {
-        Generator.generateRule(rule);
-        Assert.fail("Expected IllegalArgumentException for rule: " + rule);
-      } catch (IllegalArgumentException expected) {
-        // Expected.
-      }
-    }
-  }
-
-  /** Asserts that the lower boundary rule is zero-padded to eight bits. */
-  @Test
-  public void testGenerateRuleLowerBoundary() {
-    String expected = "00000000";
-    String actual = Generator.generateRule(0);
-    Assert.assertEquals(expected, actual);
-  }
-
-  /** Asserts that the upper boundary rule is represented as eight ones. */
-  @Test
-  public void testGenerateRuleUpperBoundary() {
-    String expected = "11111111";
-    String actual = Generator.generateRule(255);
-    Assert.assertEquals(expected, actual);
-  }
-
-  /** Asserts that low non-zero rules are left-padded with zeroes. */
-  @Test
-  public void testGenerateRulePadding() {
-    Assert.assertEquals("00000001", Generator.generateRule(1));
-    Assert.assertEquals("10000000", Generator.generateRule(128));
-  }
+  private static final Rule RULE_30 = new ElementaryRule(30);
 
   /** Asserts that a uniformly distributed seed has the requested size and valid state. */
   @Test
@@ -143,33 +98,27 @@ public class GeneratorTest {
     Assert.assertEquals(expected, actual);
   }
 
-  /** Asserts that invalid rules throw an exception during successor generation. */
-  @Test
-  public void testGenerateSuccessorInvalidRule() {
-    int[] invalidRules = {-1, 256};
-    for (int rule : invalidRules) {
-      try {
-        Generator.generateSuccessor(rule, new Vector("10101010"));
-        Assert.fail("Expected IllegalArgumentException for rule: " + rule);
-      } catch (IllegalArgumentException expected) {
-        // Expected.
-      }
-    }
-  }
-
   /** Asserts that null vectors throw an exception during successor generation. */
   @Test(expected = IllegalArgumentException.class)
   public void testGenerateSuccessorNullVector() {
     Generator.generateSuccessor(RULE_30, null);
   }
 
+  /** Asserts that null rules throw an exception during successor generation. */
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerateSuccessorNullRule() {
+    Generator.generateSuccessor(null, new Vector("10101010"));
+  }
+
   /** Asserts successor generation across additional representative rules. */
   @Test
   public void testGenerateSuccessorAdditionalRules() {
     Assert.assertEquals(
-        "00000000", Generator.generateSuccessor(0, new Vector("11111111")).getState());
+        "00000000",
+        Generator.generateSuccessor(new ElementaryRule(0), new Vector("11111111")).getState());
     Assert.assertEquals(
-        "11111111", Generator.generateSuccessor(255, new Vector("00000000")).getState());
+        "11111111",
+        Generator.generateSuccessor(new ElementaryRule(255), new Vector("00000000")).getState());
   }
 
   /** Asserts that successor generation preserves the input vector size. */
@@ -182,8 +131,10 @@ public class GeneratorTest {
     Assert.assertEquals(
         singleCell.getSize(), Generator.generateSuccessor(RULE_30, singleCell).getSize());
     Assert.assertEquals(
-        alternating.getSize(), Generator.generateSuccessor(110, alternating).getSize());
-    Assert.assertEquals(sparse.getSize(), Generator.generateSuccessor(255, sparse).getSize());
+        alternating.getSize(),
+        Generator.generateSuccessor(new ElementaryRule(110), alternating).getSize());
+    Assert.assertEquals(
+        sparse.getSize(), Generator.generateSuccessor(new ElementaryRule(255), sparse).getSize());
   }
 
   /** Asserts that an empty input vector produces an empty successor under rule RULE_30. */

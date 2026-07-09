@@ -5,7 +5,7 @@ import org.junit.Test;
 
 public class AutomataEngineTest {
 
-  private static final int RULE_30 = 30;
+  private static final Rule RULE_30 = new ElementaryRule(30);
 
   @Test
   public void testUniformSeedGenerationReturnsValidMap() {
@@ -55,8 +55,8 @@ public class AutomataEngineTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidRuleThrowsException() {
-    // ElementaryRule.validate throws IllegalArgumentException for rule > 255
-    AutomataEngine.generate(256, 8, "uniform");
+    // ElementaryRule constructor throws IllegalArgumentException for rule > 255
+    AutomataEngine.generate(new ElementaryRule(256), 8, "uniform");
   }
 
   @Test

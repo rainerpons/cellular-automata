@@ -18,22 +18,6 @@ public final class Generator {
   }
 
   /**
-   * Generates a local update rule based on an integer value from 0 to 255 (inclusive).
-   *
-   * @param rule local update rule number
-   * @return rule as binary string
-   * @throws IllegalArgumentException if the rule is invalid
-   */
-  public static String generateRule(int rule) {
-    ElementaryRule.validate(rule);
-    var binary = Integer.toBinaryString(rule);
-    while (binary.length() < 8) {
-      binary = "0".concat(binary);
-    }
-    return binary;
-  }
-
-  /**
    * Generates an initial seed where the state of each cell uniformly distributed.
    *
    * @param size amount of individual cells
@@ -96,24 +80,25 @@ public final class Generator {
   }
 
   /**
-   * Generates a successive neighborhood vector given a local update rule and a vector.
+   * Generates a successive neighborhood vector given a rule and a vector.
    *
-   * @param rule local update rule number
+   * @param rule the rule to apply
    * @param current vector to determine the successor
    * @return successive neighborhood vector based on the rule and the seed
-   * @throws IllegalArgumentException if the rule is invalid or the vector is null
+   * @throws IllegalArgumentException if the rule or the vector is null
    */
-  public static Vector generateSuccessor(int rule, Vector current) {
+  public static Vector generateSuccessor(Rule rule, Vector current) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null.");
+    }
     if (current == null) {
       throw new IllegalArgumentException("Vector cannot be null.");
     }
     var successor = "";
     var temp = "0".concat(current.getState()).concat("0");
-    var gen = generateRule(rule);
     for (int i = 0; i < current.getSize(); i++) {
-      var sub = temp.substring(i, i + 3);
-      var index = 7 - Integer.parseInt(sub, 2);
-      successor = successor.concat(Character.toString(gen.charAt(index)));
+      var neighborhood = temp.substring(i, i + 3);
+      successor = successor.concat(Character.toString(rule.evaluate(neighborhood)));
     }
     return new Vector(successor);
   }

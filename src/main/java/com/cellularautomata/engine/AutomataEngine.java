@@ -12,13 +12,13 @@ public final class AutomataEngine {
   /**
    * Generates an automaton map based on rule, size, and seed type.
    *
-   * @param rule the elementary cellular automaton rule (0-255)
+   * @param rule the rule to apply
    * @param size the size of the vector
    * @param seedType the string identifier for the seed ("uniform", "sparse", "alternating")
    * @return the generated AutomataResult
    * @throws IllegalArgumentException if seedType is null or unrecognized
    */
-  public static AutomataResult generate(int rule, int size, String seedType) {
+  public static AutomataResult generate(Rule rule, int size, String seedType) {
     if (seedType == null) {
       throw new IllegalArgumentException("Seed type cannot be null");
     }

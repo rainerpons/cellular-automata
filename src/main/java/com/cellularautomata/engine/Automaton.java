@@ -14,25 +14,27 @@ public final class Automaton {
   private Map<Integer, Vector> map;
 
   /**
-   * Creates an automaton given a local update rule number and an initial seed.
+   * Creates an automaton given a rule and an initial seed.
    *
-   * @param rule local update rule number
+   * @param rule the rule to apply
    * @param seed initial neighborhood vector
    */
-  public Automaton(int rule, Vector seed) {
+  public Automaton(Rule rule, Vector seed) {
     map = initializeVectorMap(rule, seed);
   }
 
   /**
    * Enters values and their successors into the map.
    *
-   * @param rule local update rule number
+   * @param rule the rule to apply
    * @param seed initial neighborhood vector
    * @return a map with associated value pairs of generation counts and neighborhood vectors
-   * @throws IllegalArgumentException if the rule is invalid or the seed is null
+   * @throws IllegalArgumentException if the rule is null or the seed is null
    */
-  public static Map<Integer, Vector> initializeVectorMap(int rule, Vector seed) {
-    ElementaryRule.validate(rule);
+  public static Map<Integer, Vector> initializeVectorMap(Rule rule, Vector seed) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null.");
+    }
     if (seed == null) {
       throw new IllegalArgumentException("Initial seed cannot be null.");
     }

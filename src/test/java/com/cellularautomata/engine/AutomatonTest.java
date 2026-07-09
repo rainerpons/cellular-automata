@@ -13,7 +13,7 @@ import org.junit.Test;
  * @author Rainer Pons
  */
 public class AutomatonTest {
-  private static final int RULE_30 = 30;
+  private static final Rule RULE_30 = new ElementaryRule(30);
 
   /** The map we wish to set up and test. */
   Map<Integer, Vector> map;
@@ -50,18 +50,10 @@ public class AutomatonTest {
     }
   }
 
-  /** Asserts that invalid rules throw an exception during initialization. */
-  @Test
-  public void testInitializeVectorMapInvalidRule() {
-    int[] invalidRules = {-1, 256};
-    for (int rule : invalidRules) {
-      try {
-        Automaton.initializeVectorMap(rule, new Vector("000010000"));
-        Assert.fail("Expected IllegalArgumentException for rule: " + rule);
-      } catch (IllegalArgumentException expected) {
-        // Expected.
-      }
-    }
+  /** Asserts that a null rule throws an exception during initialization. */
+  @Test(expected = IllegalArgumentException.class)
+  public void testInitializeVectorMapNullRule() {
+    Automaton.initializeVectorMap(null, new Vector("000010000"));
   }
 
   /** Asserts that a null seed throws an exception during initialization. */
