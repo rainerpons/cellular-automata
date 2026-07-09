@@ -1,5 +1,8 @@
 package com.cellularautomata.engine;
 
+import com.cellularautomata.engine.rules.ElementaryRule;
+import com.cellularautomata.engine.rules.Rule;
+import com.cellularautomata.engine.rules.TotalisticRule;
 import org.junit.Assert;
 import org.junit.Test;
 

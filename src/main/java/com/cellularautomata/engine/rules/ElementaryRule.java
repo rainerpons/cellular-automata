@@ -1,23 +1,25 @@
-package com.cellularautomata.engine;
+package com.cellularautomata.engine.rules;
 
-/** Implementation of Rule for Totalistic cellular automata. */
-public final class TotalisticRule implements Rule {
+import com.cellularautomata.engine.NeighborhoodValidator;
+
+/** Implementation of Rule for Elementary cellular automata. */
+public final class ElementaryRule implements Rule {
 
   public static final int MIN_RULE_NUMBER = 0;
-  public static final int MAX_RULE_NUMBER = 15;
-  public static final int DEFAULT_RULE_NUMBER = 5;
-  private static final int RULE_WIDTH = 4;
+  public static final int MAX_RULE_NUMBER = 255;
+  public static final int DEFAULT_RULE_NUMBER = 30;
+  private static final int RULE_WIDTH = 8;
 
   private final int ruleNumber;
   private final String binaryRule;
 
   /**
-   * Constructs a TotalisticRule and calculates its binary representation.
+   * Constructs an ElementaryRule and calculates its binary representation.
    *
-   * @param ruleNumber totalistic rule number
+   * @param ruleNumber elementary rule number
    * @throws IllegalArgumentException if the rule is invalid
    */
-  public TotalisticRule(int ruleNumber) {
+  public ElementaryRule(int ruleNumber) {
     if (!isValid(ruleNumber)) {
       throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
     }
@@ -38,21 +40,15 @@ public final class TotalisticRule implements Rule {
   @Override
   public char evaluate(String neighborhood) {
     NeighborhoodValidator.validateBinaryRadiusOne(neighborhood);
-    int sum = 0;
-    for (int i = 0; i < neighborhood.length(); i++) {
-      if (neighborhood.charAt(i) == '1') {
-        sum++;
-      }
-    }
-    int index = (binaryRule.length() - 1) - sum;
+    int index = (binaryRule.length() - 1) - Integer.parseInt(neighborhood, 2);
     return binaryRule.charAt(index);
   }
 
   /**
-   * Indicates if a totalistic cellular automaton rule is valid.
+   * Indicates if an elementary cellular automaton rule is valid.
    *
-   * @param rule totalistic rule number
-   * @return true if the rule is between 0 and 15 (inclusive)
+   * @param rule elementary rule number
+   * @return true if the rule is between 0 and 255 (inclusive)
    */
   public static boolean isValid(int rule) {
     return rule >= MIN_RULE_NUMBER && rule <= MAX_RULE_NUMBER;

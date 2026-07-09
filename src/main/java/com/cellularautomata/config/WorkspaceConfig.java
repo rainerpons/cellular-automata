@@ -1,8 +1,8 @@
 package com.cellularautomata.config;
 
-import com.cellularautomata.engine.ElementaryRule;
-import com.cellularautomata.engine.Rule;
-import com.cellularautomata.engine.TotalisticRule;
+import com.cellularautomata.engine.rules.ElementaryRule;
+import com.cellularautomata.engine.rules.Rule;
+import com.cellularautomata.engine.rules.TotalisticRule;
 
 /** Defines the configuration and constraints for a cellular automata workspace. */
 public enum WorkspaceConfig {

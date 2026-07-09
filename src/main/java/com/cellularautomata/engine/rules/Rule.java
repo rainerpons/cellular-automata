@@ -1,4 +1,4 @@
-package com.cellularautomata.engine;
+package com.cellularautomata.engine.rules;
 
 /** Defines the transition behavior for a family of cellular automata rules. */
 public interface Rule {

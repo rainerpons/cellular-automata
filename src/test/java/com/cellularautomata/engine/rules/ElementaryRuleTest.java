@@ -1,4 +1,4 @@
-package com.cellularautomata.engine;
+package com.cellularautomata.engine.rules;
 
 import org.junit.Assert;
 import org.junit.Test;

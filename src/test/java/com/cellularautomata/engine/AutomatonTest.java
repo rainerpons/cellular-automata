@@ -1,5 +1,7 @@
 package com.cellularautomata.engine;
 
+import com.cellularautomata.engine.rules.ElementaryRule;
+import com.cellularautomata.engine.rules.Rule;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
