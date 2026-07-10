@@ -56,9 +56,10 @@ public final class DisplayPanel extends VBox {
     backLink.getStyleClass().add("navigation-link");
     backLink.setOnMouseClicked(
         e -> {
-          if (onBackToModules != null) {
-            onBackToModules.run();
+          if (onBackToModules == null) {
+            return;
           }
+          onBackToModules.run();
         });
     VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
     getChildren().add(backLink);
