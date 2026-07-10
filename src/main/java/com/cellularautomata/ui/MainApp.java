@@ -51,12 +51,12 @@ public class MainApp extends Application {
   private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
     primaryStage.setTitle(config.getWindowTitle());
 
-    DisplayPanel displayPanel = new DisplayPanel();
+    final DisplayPanel displayPanel = new DisplayPanel();
     Label backLink = new Label("← Back to Modules");
     backLink.getStyleClass().add("navigation-link");
     backLink.setOnMouseClicked(e -> showModuleSelectionScreen(primaryStage));
     VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
-    VBox displayContainer = new VBox(displayPanel, backLink);
+    final VBox displayContainer = new VBox(displayPanel, backLink);
     ParametersPanel parametersPanel = new ParametersPanel(config);
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
