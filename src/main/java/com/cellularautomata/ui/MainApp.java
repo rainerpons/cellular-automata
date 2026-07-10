@@ -9,7 +9,9 @@ import com.cellularautomata.ui.shared.UiStyles;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
@@ -49,7 +51,12 @@ public class MainApp extends Application {
   private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
     primaryStage.setTitle(config.getWindowTitle());
 
-    DisplayPanel displayPanel = new DisplayPanel(() -> showModuleSelectionScreen(primaryStage));
+    DisplayPanel displayPanel = new DisplayPanel();
+    Label backLink = new Label("← Back to Modules");
+    backLink.getStyleClass().add("navigation-link");
+    backLink.setOnMouseClicked(e -> showModuleSelectionScreen(primaryStage));
+    VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
+    VBox displayContainer = new VBox(displayPanel, backLink);
     ParametersPanel parametersPanel = new ParametersPanel(config);
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
@@ -59,7 +66,7 @@ public class MainApp extends Application {
     HBox root = new HBox(UiStyles.APP_SPACING);
     root.setPadding(new Insets(UiStyles.APP_SPACING));
     HBox.setHgrow(sidebarPanel, javafx.scene.layout.Priority.ALWAYS);
-    root.getChildren().addAll(displayPanel, sidebarPanel);
+    root.getChildren().addAll(displayContainer, sidebarPanel);
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());

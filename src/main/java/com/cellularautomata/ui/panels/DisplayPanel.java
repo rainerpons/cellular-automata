@@ -1,7 +1,6 @@
 package com.cellularautomata.ui.panels;
 
 import com.cellularautomata.ui.shared.UiStyles;
-import java.util.Objects;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -19,16 +18,9 @@ public final class DisplayPanel extends VBox {
   private final Label placeholderLabel;
   private final ImageView automatonImageView;
   private final StackPane imageContainer;
-  private final Runnable onBackToModules;
 
-  /**
-   * Constructs the display panel.
-   *
-   * @param onBackToModules callback when navigation back to modules is requested
-   */
-  public DisplayPanel(Runnable onBackToModules) {
-    this.onBackToModules =
-        Objects.requireNonNull(onBackToModules, "onBackToModules cannot be null");
+  /** Constructs the display panel. */
+  public DisplayPanel() {
 
     // Add section heading.
     Label displayHeading = UiStyles.createHeading("Display");
@@ -56,12 +48,6 @@ public final class DisplayPanel extends VBox {
     imageContainer.getChildren().add(placeholderLabel);
 
     getChildren().add(imageContainer);
-
-    Label backLink = new Label("← Back to Modules");
-    backLink.getStyleClass().add("navigation-link");
-    backLink.setOnMouseClicked(e -> this.onBackToModules.run());
-    VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
-    getChildren().add(backLink);
   }
 
   /**
