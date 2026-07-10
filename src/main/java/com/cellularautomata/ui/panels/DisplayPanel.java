@@ -21,6 +21,7 @@ public final class DisplayPanel extends VBox {
 
   /** Constructs the display panel. */
   public DisplayPanel() {
+
     // Add section heading.
     Label displayHeading = UiStyles.createHeading("Display");
     VBox.setMargin(displayHeading, new Insets(0, 0, UiStyles.DISPLAY_HEADING_GAP, 0));
