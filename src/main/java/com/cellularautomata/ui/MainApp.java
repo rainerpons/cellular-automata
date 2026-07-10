@@ -27,7 +27,6 @@ public class MainApp extends Application {
   public void start(Stage primaryStage) {
     UiFonts.registerBundledFonts();
 
-    primaryStage.setTitle("Cellular Automata");
     primaryStage.setResizable(false);
 
     showModuleSelectionScreen(primaryStage);
