@@ -30,6 +30,14 @@ public class MainApp extends Application {
     primaryStage.setTitle("Cellular Automata");
     primaryStage.setResizable(false);
 
+    showModuleSelectionScreen(primaryStage);
+
+    primaryStage.show();
+  }
+
+  private void showModuleSelectionScreen(Stage primaryStage) {
+    primaryStage.setTitle("Cellular Automata");
+
     ModuleSelectionScreen moduleSelectionScreen = new ModuleSelectionScreen();
     moduleSelectionScreen.setOnContinue(config -> launchWorkspace(primaryStage, config));
 
@@ -37,13 +45,12 @@ public class MainApp extends Application {
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
     primaryStage.setScene(scene);
-    primaryStage.show();
   }
 
   private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
     primaryStage.setTitle(config.getWindowTitle());
 
-    DisplayPanel displayPanel = new DisplayPanel();
+    DisplayPanel displayPanel = new DisplayPanel(() -> showModuleSelectionScreen(primaryStage));
     ParametersPanel parametersPanel = new ParametersPanel(config);
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);

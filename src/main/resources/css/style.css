@@ -275,3 +275,14 @@
     -fx-text-alignment: center;
     -fx-alignment: center;
 }
+
+/* Navigation */
+.navigation-link {
+    -fx-text-fill: -fx-accent-green;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.navigation-link:hover {
+    -fx-text-fill: -fx-accent-green-hover;
+}

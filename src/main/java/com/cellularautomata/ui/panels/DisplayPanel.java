@@ -19,8 +19,12 @@ public final class DisplayPanel extends VBox {
   private final ImageView automatonImageView;
   private final StackPane imageContainer;
 
-  /** Constructs the display panel. */
-  public DisplayPanel() {
+  /**
+   * Constructs the display panel.
+   *
+   * @param onBackToModules callback when navigation back to modules is requested
+   */
+  public DisplayPanel(Runnable onBackToModules) {
     // Add section heading.
     Label displayHeading = UiStyles.createHeading("Display");
     VBox.setMargin(displayHeading, new Insets(0, 0, UiStyles.DISPLAY_HEADING_GAP, 0));
@@ -47,6 +51,17 @@ public final class DisplayPanel extends VBox {
     imageContainer.getChildren().add(placeholderLabel);
 
     getChildren().add(imageContainer);
+
+    Label backLink = new Label("← Back to Modules");
+    backLink.getStyleClass().add("navigation-link");
+    backLink.setOnMouseClicked(
+        e -> {
+          if (onBackToModules != null) {
+            onBackToModules.run();
+          }
+        });
+    VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
+    getChildren().add(backLink);
   }
 
   /**
