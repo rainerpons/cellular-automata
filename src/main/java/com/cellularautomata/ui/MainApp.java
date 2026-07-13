@@ -9,9 +9,7 @@ import com.cellularautomata.ui.shared.UiStyles;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
@@ -29,15 +27,8 @@ public class MainApp extends Application {
   public void start(Stage primaryStage) {
     UiFonts.registerBundledFonts();
 
-    primaryStage.setResizable(false);
-
-    showModuleSelectionScreen(primaryStage);
-
-    primaryStage.show();
-  }
-
-  private void showModuleSelectionScreen(Stage primaryStage) {
     primaryStage.setTitle("Cellular Automata");
+    primaryStage.setResizable(false);
 
     ModuleSelectionScreen moduleSelectionScreen = new ModuleSelectionScreen();
     moduleSelectionScreen.setOnContinue(config -> launchWorkspace(primaryStage, config));
@@ -46,17 +37,13 @@ public class MainApp extends Application {
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
     primaryStage.setScene(scene);
+    primaryStage.show();
   }
 
   private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
     primaryStage.setTitle(config.getWindowTitle());
 
-    final DisplayPanel displayPanel = new DisplayPanel(config);
-    Label backLink = new Label("← Back to Modules");
-    backLink.getStyleClass().add("navigation-link");
-    backLink.setOnMouseClicked(e -> showModuleSelectionScreen(primaryStage));
-    VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
-    final VBox displayContainer = new VBox(displayPanel, backLink);
+    DisplayPanel displayPanel = new DisplayPanel();
     ParametersPanel parametersPanel = new ParametersPanel(config);
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
@@ -66,7 +53,7 @@ public class MainApp extends Application {
     HBox root = new HBox(UiStyles.APP_SPACING);
     root.setPadding(new Insets(UiStyles.APP_SPACING));
     HBox.setHgrow(sidebarPanel, javafx.scene.layout.Priority.ALWAYS);
-    root.getChildren().addAll(displayContainer, sidebarPanel);
+    root.getChildren().addAll(displayPanel, sidebarPanel);
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
