@@ -15,12 +15,16 @@ import javafx.scene.text.TextAlignment;
  * automaton image, or a placeholder prompt before generation.
  */
 public final class DisplayPanel extends VBox {
-  private final Label placeholderLabel;
+  private final VBox instructionsBox;
   private final ImageView automatonImageView;
   private final StackPane imageContainer;
 
-  /** Constructs the display panel. */
-  public DisplayPanel() {
+  /**
+   * Constructs the display panel.
+   *
+   * @param config the workspace configuration
+   */
+  public DisplayPanel(com.cellularautomata.config.WorkspaceConfig config) {
 
     // Add section heading.
     Label displayHeading = UiStyles.createHeading("Display");
@@ -28,15 +32,26 @@ public final class DisplayPanel extends VBox {
     getChildren().add(displayHeading);
 
     // Add placeholder label, replaced by the automaton image after generation.
-    placeholderLabel =
-        new Label(
-            "Click the Generate automaton button to begin.\n\nSelect size, rule, and seed type.");
-    placeholderLabel.setTextAlignment(TextAlignment.CENTER);
-    placeholderLabel.setAlignment(Pos.CENTER);
-    placeholderLabel.getStyleClass().add("placeholder");
-    placeholderLabel.setMinSize(400, 400);
-    placeholderLabel.setPrefSize(400, 400);
-    placeholderLabel.setMaxSize(400, 400);
+    instructionsBox = new VBox();
+    instructionsBox.setAlignment(Pos.CENTER);
+    instructionsBox.setSpacing(10); // Reduce spacing by ~33% compared to double newline
+
+    Label promptLabel = new Label("Click the Generate automaton button to begin.");
+    promptLabel.setTextAlignment(TextAlignment.CENTER);
+    promptLabel.getStyleClass().add("placeholder");
+
+    String paramsText =
+        config == com.cellularautomata.config.WorkspaceConfig.TOTALISTIC
+            ? "Select size, states, rule, and seed type."
+            : "Select size, rule, and seed type.";
+    Label paramsLabel = new Label(paramsText);
+    paramsLabel.setTextAlignment(TextAlignment.CENTER);
+    paramsLabel.getStyleClass().add("placeholder");
+
+    instructionsBox.getChildren().addAll(promptLabel, paramsLabel);
+    instructionsBox.setMinSize(400, 400);
+    instructionsBox.setPrefSize(400, 400);
+    instructionsBox.setMaxSize(400, 400);
 
     automatonImageView = new ImageView();
     automatonImageView.setPreserveRatio(true);
@@ -45,7 +60,7 @@ public final class DisplayPanel extends VBox {
     imageContainer.setMinSize(400, 400);
     imageContainer.setPrefSize(400, 400);
     imageContainer.setMaxSize(400, 400);
-    imageContainer.getChildren().add(placeholderLabel);
+    imageContainer.getChildren().add(instructionsBox);
 
     getChildren().add(imageContainer);
   }
@@ -56,7 +71,7 @@ public final class DisplayPanel extends VBox {
    * @param image the image
    */
   public void setAutomatonImage(Image image) {
-    imageContainer.getChildren().remove(placeholderLabel);
+    imageContainer.getChildren().remove(instructionsBox);
     automatonImageView.setImage(image);
     if (!imageContainer.getChildren().contains(automatonImageView)) {
       imageContainer.getChildren().add(automatonImageView);

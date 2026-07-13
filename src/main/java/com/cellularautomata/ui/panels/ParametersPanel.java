@@ -28,8 +28,11 @@ public final class ParametersPanel extends GridPane {
   private final WorkspaceConfig config;
 
   private Slider sizeSlider;
+  private Spinner<Integer> statesSpinner;
   private Spinner<Integer> ruleSpinner;
   private ComboBox<String> seedComboBox;
+
+  private int currentRow = 1;
 
   /**
    * Constructs the parameters panel.
@@ -46,6 +49,9 @@ public final class ParametersPanel extends GridPane {
 
     // Add parameter controls.
     addSizeControls();
+    if (config == WorkspaceConfig.TOTALISTIC) {
+      addStatesControls();
+    }
     addRuleControls();
     addSeedControls();
   }
@@ -57,6 +63,18 @@ public final class ParametersPanel extends GridPane {
    */
   public int getSizeValue() {
     return (int) sizeSlider.getValue();
+  }
+
+  /**
+   * Gets the states value.
+   *
+   * @return the states value, or 2 if not applicable
+   */
+  public int getStatesValue() {
+    if (statesSpinner != null) {
+      return statesSpinner.getValue();
+    }
+    return 2;
   }
 
   /**
@@ -88,7 +106,7 @@ public final class ParametersPanel extends GridPane {
     final Label sizeLabel = new Label("Size (" + DEFAULT_SIZE + ")");
     GridPane.setColumnSpan(sizeLabel, 2);
     GridPane.setMargin(sizeLabel, new Insets(0, 0, UiStyles.LABEL_TO_CONTROL_GAP, 0));
-    add(sizeLabel, 0, 1);
+    add(sizeLabel, 0, currentRow++);
 
     sizeSlider = new Slider(MIN_SIZE, MAX_SIZE, DEFAULT_SIZE);
     sizeSlider.setBlockIncrement(1);
@@ -101,13 +119,42 @@ public final class ParametersPanel extends GridPane {
             (obs, oldVal, newVal) -> sizeLabel.setText("Size (" + newVal.intValue() + ")"));
     GridPane.setColumnSpan(sizeSlider, 2);
     GridPane.setMargin(sizeSlider, new Insets(0, 0, UiStyles.CONTROL_GROUP_GAP, 0));
-    add(sizeSlider, 0, 2);
+    add(sizeSlider, 0, currentRow++);
+  }
+
+  private void addStatesControls() {
+    Label statesLabel = new Label("States");
+    GridPane.setMargin(statesLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
+    add(statesLabel, 0, currentRow);
+
+    // TotalisticRule constants are 2 (min), 5 (max), 2 (default)
+    SpinnerValueFactory<Integer> valueFactory =
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 5, 2);
+    statesSpinner = new Spinner<>();
+    statesSpinner.setValueFactory(valueFactory);
+    statesSpinner.setEditable(true);
+    statesSpinner
+        .getEditor()
+        .setTextFormatter(
+            new TextFormatter<>(
+                change -> {
+                  if (!change.getControlNewText().matches("\\d*")) {
+                    return null;
+                  }
+                  return change;
+                }));
+    statesSpinner.getEditor().setAlignment(Pos.CENTER_LEFT);
+    UiStyles.applyControlHeight(statesSpinner);
+    statesSpinner.setMaxWidth(Double.MAX_VALUE);
+    GridPane.setHgrow(statesSpinner, Priority.ALWAYS);
+    GridPane.setMargin(statesSpinner, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
+    add(statesSpinner, 1, currentRow++);
   }
 
   private void addRuleControls() {
     Label ruleLabel = new Label("Rule number");
     GridPane.setMargin(ruleLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
-    add(ruleLabel, 0, 3);
+    add(ruleLabel, 0, currentRow);
 
     SpinnerValueFactory<Integer> valueFactory =
         new SpinnerValueFactory<Integer>() {
@@ -119,8 +166,9 @@ public final class ParametersPanel extends GridPane {
 
           @Override
           public void increment(int steps) {
+            int states = getStatesValue();
             int current = getValue() == null ? config.getMinRule() : getValue();
-            setValue(Math.min(config.getMaxRule(), current + steps));
+            setValue(Math.min(config.getMaxRule(states), current + steps));
           }
         };
     valueFactory.setValue(config.getDefaultRule());
@@ -164,12 +212,12 @@ public final class ParametersPanel extends GridPane {
     ruleSpinner.setMaxWidth(Double.MAX_VALUE);
     GridPane.setHgrow(ruleSpinner, Priority.ALWAYS);
     GridPane.setMargin(ruleSpinner, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
-    add(ruleSpinner, 1, 3);
+    add(ruleSpinner, 1, currentRow++);
   }
 
   private void addSeedControls() {
     Label seedLabel = new Label("Seed type");
-    add(seedLabel, 0, 4);
+    add(seedLabel, 0, currentRow);
 
     seedComboBox =
         new ComboBox<>(FXCollections.observableArrayList("Uniform", "Sparse", "Alternating"));
@@ -177,6 +225,6 @@ public final class ParametersPanel extends GridPane {
     UiStyles.applyControlHeight(seedComboBox);
     seedComboBox.setMaxWidth(Double.MAX_VALUE);
     GridPane.setHgrow(seedComboBox, Priority.ALWAYS);
-    add(seedComboBox, 1, 4);
+    add(seedComboBox, 1, currentRow++);
   }
 }

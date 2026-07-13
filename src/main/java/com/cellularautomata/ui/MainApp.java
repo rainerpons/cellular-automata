@@ -51,7 +51,7 @@ public class MainApp extends Application {
   private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
     primaryStage.setTitle(config.getWindowTitle());
 
-    final DisplayPanel displayPanel = new DisplayPanel();
+    final DisplayPanel displayPanel = new DisplayPanel(config);
     Label backLink = new Label("← Back to Modules");
     backLink.getStyleClass().add("navigation-link");
     backLink.setOnMouseClicked(e -> showModuleSelectionScreen(primaryStage));
