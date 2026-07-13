@@ -21,9 +21,7 @@ public class VectorTest {
   /** Asserts that the state of a vector is invalid. */
   @Test
   public void testIsValidNegative() {
-    boolean expected = false;
-    boolean actual = Vector.isValid("01002010");
-    Assert.assertEquals(expected, actual);
+    Assert.assertEquals(false, Vector.isValid("123a4"));
   }
 
   /** Asserts that an empty string is a valid vector state. */
@@ -34,59 +32,69 @@ public class VectorTest {
 
   /** Asserts that homogeneous binary strings are valid. */
   @Test
-  public void testIsValidHomogeneousStates() {
+  public void testIsValidForValidStates() {
+    Assert.assertTrue(Vector.isValid("1101"));
     Assert.assertTrue(Vector.isValid("0000"));
     Assert.assertTrue(Vector.isValid("1111"));
+    Assert.assertTrue(Vector.isValid("0101"));
+    Assert.assertTrue(Vector.isValid("01234")); // Multi-state valid
   }
 
-  /** Asserts that non-binary characters are rejected during validation. */
   @Test
-  public void testIsValidNonBinaryCharacters() {
-    Assert.assertFalse(Vector.isValid("01a1"));
-    Assert.assertFalse(Vector.isValid("01 10"));
-    Assert.assertFalse(Vector.isValid("01-10"));
+  public void testIsValidForInvalidStates() {
+    Assert.assertFalse(Vector.isValid("123a")); // Multi-state invalid with characters
+    Assert.assertFalse(Vector.isValid("hello"));
+    Assert.assertFalse(Vector.isValid("102a0"));
+    Assert.assertFalse(Vector.isValid(" "));
+    Assert.assertFalse(Vector.isValid(null));
   }
 
   /** Asserts that a valid state is returned unchanged by initializeVector. */
   @Test
-  public void testInitializeVectorPositive() {
-    String expected = "0101";
-    String actual = Vector.initializeVector("0101");
-    Assert.assertEquals(expected, actual);
+  public void testInitializeVectorValid() {
+    String state = "01010101";
+    Assert.assertEquals(state, Vector.initializeVector(state));
   }
 
-  /** Asserts that an invalid state is rejected by initializeVector. */
+  /** Asserts that invalid characters cause initializeVector to throw an exception. */
   @Test
   public void testInitializeVectorInvalid() {
-    String[] invalidStates = {"01002010", null};
+    String[] invalidStates = {"0100a010", "abc"};
     for (String state : invalidStates) {
       try {
         Vector.initializeVector(state);
         Assert.fail("Expected IllegalArgumentException for state: " + state);
-      } catch (IllegalArgumentException expected) {
-        // Expected.
+      } catch (IllegalArgumentException e) {
+        // Expected behavior
       }
     }
   }
 
-  /** Asserts that a vector constructed from a valid state exposes that state. */
-  @Test
-  public void testVectorConstructorValidState() {
-    Vector vector = new Vector("1010");
-    Assert.assertEquals("1010", vector.getState());
-    Assert.assertEquals(4, vector.getSize());
+  /** Asserts that passing a null state to initializeVector throws an exception. */
+  @Test(expected = IllegalArgumentException.class)
+  public void testInitializeVectorNull() {
+    Vector.initializeVector(null);
   }
 
-  /** Asserts that a vector constructed from an invalid state throws an exception. */
+  /** Asserts that the constructor creates a Vector properly for valid state strings. */
+  @Test
+  public void testVectorConstructorValidState() {
+    String state = "111000";
+    Vector vector = new Vector(state);
+    Assert.assertEquals(state, vector.getState());
+    Assert.assertEquals(6, vector.getSize());
+  }
+
+  /** Asserts that constructor validation rejects invalid state characters. */
   @Test
   public void testVectorConstructorInvalidState() {
-    String[] invalidStates = {"01002010", null};
+    String[] invalidStates = {"0100a010", "01 10"};
     for (String state : invalidStates) {
       try {
         new Vector(state);
         Assert.fail("Expected IllegalArgumentException for state: " + state);
-      } catch (IllegalArgumentException expected) {
-        // Expected.
+      } catch (IllegalArgumentException e) {
+        // Expected behavior
       }
     }
   }
