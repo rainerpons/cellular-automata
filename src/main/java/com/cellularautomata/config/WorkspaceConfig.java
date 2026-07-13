@@ -17,7 +17,8 @@ public enum WorkspaceConfig {
   TOTALISTIC(
       "Cellular Automata (Totalistic)",
       TotalisticRule.MIN_RULE_NUMBER,
-      TotalisticRule.MAX_RULE_NUMBER,
+      Integer
+          .MAX_VALUE, // Managed dynamically via getMaxRule(states) but keep int bounds for parsing
       TotalisticRule.DEFAULT_RULE_NUMBER);
 
   /** The application window title for this workspace. */
@@ -47,7 +48,16 @@ public enum WorkspaceConfig {
     return minRule;
   }
 
-  public int getMaxRule() {
+  public int getMaxRule(int states) {
+    if (this == TOTALISTIC) {
+      java.math.BigInteger max =
+          java.math.BigInteger.valueOf(states)
+              .pow(3 * (states - 1) + 1)
+              .subtract(java.math.BigInteger.ONE);
+      return max.compareTo(java.math.BigInteger.valueOf(Integer.MAX_VALUE)) > 0
+          ? Integer.MAX_VALUE
+          : max.intValue();
+    }
     return maxRule;
   }
 
@@ -59,12 +69,13 @@ public enum WorkspaceConfig {
    * Instantiates the concrete Rule implementation corresponding to this workspace.
    *
    * @param ruleNumber the rule number to instantiate
+   * @param states the number of states (ignored for ELEMENTARY)
    * @return a new Rule instance
    */
-  public Rule instantiateRule(int ruleNumber) {
+  public Rule instantiateRule(int ruleNumber, int states) {
     return switch (this) {
       case ELEMENTARY -> new ElementaryRule(ruleNumber);
-      case TOTALISTIC -> new TotalisticRule(ruleNumber);
+      case TOTALISTIC -> new TotalisticRule(ruleNumber, states);
     };
   }
 }
