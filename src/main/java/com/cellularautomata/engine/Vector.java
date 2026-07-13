@@ -39,18 +39,18 @@ public final class Vector {
   }
 
   /**
-   * Indicates if a string contains only binary digits.
+   * Indicates if a string contains only valid state digits.
    *
    * @param state collection of states for each individual cell
-   * @return true if <code>state</code> has only ones and zeroes, or false otherwise
+   * @return true if <code>state</code> has only digits, or false otherwise
    */
   public static boolean isValid(String state) {
     if (state == null) {
       return false;
     }
     for (int i = 0; i < state.length(); i++) {
-      String s = Character.toString(state.charAt(i));
-      if (!"0".equals(s) && !"1".equals(s)) {
+      char c = state.charAt(i);
+      if (!Character.isDigit(c)) {
         return false;
       }
     }
