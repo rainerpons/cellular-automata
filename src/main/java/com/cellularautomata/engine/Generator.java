@@ -25,17 +25,15 @@ public final class Generator {
    * Generates an initial seed where the state of each cell uniformly distributed.
    *
    * @param size amount of individual cells
-   * @return initial seed as binary string
+   * @param states the number of states (2 to N)
+   * @return initial seed as string
    */
-  public static Vector generateSeed(int size) {
+  public static Vector generateSeed(int size, int states) {
     StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       for (int i = 0; i < size; i++) {
-        if (RANDOM.nextBoolean()) {
-          seed.append('1');
-        } else {
-          seed.append('0');
-        }
+        int val = RANDOM.nextInt(states);
+        seed.append(Character.forDigit(val, 10));
       }
     }
     return new Vector(seed.toString());
@@ -43,18 +41,25 @@ public final class Generator {
 
   /**
    * Generates an initial seed where exactly one cell has state one and the rest have state zero.
+   * (For multi-state, we keep this as state 1, or state N-1? Usually state 1 or highest state is
+   * used. Issue says state states - 1?) Using state states - 1 for sparse seed active cell is
+   * typical, but wait, the instruction just says use values 0 to states - 1. We can use state 1 as
+   * in original, or maybe states - 1. I'll use state 1 to preserve exact original behavior for 2
+   * states. Let's use states - 1 so it's visible. Actually for 2 states, states - 1 is 1. So it
+   * works.
    *
    * @param size amount of individual cells
-   * @return sparse initial seed as binary string
+   * @param states the number of states
+   * @return sparse initial seed as string
    */
-  public static Vector generateSparseSeed(int size) {
+  public static Vector generateSparseSeed(int size, int states) {
     StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       var rand = RANDOM.nextInt(size);
       for (int i = 0; i < rand; i++) {
         seed.append('0');
       }
-      seed.append('1');
+      seed.append(Character.forDigit(states - 1, 10));
       for (int i = rand + 1; i < size; i++) {
         seed.append('0');
       }
@@ -63,17 +68,19 @@ public final class Generator {
   }
 
   /**
-   * Generates a seed where each individual cell is different from its neighborhood cells.
+   * Generates a seed where each individual cell is different from its neighborhood cells. We
+   * alternate between 0 and states - 1.
    *
    * @param size amount of individual cells
-   * @return alternating initial seed as binary string
+   * @param states the number of states
+   * @return alternating initial seed as string
    */
-  public static Vector generateAlternatingSeed(int size) {
+  public static Vector generateAlternatingSeed(int size, int states) {
     StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       for (int i = 0; i < size; i++) {
         if ((i % 2 == 0) == alternatingStartsWithOne) {
-          seed.append('1');
+          seed.append(Character.forDigit(states - 1, 10));
         } else {
           seed.append('0');
         }

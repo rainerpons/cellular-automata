@@ -17,20 +17,21 @@ public final class AutomataEngine {
    *
    * @param rule the rule to apply
    * @param size the size of the vector
+   * @param states the number of states to generate the seed for
    * @param seedType the string identifier for the seed ("uniform", "sparse", "alternating")
    * @return the generated AutomataResult
    * @throws IllegalArgumentException if seedType is null or unrecognized
    */
-  public static AutomataResult generate(Rule rule, int size, String seedType) {
+  public static AutomataResult generate(Rule rule, int size, int states, String seedType) {
     if (seedType == null) {
       throw new IllegalArgumentException("Seed type cannot be null");
     }
 
     var seed =
         switch (seedType.toLowerCase(java.util.Locale.ROOT)) {
-          case "uniform" -> Generator.generateSeed(size);
-          case "sparse" -> Generator.generateSparseSeed(size);
-          case "alternating" -> Generator.generateAlternatingSeed(size);
+          case "uniform" -> Generator.generateSeed(size, states);
+          case "sparse" -> Generator.generateSparseSeed(size, states);
+          case "alternating" -> Generator.generateAlternatingSeed(size, states);
           default -> throw new IllegalArgumentException("Unsupported seed type: " + seedType);
         };
 
