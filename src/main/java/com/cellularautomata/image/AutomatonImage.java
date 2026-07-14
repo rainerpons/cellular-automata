@@ -1,12 +1,9 @@
 package com.cellularautomata.image;
 
-import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.Vector;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import javax.imageio.ImageIO;
 
@@ -79,35 +76,6 @@ public final class AutomatonImage {
     graphic.drawImage(image, 0, 0, width, height, null);
     graphic.dispose();
     return resizedImage;
-  }
-
-  /**
-   * Creates the name of a file given a workspace configuration, rule number, lattice size, and
-   * states.
-   *
-   * @param config the workspace configuration
-   * @param rule local update rule number
-   * @param size lattice size
-   * @param states number of states
-   * @return a filename following the convention:
-   *     workspace_[states{states}_]rule{rule}_size{size}_{timestamp}.png
-   */
-  public static String getFileName(WorkspaceConfig config, int rule, int size, int states) {
-    String timestamp =
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss"));
-    if (config == WorkspaceConfig.TOTALISTIC) {
-      return config.name().toLowerCase()
-          + "_states"
-          + states
-          + "_rule"
-          + rule
-          + "_size"
-          + size
-          + "_"
-          + timestamp
-          + ".png";
-    }
-    return config.name().toLowerCase() + "_rule" + rule + "_size" + size + "_" + timestamp + ".png";
   }
 
   /**
