@@ -17,9 +17,28 @@ public enum WorkspaceConfig {
   TOTALISTIC(
       "Cellular Automata (Totalistic)",
       TotalisticRule.MIN_RULE_NUMBER,
-      Integer
-          .MAX_VALUE, // Managed dynamically via getMaxRule(states) but keep int bounds for parsing
-      TotalisticRule.DEFAULT_RULE_NUMBER);
+      Integer.MAX_VALUE, // Bounded dynamically in getMaxRule(int states)
+      TotalisticRule.DEFAULT_RULE_NUMBER) {
+    @Override
+    public boolean supportsCustomStates() {
+      return true;
+    }
+
+    @Override
+    public int getMinStates() {
+      return 2;
+    }
+
+    @Override
+    public int getMaxStates() {
+      return 5;
+    }
+
+    @Override
+    public int getMaxRule(int states) {
+      return TotalisticRule.calculateMaxRule(states);
+    }
+  };
 
   /** The application window title for this workspace. */
   private final String windowTitle;
@@ -52,8 +71,54 @@ public enum WorkspaceConfig {
     return maxRule;
   }
 
+  /**
+   * Returns the maximum allowed rule number for a given state count.
+   *
+   * @param states the state count
+   * @return the maximum rule
+   */
+  public int getMaxRule(int states) {
+    return maxRule;
+  }
+
   public int getDefaultRule() {
     return defaultRule;
+  }
+
+  /**
+   * Indicates if this workspace supports custom state counts.
+   *
+   * @return true if custom states are supported
+   */
+  public boolean supportsCustomStates() {
+    return false;
+  }
+
+  /**
+   * Returns the minimum allowed states for this workspace.
+   *
+   * @return the minimum states
+   */
+  public int getMinStates() {
+    return 2;
+  }
+
+  /**
+   * Returns the maximum allowed states for this workspace.
+   *
+   * @return the maximum states
+   */
+  public int getMaxStates() {
+    return 2;
+  }
+
+  /**
+   * Returns the default number of states for this workspace.
+   *
+   * @return the default states
+   */
+  public int getDefaultStates() {
+    return 2;
   }
 
   /**
