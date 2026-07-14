@@ -32,18 +32,9 @@ public final class AutomatonImage {
     final int size = map.get(0).getSize();
     var image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
 
-    // For states > 2, evenly spaced grayscale from black (0) to white (255)
-    // S=0 -> 255 (white), S=states-1 -> 0 (black). Wait, usually higher states are darker.
-    // The issue says:
-    // 2 states: black, white. (Assume 0=white, 1=black? Original: '1' is black(0), '0' is
-    // white(16777215))
-    // Let's preserve original mapping: 0 -> white(255), max_state -> black(0).
-    // Issue examples:
-    // 3 states -> black, gray, white
-    // 5 states -> black, 75% gray, 50% gray, 25% gray, white
-    // This implies 0 = white, max = black, or vice versa?
-    // "5 states -> black, 75% gray, 50% gray, 25% gray, white"
-    // Usually state 0 is white (empty), highest state is black.
+    // For states > 2, the image is rendered with an evenly spaced grayscale palette.
+    // The state '0' maps to white (RGB 255) and the highest state 'states - 1' maps to black (RGB
+    // 0).
     for (var entry : map.entrySet()) {
       var stateString = entry.getValue().getState();
       for (int i = 0; i < stateString.length(); i++) {

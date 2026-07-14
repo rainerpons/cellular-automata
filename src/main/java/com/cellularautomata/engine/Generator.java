@@ -40,17 +40,11 @@ public final class Generator {
   }
 
   /**
-   * Generates an initial seed where exactly one cell has state one and the rest have state zero.
-   * (For multi-state, we keep this as state 1, or state N-1? Usually state 1 or highest state is
-   * used. Issue says state states - 1?) Using state states - 1 for sparse seed active cell is
-   * typical, but wait, the instruction just says use values 0 to states - 1. We can use state 1 as
-   * in original, or maybe states - 1. I'll use state 1 to preserve exact original behavior for 2
-   * states. Let's use states - 1 so it's visible. Actually for 2 states, states - 1 is 1. So it
-   * works.
+   * Generates a seed containing all zeroes except for a single active cell in the center.
    *
-   * @param size amount of individual cells
-   * @param states the number of states
-   * @return sparse initial seed as string
+   * @param size size of the seed string
+   * @param states number of states (used to determine the maximum active state value)
+   * @return a Vector containing the sparse seed
    */
   public static Vector generateSparseSeed(int size, int states) {
     StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
