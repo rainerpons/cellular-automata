@@ -48,16 +48,7 @@ public enum WorkspaceConfig {
     return minRule;
   }
 
-  public int getMaxRule(int states) {
-    if (this == TOTALISTIC) {
-      java.math.BigInteger max =
-          java.math.BigInteger.valueOf(states)
-              .pow(3 * (states - 1) + 1)
-              .subtract(java.math.BigInteger.ONE);
-      return max.compareTo(java.math.BigInteger.valueOf(Integer.MAX_VALUE)) > 0
-          ? Integer.MAX_VALUE
-          : max.intValue();
-    }
+  public int getMaxRule() {
     return maxRule;
   }
 

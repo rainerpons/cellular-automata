@@ -17,6 +17,23 @@ public final class TotalisticRule implements Rule {
   private final String ruleRepresentation;
 
   /**
+   * Calculates the maximum valid rule number for the given number of states. Bounds the result to
+   * Integer.MAX_VALUE.
+   *
+   * @param states the number of states
+   * @return the maximum rule number
+   */
+  public static int calculateMaxRule(int states) {
+    java.math.BigInteger max =
+        java.math.BigInteger.valueOf(states)
+            .pow(3 * (states - 1) + 1)
+            .subtract(java.math.BigInteger.ONE);
+    return max.compareTo(java.math.BigInteger.valueOf(Integer.MAX_VALUE)) > 0
+        ? Integer.MAX_VALUE
+        : max.intValue();
+  }
+
+  /**
    * Constructs a TotalisticRule for the specified number of states and calculates its
    * representation.
    *
@@ -34,12 +51,8 @@ public final class TotalisticRule implements Rule {
     }
 
     // Validate rule fits within max for the given state count if it fits in Integer range
-    java.math.BigInteger max =
-        java.math.BigInteger.valueOf(states)
-            .pow(3 * (states - 1) + 1)
-            .subtract(java.math.BigInteger.ONE);
-    if (max.compareTo(java.math.BigInteger.valueOf(Integer.MAX_VALUE)) <= 0
-        && ruleNumber > max.intValue()) {
+    int max = calculateMaxRule(states);
+    if (ruleNumber > max) {
       throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
     }
 

@@ -167,8 +167,12 @@ public final class ParametersPanel extends GridPane {
           @Override
           public void increment(int steps) {
             int states = getStatesValue();
+            int maxRule =
+                config == WorkspaceConfig.TOTALISTIC
+                    ? com.cellularautomata.engine.rules.TotalisticRule.calculateMaxRule(states)
+                    : config.getMaxRule();
             int current = getValue() == null ? config.getMinRule() : getValue();
-            setValue(Math.min(config.getMaxRule(states), current + steps));
+            setValue(Math.min(maxRule, current + steps));
           }
         };
     valueFactory.setValue(config.getDefaultRule());

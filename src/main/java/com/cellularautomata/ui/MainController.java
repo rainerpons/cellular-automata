@@ -69,7 +69,10 @@ class MainController {
       return;
     }
 
-    int maxRule = config.getMaxRule(states);
+    int maxRule =
+        config == WorkspaceConfig.TOTALISTIC
+            ? com.cellularautomata.engine.rules.TotalisticRule.calculateMaxRule(states)
+            : config.getMaxRule();
     OptionalInt parsedRule =
         RuleValidator.parseRule(parametersPanel.getRuleText(), config.getMinRule(), maxRule);
     if (!parsedRule.isPresent()) {
@@ -103,12 +106,7 @@ class MainController {
       }
     }
 
-    fileChooser.setInitialFileName(
-        AutomatonImage.getFileName(
-            config,
-            rule.getRuleNumber(),
-            parametersPanel.getSizeValue(),
-            parametersPanel.getStatesValue()));
+    fileChooser.setInitialFileName(generateDefaultFileName());
     Window window = displayPanel.getScene().getWindow();
     File file = fileChooser.showSaveDialog(window);
     if (file == null) {
@@ -121,5 +119,31 @@ class MainController {
       ie.printStackTrace();
       dialogService.showSaveError();
     }
+  }
+
+  private String generateDefaultFileName() {
+    String timestamp =
+        java.time.LocalDateTime.now()
+            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss"));
+    if (config == WorkspaceConfig.TOTALISTIC) {
+      return config.name().toLowerCase()
+          + "_states"
+          + parametersPanel.getStatesValue()
+          + "_rule"
+          + rule.getRuleNumber()
+          + "_size"
+          + parametersPanel.getSizeValue()
+          + "_"
+          + timestamp
+          + ".png";
+    }
+    return config.name().toLowerCase()
+        + "_rule"
+        + rule.getRuleNumber()
+        + "_size"
+        + parametersPanel.getSizeValue()
+        + "_"
+        + timestamp
+        + ".png";
   }
 }
