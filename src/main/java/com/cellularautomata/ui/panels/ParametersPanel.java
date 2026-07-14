@@ -49,7 +49,7 @@ public final class ParametersPanel extends GridPane {
 
     // Add parameter controls.
     addSizeControls();
-    if (config == WorkspaceConfig.TOTALISTIC) {
+    if (config.supportsCustomStates()) {
       addStatesControls();
     }
     addRuleControls();
@@ -68,13 +68,13 @@ public final class ParametersPanel extends GridPane {
   /**
    * Gets the states value.
    *
-   * @return the states value, or 2 if not applicable
+   * @return the states value
    */
   public int getStatesValue() {
-    if (statesSpinner != null) {
-      return statesSpinner.getValue();
+    if (statesSpinner == null) {
+      return config.getDefaultStates();
     }
-    return 2;
+    return statesSpinner.getValue();
   }
 
   /**
@@ -122,18 +122,11 @@ public final class ParametersPanel extends GridPane {
     add(sizeSlider, 0, currentRow++);
   }
 
-  private void addStatesControls() {
-    Label statesLabel = new Label("States");
-    GridPane.setMargin(statesLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
-    add(statesLabel, 0, currentRow);
-
-    // TotalisticRule constants are 2 (min), 5 (max), 2 (default)
-    SpinnerValueFactory<Integer> valueFactory =
-        new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 5, 2);
-    statesSpinner = new Spinner<>();
-    statesSpinner.setValueFactory(valueFactory);
-    statesSpinner.setEditable(true);
-    statesSpinner
+  private <T> Spinner<T> createSpinner(SpinnerValueFactory<T> factory) {
+    Spinner<T> spinner = new Spinner<>();
+    spinner.setValueFactory(factory);
+    spinner.setEditable(true);
+    spinner
         .getEditor()
         .setTextFormatter(
             new TextFormatter<>(
@@ -143,11 +136,23 @@ public final class ParametersPanel extends GridPane {
                   }
                   return change;
                 }));
-    statesSpinner.getEditor().setAlignment(Pos.CENTER_LEFT);
-    UiStyles.applyControlHeight(statesSpinner);
-    statesSpinner.setMaxWidth(Double.MAX_VALUE);
-    GridPane.setHgrow(statesSpinner, Priority.ALWAYS);
-    GridPane.setMargin(statesSpinner, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
+    spinner.getEditor().setAlignment(Pos.CENTER_LEFT);
+    UiStyles.applyControlHeight(spinner);
+    spinner.setMaxWidth(Double.MAX_VALUE);
+    GridPane.setHgrow(spinner, Priority.ALWAYS);
+    GridPane.setMargin(spinner, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
+    return spinner;
+  }
+
+  private void addStatesControls() {
+    Label statesLabel = new Label("States");
+    GridPane.setMargin(statesLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
+    add(statesLabel, 0, currentRow);
+
+    SpinnerValueFactory<Integer> valueFactory =
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(
+            config.getMinStates(), config.getMaxStates(), config.getDefaultStates());
+    statesSpinner = createSpinner(valueFactory);
     add(statesSpinner, 1, currentRow++);
   }
 
@@ -167,10 +172,7 @@ public final class ParametersPanel extends GridPane {
           @Override
           public void increment(int steps) {
             int states = getStatesValue();
-            int maxRule =
-                config == WorkspaceConfig.TOTALISTIC
-                    ? com.cellularautomata.engine.rules.TotalisticRule.calculateMaxRule(states)
-                    : config.getMaxRule();
+            int maxRule = config.getMaxRule(states);
             int current = getValue() == null ? config.getMinRule() : getValue();
             setValue(Math.min(maxRule, current + steps));
           }
@@ -189,33 +191,14 @@ public final class ParametersPanel extends GridPane {
               if (string == null || string.isEmpty()) {
                 return valueFactory.getValue();
               }
-              return Integer.parseInt(
-                  string); // DO NOT clamp so MainApp can validate and reject it!
+              return Integer.parseInt(string);
             } catch (NumberFormatException e) {
               return valueFactory.getValue();
             }
           }
         });
 
-    ruleSpinner = new Spinner<>();
-    ruleSpinner.setValueFactory(valueFactory);
-    ruleSpinner.setEditable(true);
-
-    ruleSpinner
-        .getEditor()
-        .setTextFormatter(
-            new TextFormatter<>(
-                change -> {
-                  if (!change.getControlNewText().matches("\\d*")) {
-                    return null;
-                  }
-                  return change;
-                }));
-    ruleSpinner.getEditor().setAlignment(Pos.CENTER_LEFT);
-    UiStyles.applyControlHeight(ruleSpinner);
-    ruleSpinner.setMaxWidth(Double.MAX_VALUE);
-    GridPane.setHgrow(ruleSpinner, Priority.ALWAYS);
-    GridPane.setMargin(ruleSpinner, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
+    ruleSpinner = createSpinner(valueFactory);
     add(ruleSpinner, 1, currentRow++);
   }
 

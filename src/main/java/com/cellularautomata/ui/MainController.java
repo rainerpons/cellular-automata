@@ -60,19 +60,13 @@ class MainController {
     int states = parametersPanel.getStatesValue();
 
     // Defensive safeguard for manual text entry outside the spinner bounds
-    if (config == WorkspaceConfig.TOTALISTIC
-        && (states < com.cellularautomata.engine.rules.TotalisticRule.MIN_STATES
-            || states > com.cellularautomata.engine.rules.TotalisticRule.MAX_STATES)) {
-      dialogService.showStatesError(
-          com.cellularautomata.engine.rules.TotalisticRule.MIN_STATES,
-          com.cellularautomata.engine.rules.TotalisticRule.MAX_STATES);
+    if (config.supportsCustomStates()
+        && (states < config.getMinStates() || states > config.getMaxStates())) {
+      dialogService.showStatesError(config.getMinStates(), config.getMaxStates());
       return;
     }
 
-    int maxRule =
-        config == WorkspaceConfig.TOTALISTIC
-            ? com.cellularautomata.engine.rules.TotalisticRule.calculateMaxRule(states)
-            : config.getMaxRule();
+    int maxRule = config.getMaxRule(states);
     OptionalInt parsedRule =
         RuleValidator.parseRule(parametersPanel.getRuleText(), config.getMinRule(), maxRule);
     if (!parsedRule.isPresent()) {
@@ -106,7 +100,13 @@ class MainController {
       }
     }
 
-    fileChooser.setInitialFileName(generateDefaultFileName());
+    fileChooser.setInitialFileName(
+        generateFileName(
+            config,
+            rule.getRuleNumber(),
+            parametersPanel.getSizeValue(),
+            parametersPanel.getStatesValue(),
+            java.time.LocalDateTime.now()));
     Window window = displayPanel.getScene().getWindow();
     File file = fileChooser.showSaveDialog(window);
     if (file == null) {
@@ -121,29 +121,17 @@ class MainController {
     }
   }
 
-  private String generateDefaultFileName() {
+  static String generateFileName(
+      WorkspaceConfig config, int ruleNumber, int size, int states, java.time.LocalDateTime time) {
     String timestamp =
-        java.time.LocalDateTime.now()
-            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss"));
-    if (config == WorkspaceConfig.TOTALISTIC) {
-      return config.name().toLowerCase()
-          + "_states"
-          + parametersPanel.getStatesValue()
-          + "_rule"
-          + rule.getRuleNumber()
-          + "_size"
-          + parametersPanel.getSizeValue()
-          + "_"
-          + timestamp
-          + ".png";
-    }
-    return config.name().toLowerCase()
-        + "_rule"
-        + rule.getRuleNumber()
-        + "_size"
-        + parametersPanel.getSizeValue()
-        + "_"
-        + timestamp
-        + ".png";
+        time.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss"));
+    String baseName = config.name().toLowerCase();
+
+    return switch (config) {
+      case TOTALISTIC ->
+          String.format(
+              "%s_states%d_rule%d_size%d_%s.png", baseName, states, ruleNumber, size, timestamp);
+      default -> String.format("%s_rule%d_size%d_%s.png", baseName, ruleNumber, size, timestamp);
+    };
   }
 }
