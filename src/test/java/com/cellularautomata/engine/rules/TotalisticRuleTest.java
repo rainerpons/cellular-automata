@@ -15,6 +15,16 @@ public class TotalisticRuleTest {
   }
 
   @Test
+  public void testCalculateMaxRuleIsMonotonic() {
+    for (int states = TotalisticRule.MIN_STATES; states < TotalisticRule.MAX_STATES; states++) {
+      int currentMax = TotalisticRule.calculateMaxRule(states);
+      int nextMax = TotalisticRule.calculateMaxRule(states + 1);
+      Assert.assertTrue(
+          "Max rule should strictly increase as states increase", currentMax < nextMax);
+    }
+  }
+
+  @Test
   public void testRule0YieldsState0() {
     TotalisticRule rule0 = new TotalisticRule(0, 2);
     // 0000 in binary. All sums should yield '0'.

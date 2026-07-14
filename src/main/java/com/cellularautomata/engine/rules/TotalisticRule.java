@@ -1,6 +1,7 @@
 package com.cellularautomata.engine.rules;
 
 import com.cellularautomata.engine.NeighborhoodValidator;
+import java.math.BigInteger;
 
 /** Implementation of Rule for Totalistic cellular automata. */
 public final class TotalisticRule implements Rule {
@@ -24,13 +25,13 @@ public final class TotalisticRule implements Rule {
    * @return the maximum rule number
    */
   public static int calculateMaxRule(int states) {
-    java.math.BigInteger max =
-        java.math.BigInteger.valueOf(states)
-            .pow(3 * (states - 1) + 1)
-            .subtract(java.math.BigInteger.ONE);
-    return max.compareTo(java.math.BigInteger.valueOf(Integer.MAX_VALUE)) > 0
-        ? Integer.MAX_VALUE
-        : max.intValue();
+    BigInteger max = BigInteger.valueOf(states).pow(3 * (states - 1) + 1).subtract(BigInteger.ONE);
+
+    if (max.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
+      return Integer.MAX_VALUE;
+    }
+
+    return max.intValue();
   }
 
   /**
