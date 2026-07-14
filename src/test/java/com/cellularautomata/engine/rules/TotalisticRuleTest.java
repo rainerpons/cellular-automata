@@ -7,6 +7,14 @@ import org.junit.Test;
 public class TotalisticRuleTest {
 
   @Test
+  public void testCalculateMaxRule() {
+    Assert.assertEquals(15, TotalisticRule.calculateMaxRule(2));
+    Assert.assertEquals(2186, TotalisticRule.calculateMaxRule(3));
+    Assert.assertEquals(1048575, TotalisticRule.calculateMaxRule(4));
+    Assert.assertEquals(1220703124, TotalisticRule.calculateMaxRule(5));
+  }
+
+  @Test
   public void testRule0YieldsState0() {
     TotalisticRule rule0 = new TotalisticRule(0, 2);
     // 0000 in binary. All sums should yield '0'.
