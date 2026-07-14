@@ -19,7 +19,7 @@ public class GeneratorTest {
   /** Asserts that a uniformly distributed seed has the requested size and valid state. */
   @Test
   public void testGenerateSeedPositive() {
-    Vector seed = Generator.generateSeed(16);
+    Vector seed = Generator.generateSeed(16, 2);
     Assert.assertEquals(16, seed.getSize());
     Assert.assertTrue(Vector.isValid(seed.getState()));
   }
@@ -27,8 +27,8 @@ public class GeneratorTest {
   /** Asserts that non-positive seed sizes produce an empty vector. */
   @Test
   public void testGenerateSeedNonPositiveSize() {
-    Vector zeroSize = Generator.generateSeed(0);
-    Vector negativeSize = Generator.generateSeed(-1);
+    Vector zeroSize = Generator.generateSeed(0, 2);
+    Vector negativeSize = Generator.generateSeed(-1, 2);
 
     Assert.assertEquals(0, zeroSize.getSize());
     Assert.assertEquals("", zeroSize.getState());
@@ -39,7 +39,7 @@ public class GeneratorTest {
   /** Asserts that a sparse seed has exactly one active cell. */
   @Test
   public void testGenerateSparseSeedPositive() {
-    Vector seed = Generator.generateSparseSeed(9);
+    Vector seed = Generator.generateSparseSeed(9, 2);
     String state = seed.getState();
 
     Assert.assertEquals(9, seed.getSize());
@@ -51,8 +51,8 @@ public class GeneratorTest {
   /** Asserts that non-positive sparse seed sizes produce an empty vector. */
   @Test
   public void testGenerateSparseSeedNonPositiveSize() {
-    Vector zeroSize = Generator.generateSparseSeed(0);
-    Vector negativeSize = Generator.generateSparseSeed(-1);
+    Vector zeroSize = Generator.generateSparseSeed(0, 2);
+    Vector negativeSize = Generator.generateSparseSeed(-1, 2);
 
     Assert.assertEquals(0, zeroSize.getSize());
     Assert.assertEquals("", zeroSize.getState());
@@ -63,9 +63,9 @@ public class GeneratorTest {
   /** Asserts that repeated alternating seed generation toggles phases. */
   @Test
   public void testGenerateAlternatingSeedTogglesPhases() {
-    String first = Generator.generateAlternatingSeed(8).getState();
-    String second = Generator.generateAlternatingSeed(8).getState();
-    String third = Generator.generateAlternatingSeed(8).getState();
+    String first = Generator.generateAlternatingSeed(8, 2).getState();
+    String second = Generator.generateAlternatingSeed(8, 2).getState();
+    String third = Generator.generateAlternatingSeed(8, 2).getState();
 
     Assert.assertNotEquals(first, second);
     Assert.assertEquals(first, third);
@@ -76,7 +76,7 @@ public class GeneratorTest {
   /** Asserts that non-positive alternating seed sizes produce an empty vector. */
   @Test
   public void testGenerateAlternatingSeedNonPositiveSize() {
-    Vector seed = Generator.generateAlternatingSeed(0);
+    Vector seed = Generator.generateAlternatingSeed(0, 2);
     Assert.assertEquals(0, seed.getSize());
     Assert.assertEquals("", seed.getState());
   }
@@ -124,7 +124,7 @@ public class GeneratorTest {
   @Test
   public void testGenerateSuccessorPreservesSize() {
     Vector singleCell = new Vector("1");
-    Vector alternating = Generator.generateAlternatingSeed(8);
+    Vector alternating = Generator.generateAlternatingSeed(8, 2);
     Vector sparse = new Vector("000010000");
 
     Assert.assertEquals(
@@ -174,10 +174,35 @@ public class GeneratorTest {
    */
   @Test
   public void testGenerateSuccessorTotalisticRule() {
-    Rule rule15 = new TotalisticRule(15);
+    Rule rule15 = new TotalisticRule(15, 2);
     // 15 in totalistic yields 1 for all valid neighborhoods.
     Vector current = new Vector("00000000");
     Vector successor = Generator.generateSuccessor(rule15, current);
     Assert.assertEquals("11111111", successor.getState());
+  }
+
+  @Test
+  public void testMultiStateSeedGenerations() {
+    Vector uniform = Generator.generateSeed(10, 3);
+    Assert.assertEquals(10, uniform.getSize());
+    for (char c : uniform.getState().toCharArray()) {
+      Assert.assertTrue(c >= '0' && c <= '2');
+    }
+
+    Vector sparse = Generator.generateSparseSeed(5, 4);
+    Assert.assertEquals(5, sparse.getSize());
+    int count3 = 0;
+    int count0 = 0;
+    for (char c : sparse.getState().toCharArray()) {
+      if (c == '3') count3++;
+      if (c == '0') count0++;
+    }
+    Assert.assertEquals(1, count3);
+    Assert.assertEquals(4, count0);
+
+    Vector alternating = Generator.generateAlternatingSeed(4, 5);
+    Assert.assertEquals(4, alternating.getSize());
+    String state = alternating.getState();
+    Assert.assertTrue(state.equals("4040") || state.equals("0404"));
   }
 }

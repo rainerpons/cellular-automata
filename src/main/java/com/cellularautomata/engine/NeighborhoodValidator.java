@@ -26,4 +26,27 @@ public final class NeighborhoodValidator {
       }
     }
   }
+
+  /**
+   * Validates that a neighborhood is exactly 3 characters long and contains only digits valid for
+   * the specified state count.
+   *
+   * @param neighborhood the neighborhood string to validate
+   * @param states the number of states (must be > 0)
+   * @throws IllegalArgumentException if the neighborhood is invalid or contains characters outside
+   *     the allowed state values
+   */
+  public static void validateMultiStateRadiusOne(String neighborhood, int states) {
+    if (neighborhood == null || neighborhood.length() != 3) {
+      throw new IllegalArgumentException("Neighborhood must be exactly 3 characters");
+    }
+    for (int i = 0; i < neighborhood.length(); i++) {
+      char c = neighborhood.charAt(i);
+      int value = c - '0';
+      if (value < 0 || value >= states) {
+        throw new IllegalArgumentException(
+            "Neighborhood state must be between 0 and " + (states - 1));
+      }
+    }
+  }
 }

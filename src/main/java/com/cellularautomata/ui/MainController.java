@@ -57,21 +57,30 @@ class MainController {
   }
 
   private void generateAutomaton() {
+    int states = parametersPanel.getStatesValue();
+
+    // Defensive safeguard for manual text entry outside the spinner bounds
+    if (config.supportsCustomStates()
+        && (states < config.getMinStates() || states > config.getMaxStates())) {
+      dialogService.showStatesError(config.getMinStates(), config.getMaxStates());
+      return;
+    }
+
+    int maxRule = config.getMaxRule(states);
     OptionalInt parsedRule =
-        RuleValidator.parseRule(
-            parametersPanel.getRuleText(), config.getMinRule(), config.getMaxRule());
+        RuleValidator.parseRule(parametersPanel.getRuleText(), config.getMinRule(), maxRule);
     if (!parsedRule.isPresent()) {
-      dialogService.showRuleError(config.getMinRule(), config.getMaxRule());
+      dialogService.showRuleError(config.getMinRule(), maxRule);
       return;
     }
 
     int parsedRuleInt = parsedRule.getAsInt();
-    rule = config.instantiateRule(parsedRuleInt);
+    rule = config.instantiateRule(parsedRuleInt, states);
     AutomataResult result =
         AutomataEngine.generate(
-            rule, parametersPanel.getSizeValue(), parametersPanel.getSeedType());
+            rule, parametersPanel.getSizeValue(), states, parametersPanel.getSeedType());
 
-    BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap());
+    BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap(), states);
     resizedAutomatonImage = AutomatonImage.resizeImage(400, 400, automatonImage);
 
     displayPanel.setAutomatonImage(SwingFXUtils.toFXImage(resizedAutomatonImage, null));
@@ -92,7 +101,12 @@ class MainController {
     }
 
     fileChooser.setInitialFileName(
-        AutomatonImage.getFileName(config, rule.getRuleNumber(), parametersPanel.getSizeValue()));
+        generateFileName(
+            config,
+            rule.getRuleNumber(),
+            parametersPanel.getSizeValue(),
+            parametersPanel.getStatesValue(),
+            java.time.LocalDateTime.now()));
     Window window = displayPanel.getScene().getWindow();
     File file = fileChooser.showSaveDialog(window);
     if (file == null) {
@@ -105,5 +119,19 @@ class MainController {
       ie.printStackTrace();
       dialogService.showSaveError();
     }
+  }
+
+  static String generateFileName(
+      WorkspaceConfig config, int ruleNumber, int size, int states, java.time.LocalDateTime time) {
+    String timestamp =
+        time.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss"));
+    String baseName = config.name().toLowerCase();
+
+    return switch (config) {
+      case TOTALISTIC ->
+          String.format(
+              "%s_states%d_rule%d_size%d_%s.png", baseName, states, ruleNumber, size, timestamp);
+      default -> String.format("%s_rule%d_size%d_%s.png", baseName, ruleNumber, size, timestamp);
+    };
   }
 }
