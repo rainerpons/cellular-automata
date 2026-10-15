@@ -11,9 +11,9 @@ public enum WorkspaceConfig {
       "Cellular Automata (Elementary)",
       ElementaryRule.MIN_RULE_NUMBER,
       ElementaryRule.DEFAULT_RULE_NUMBER,
-      2,
-      2,
-      2) {
+      ElementaryRule.STATE_COUNT,
+      ElementaryRule.STATE_COUNT,
+      ElementaryRule.STATE_COUNT) {
     @Override
     public int getMaxRule(int states) {
       return ElementaryRule.MAX_RULE_NUMBER;
