@@ -51,7 +51,6 @@ public final class TotalisticRule implements Rule {
       throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
     }
 
-    // Validate rule fits within max for the given state count if it fits in Integer range
     int max = calculateMaxRule(states);
     if (ruleNumber > max) {
       throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
