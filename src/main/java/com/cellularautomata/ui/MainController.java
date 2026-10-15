@@ -128,10 +128,11 @@ class MainController {
     String baseName = config.name().toLowerCase();
 
     return switch (config) {
+      case ELEMENTARY ->
+          String.format("%s_rule%d_size%d_%s.png", baseName, ruleNumber, size, timestamp);
       case TOTALISTIC ->
           String.format(
               "%s_states%d_rule%d_size%d_%s.png", baseName, states, ruleNumber, size, timestamp);
-      default -> String.format("%s_rule%d_size%d_%s.png", baseName, ruleNumber, size, timestamp);
     };
   }
 }
