@@ -1,13 +1,13 @@
 package com.cellularautomata.engine;
 
 /**
- * The <code>Vector</code> class represents a neighborhood vector of cells for an elementary
- * cellular automaton. Each cell has a value within the cell state set <code>{0, 1}</code>.
+ * Represents a one-dimensional vector of cellular automaton states. Each cell contains a
+ * non-negative integer state encoded as a digit.
  *
  * @author Rainer Pons
  */
 public final class Vector {
-  /** Stores a binary string representing the current state of an entire neighborhood vector. */
+  /** Stores the state of each cell as a string of digits. */
   private final String state;
 
   /**
