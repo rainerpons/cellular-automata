@@ -40,7 +40,8 @@ public final class Generator {
   }
 
   /**
-   * Generates a seed containing all zeroes except for a single active cell in the center.
+   * Generates a seed containing all zeroes except for a single active cell at a randomly selected
+   * position.
    *
    * @param size size of the seed string
    * @param states number of states (used to determine the maximum active state value)
