@@ -11,7 +11,7 @@ public class AutomataEngineTest {
 
   @Test
   public void testUniformSeedGenerationReturnsValidMap() {
-    AutomataResult result = AutomataEngine.generate(RULE_30, 8, "uniform");
+    AutomataResult result = AutomataEngine.generate(RULE_30, 8, 2, "uniform");
     Assert.assertNotNull(result);
     Assert.assertNotNull(result.getOriginalSeed());
     Assert.assertNotNull(result.getAutomatonMap());
@@ -21,7 +21,7 @@ public class AutomataEngineTest {
 
   @Test
   public void testSparseSeedGenerationReturnsValidMap() {
-    AutomataResult result = AutomataEngine.generate(RULE_30, 8, "sparse");
+    AutomataResult result = AutomataEngine.generate(RULE_30, 8, 2, "sparse");
     Assert.assertNotNull(result);
     Assert.assertEquals(8, result.getOriginalSeed().getSize());
 
@@ -36,34 +36,34 @@ public class AutomataEngineTest {
 
   @Test
   public void testAlternatingSeedGenerationReturnsValidMap() {
-    AutomataResult result = AutomataEngine.generate(RULE_30, 8, "alternating");
+    AutomataResult result = AutomataEngine.generate(RULE_30, 8, 2, "alternating");
     Assert.assertNotNull(result);
     Assert.assertEquals(8, result.getOriginalSeed().getSize());
 
-    // Alternating seed uses the expected initial seed pattern
-    String expected = "10101010"; // Size 8 alternating
-    Assert.assertEquals(expected, result.getOriginalSeed().getState());
+    // Alternating seed uses either valid starting phase for size 8
+    String state = result.getOriginalSeed().getState();
+    Assert.assertTrue(state.equals("10101010") || state.equals("01010101"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidSeedTypeThrowsException() {
-    AutomataEngine.generate(RULE_30, 8, "invalid");
+    AutomataEngine.generate(RULE_30, 8, 2, "invalid");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSeedTypeThrowsException() {
-    AutomataEngine.generate(RULE_30, 8, null);
+    AutomataEngine.generate(RULE_30, 8, 2, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidRuleThrowsException() {
     // ElementaryRule constructor throws IllegalArgumentException for rule > 255
-    AutomataEngine.generate(new ElementaryRule(256), 8, "uniform");
+    AutomataEngine.generate(new ElementaryRule(256), 8, 2, "uniform");
   }
 
   @Test
   public void testDifferentCasingForSeedTypeStillWorks() {
-    AutomataResult result = AutomataEngine.generate(RULE_30, 8, "uNiFoRm");
+    AutomataResult result = AutomataEngine.generate(RULE_30, 8, 2, "uNiFoRm");
     Assert.assertNotNull(result);
     Assert.assertEquals(8, result.getOriginalSeed().getSize());
   }

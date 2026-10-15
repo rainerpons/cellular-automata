@@ -28,8 +28,11 @@ public final class ParametersPanel extends GridPane {
   private final WorkspaceConfig config;
 
   private Slider sizeSlider;
+  private Spinner<Integer> statesSpinner;
   private Spinner<Integer> ruleSpinner;
   private ComboBox<String> seedComboBox;
+
+  private int currentRow = 1;
 
   /**
    * Constructs the parameters panel.
@@ -46,6 +49,9 @@ public final class ParametersPanel extends GridPane {
 
     // Add parameter controls.
     addSizeControls();
+    if (config.supportsCustomStates()) {
+      addStatesControls();
+    }
     addRuleControls();
     addSeedControls();
   }
@@ -57,6 +63,18 @@ public final class ParametersPanel extends GridPane {
    */
   public int getSizeValue() {
     return (int) sizeSlider.getValue();
+  }
+
+  /**
+   * Gets the states value.
+   *
+   * @return the states value
+   */
+  public int getStatesValue() {
+    if (statesSpinner == null) {
+      return config.getDefaultStates();
+    }
+    return statesSpinner.getValue();
   }
 
   /**
@@ -88,7 +106,7 @@ public final class ParametersPanel extends GridPane {
     final Label sizeLabel = new Label("Size (" + DEFAULT_SIZE + ")");
     GridPane.setColumnSpan(sizeLabel, 2);
     GridPane.setMargin(sizeLabel, new Insets(0, 0, UiStyles.LABEL_TO_CONTROL_GAP, 0));
-    add(sizeLabel, 0, 1);
+    add(sizeLabel, 0, currentRow++);
 
     sizeSlider = new Slider(MIN_SIZE, MAX_SIZE, DEFAULT_SIZE);
     sizeSlider.setBlockIncrement(1);
@@ -101,13 +119,47 @@ public final class ParametersPanel extends GridPane {
             (obs, oldVal, newVal) -> sizeLabel.setText("Size (" + newVal.intValue() + ")"));
     GridPane.setColumnSpan(sizeSlider, 2);
     GridPane.setMargin(sizeSlider, new Insets(0, 0, UiStyles.CONTROL_GROUP_GAP, 0));
-    add(sizeSlider, 0, 2);
+    add(sizeSlider, 0, currentRow++);
+  }
+
+  private <T> Spinner<T> createSpinner(SpinnerValueFactory<T> factory) {
+    Spinner<T> spinner = new Spinner<>();
+    spinner.setValueFactory(factory);
+    spinner.setEditable(true);
+    spinner
+        .getEditor()
+        .setTextFormatter(
+            new TextFormatter<>(
+                change -> {
+                  if (!change.getControlNewText().matches("\\d*")) {
+                    return null;
+                  }
+                  return change;
+                }));
+    spinner.getEditor().setAlignment(Pos.CENTER_LEFT);
+    UiStyles.applyControlHeight(spinner);
+    spinner.setMaxWidth(Double.MAX_VALUE);
+    GridPane.setHgrow(spinner, Priority.ALWAYS);
+    GridPane.setMargin(spinner, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
+    return spinner;
+  }
+
+  private void addStatesControls() {
+    Label statesLabel = new Label("States");
+    GridPane.setMargin(statesLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
+    add(statesLabel, 0, currentRow);
+
+    SpinnerValueFactory<Integer> valueFactory =
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(
+            config.getMinStates(), config.getMaxStates(), config.getDefaultStates());
+    statesSpinner = createSpinner(valueFactory);
+    add(statesSpinner, 1, currentRow++);
   }
 
   private void addRuleControls() {
     Label ruleLabel = new Label("Rule number");
     GridPane.setMargin(ruleLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
-    add(ruleLabel, 0, 3);
+    add(ruleLabel, 0, currentRow);
 
     SpinnerValueFactory<Integer> valueFactory =
         new SpinnerValueFactory<Integer>() {
@@ -119,8 +171,10 @@ public final class ParametersPanel extends GridPane {
 
           @Override
           public void increment(int steps) {
+            int states = getStatesValue();
+            int maxRule = config.getMaxRule(states);
             int current = getValue() == null ? config.getMinRule() : getValue();
-            setValue(Math.min(config.getMaxRule(), current + steps));
+            setValue(Math.min(maxRule, current + steps));
           }
         };
     valueFactory.setValue(config.getDefaultRule());
@@ -137,39 +191,20 @@ public final class ParametersPanel extends GridPane {
               if (string == null || string.isEmpty()) {
                 return valueFactory.getValue();
               }
-              return Integer.parseInt(
-                  string); // DO NOT clamp so MainApp can validate and reject it!
+              return Integer.parseInt(string);
             } catch (NumberFormatException e) {
               return valueFactory.getValue();
             }
           }
         });
 
-    ruleSpinner = new Spinner<>();
-    ruleSpinner.setValueFactory(valueFactory);
-    ruleSpinner.setEditable(true);
-
-    ruleSpinner
-        .getEditor()
-        .setTextFormatter(
-            new TextFormatter<>(
-                change -> {
-                  if (!change.getControlNewText().matches("\\d*")) {
-                    return null;
-                  }
-                  return change;
-                }));
-    ruleSpinner.getEditor().setAlignment(Pos.CENTER_LEFT);
-    UiStyles.applyControlHeight(ruleSpinner);
-    ruleSpinner.setMaxWidth(Double.MAX_VALUE);
-    GridPane.setHgrow(ruleSpinner, Priority.ALWAYS);
-    GridPane.setMargin(ruleSpinner, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
-    add(ruleSpinner, 1, 3);
+    ruleSpinner = createSpinner(valueFactory);
+    add(ruleSpinner, 1, currentRow++);
   }
 
   private void addSeedControls() {
     Label seedLabel = new Label("Seed type");
-    add(seedLabel, 0, 4);
+    add(seedLabel, 0, currentRow);
 
     seedComboBox =
         new ComboBox<>(FXCollections.observableArrayList("Uniform", "Sparse", "Alternating"));
@@ -177,6 +212,6 @@ public final class ParametersPanel extends GridPane {
     UiStyles.applyControlHeight(seedComboBox);
     seedComboBox.setMaxWidth(Double.MAX_VALUE);
     GridPane.setHgrow(seedComboBox, Priority.ALWAYS);
-    add(seedComboBox, 1, 4);
+    add(seedComboBox, 1, currentRow++);
   }
 }

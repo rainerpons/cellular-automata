@@ -1,13 +1,13 @@
 package com.cellularautomata.engine;
 
 /**
- * The <code>Vector</code> class represents a neighborhood vector of cells for an elementary
- * cellular automaton. Each cell has a value within the cell state set <code>{0, 1}</code>.
+ * Represents a one-dimensional vector of cellular automaton states. Each cell contains a
+ * non-negative integer state encoded as a digit.
  *
  * @author Rainer Pons
  */
 public final class Vector {
-  /** Stores a binary string representing the current state of an entire neighborhood vector. */
+  /** Stores the state of each cell as a string of digits. */
   private final String state;
 
   /**
@@ -39,18 +39,18 @@ public final class Vector {
   }
 
   /**
-   * Indicates if a string contains only binary digits.
+   * Indicates if a string contains only valid state digits.
    *
    * @param state collection of states for each individual cell
-   * @return true if <code>state</code> has only ones and zeroes, or false otherwise
+   * @return true if <code>state</code> has only digits, or false otherwise
    */
   public static boolean isValid(String state) {
     if (state == null) {
       return false;
     }
     for (int i = 0; i < state.length(); i++) {
-      String s = Character.toString(state.charAt(i));
-      if (!"0".equals(s) && !"1".equals(s)) {
+      char c = state.charAt(i);
+      if (!Character.isDigit(c)) {
         return false;
       }
     }

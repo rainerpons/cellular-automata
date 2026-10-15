@@ -19,6 +19,22 @@ public class DialogService {
     alert.showAndWait();
   }
 
+  /**
+   * Displays an error dialog indicating that the states number is invalid. This is a defensive
+   * safeguard supporting the manual entry edge case from MainController where invalid values are
+   * entered into the spinner's text box.
+   *
+   * @param minStates the minimum valid states number
+   * @param maxStates the maximum valid states number
+   */
+  public void showStatesError(int minStates, int maxStates) {
+    Alert alert =
+        createStyledErrorDialog(
+            "States Error",
+            "States must be a whole number between " + minStates + " and " + maxStates + ".");
+    alert.showAndWait();
+  }
+
   /** Displays an error dialog indicating that the image could not be saved. */
   public void showSaveError() {
     Alert alert =
