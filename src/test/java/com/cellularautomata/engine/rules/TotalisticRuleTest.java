@@ -113,6 +113,30 @@ public class TotalisticRuleTest {
     new TotalisticRule(7, 2).evaluate("120");
   }
 
+  @Test
+  public void testMaxRuleAcceptedForAllSupportedStates() {
+    for (int states = TotalisticRule.MIN_STATES; states <= TotalisticRule.MAX_STATES; states++) {
+      int maxRule = TotalisticRule.calculateMaxRule(states);
+      TotalisticRule rule = new TotalisticRule(maxRule, states);
+      Assert.assertEquals(maxRule, rule.getRuleNumber());
+    }
+  }
+
+  @Test
+  public void testAboveMaxRuleRejectedForAllSupportedStates() {
+    for (int states = TotalisticRule.MIN_STATES; states <= TotalisticRule.MAX_STATES; states++) {
+      int maxRule = TotalisticRule.calculateMaxRule(states);
+      if (maxRule < Integer.MAX_VALUE) {
+        try {
+          new TotalisticRule(maxRule + 1, states);
+          Assert.fail("Expected IllegalArgumentException for states=" + states);
+        } catch (IllegalArgumentException expected) {
+          // Expected
+        }
+      }
+    }
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testInvalidRuleNegative() {
     new TotalisticRule(-1, 2);
