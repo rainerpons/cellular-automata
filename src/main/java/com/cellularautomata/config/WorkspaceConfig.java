@@ -10,30 +10,24 @@ public enum WorkspaceConfig {
   ELEMENTARY(
       "Cellular Automata (Elementary)",
       ElementaryRule.MIN_RULE_NUMBER,
-      ElementaryRule.MAX_RULE_NUMBER,
-      ElementaryRule.DEFAULT_RULE_NUMBER),
+      ElementaryRule.DEFAULT_RULE_NUMBER,
+      2,
+      2,
+      2) {
+    @Override
+    public int getMaxRule(int states) {
+      return ElementaryRule.MAX_RULE_NUMBER;
+    }
+  },
 
   /** Totalistic cellular automata workspace configuration. */
   TOTALISTIC(
       "Cellular Automata (Totalistic)",
       TotalisticRule.MIN_RULE_NUMBER,
-      Integer.MAX_VALUE, // Bounded dynamically in getMaxRule(int states)
-      TotalisticRule.DEFAULT_RULE_NUMBER) {
-    @Override
-    public boolean supportsCustomStates() {
-      return true;
-    }
-
-    @Override
-    public int getMinStates() {
-      return 2;
-    }
-
-    @Override
-    public int getMaxStates() {
-      return 5;
-    }
-
+      TotalisticRule.DEFAULT_RULE_NUMBER,
+      TotalisticRule.MIN_STATES,
+      TotalisticRule.MAX_STATES,
+      TotalisticRule.DEFAULT_STATES) {
     @Override
     public int getMaxRule(int states) {
       return TotalisticRule.calculateMaxRule(states);
@@ -46,17 +40,31 @@ public enum WorkspaceConfig {
   /** The minimum allowed rule number. */
   private final int minRule;
 
-  /** The maximum allowed rule number. */
-  private final int maxRule;
-
   /** The default rule number. */
   private final int defaultRule;
 
-  WorkspaceConfig(String windowTitle, int minRule, int maxRule, int defaultRule) {
+  /** The minimum allowed number of states. */
+  private final int minStates;
+
+  /** The maximum allowed number of states. */
+  private final int maxStates;
+
+  /** The default number of states. */
+  private final int defaultStates;
+
+  WorkspaceConfig(
+      String windowTitle,
+      int minRule,
+      int defaultRule,
+      int minStates,
+      int maxStates,
+      int defaultStates) {
     this.windowTitle = windowTitle;
     this.minRule = minRule;
-    this.maxRule = maxRule;
     this.defaultRule = defaultRule;
+    this.minStates = minStates;
+    this.maxStates = maxStates;
+    this.defaultStates = defaultStates;
   }
 
   public String getWindowTitle() {
@@ -67,58 +75,38 @@ public enum WorkspaceConfig {
     return minRule;
   }
 
-  public int getMaxRule() {
-    return maxRule;
-  }
-
   /**
    * Returns the maximum allowed rule number for a given state count.
    *
    * @param states the state count
    * @return the maximum rule
    */
-  public int getMaxRule(int states) {
-    return maxRule;
-  }
+  public abstract int getMaxRule(int states);
 
   public int getDefaultRule() {
     return defaultRule;
   }
 
   /**
-   * Indicates if this workspace supports custom state counts.
+   * Indicates if this workspace supports custom state counts, derived from whether the configured
+   * minimum and maximum state counts differ.
    *
    * @return true if custom states are supported
    */
   public boolean supportsCustomStates() {
-    return false;
+    return minStates != maxStates;
   }
 
-  /**
-   * Returns the minimum allowed states for this workspace.
-   *
-   * @return the minimum states
-   */
   public int getMinStates() {
-    return 2;
+    return minStates;
   }
 
-  /**
-   * Returns the maximum allowed states for this workspace.
-   *
-   * @return the maximum states
-   */
   public int getMaxStates() {
-    return 2;
+    return maxStates;
   }
 
-  /**
-   * Returns the default number of states for this workspace.
-   *
-   * @return the default states
-   */
   public int getDefaultStates() {
-    return 2;
+    return defaultStates;
   }
 
   /**

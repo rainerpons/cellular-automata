@@ -1,5 +1,7 @@
 package com.cellularautomata.config;
 
+import com.cellularautomata.engine.rules.ElementaryRule;
+import com.cellularautomata.engine.rules.TotalisticRule;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,8 +16,8 @@ public class WorkspaceConfigTest {
     Assert.assertEquals(2, config.getMaxStates());
     Assert.assertEquals(2, config.getDefaultStates());
 
-    Assert.assertEquals(255, config.getMaxRule(2));
-    Assert.assertEquals(255, config.getMaxRule(5)); // Ignored for Elementary
+    Assert.assertEquals(ElementaryRule.MAX_RULE_NUMBER, config.getMaxRule(2));
+    Assert.assertEquals(ElementaryRule.MAX_RULE_NUMBER, config.getMaxRule(5));
   }
 
   @Test
@@ -23,8 +25,9 @@ public class WorkspaceConfigTest {
     WorkspaceConfig config = WorkspaceConfig.TOTALISTIC;
 
     Assert.assertTrue(config.supportsCustomStates());
-    Assert.assertEquals(2, config.getMinStates());
-    Assert.assertEquals(5, config.getMaxStates());
+    Assert.assertEquals(TotalisticRule.MIN_STATES, config.getMinStates());
+    Assert.assertEquals(TotalisticRule.MAX_STATES, config.getMaxStates());
+    Assert.assertEquals(TotalisticRule.DEFAULT_STATES, config.getDefaultStates());
 
     // 2 states max rule = 2^(3*1 + 1) - 1 = 15
     Assert.assertEquals(15, config.getMaxRule(2));
