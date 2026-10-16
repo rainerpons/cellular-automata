@@ -2,10 +2,14 @@ package com.cellularautomata.ui.panels;
 
 import com.cellularautomata.config.LifeLikePreset;
 import com.cellularautomata.config.SeedType;
+import com.cellularautomata.ui.shared.UiStyles;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,15 +34,83 @@ public class LifeLikeParametersPanelTest {
     Assert.assertEquals(8, panel.getSizeValue());
     Assert.assertEquals("Size (8)", panel.getSizeLabelText());
     Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, panel.getPreset());
-    Assert.assertEquals(Set.of(3), panel.getBirthCounts());
-    Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
-    Assert.assertEquals("B3/S23", panel.getRuleNotation());
-    Assert.assertFalse(panel.isRuleNotationEditable());
     Assert.assertEquals(SeedType.DENSITY, panel.getSeedType());
+    Assert.assertEquals(
+        List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
+        panel.getSeedComboBox().getItems());
     Assert.assertEquals(50, panel.getDensityValue());
     Assert.assertEquals("Density (50%)", panel.getDensityLabelText());
     Assert.assertTrue(panel.isDensityVisible());
     Assert.assertTrue(panel.isDensityManaged());
+    Assert.assertEquals(Set.of(3), panel.getBirthCounts());
+    Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
+  }
+
+  @Test
+  public void testParameterRowOrderHorizontalSliderLayoutAndNoRuleNotationField() {
+    LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+    ParametersPanel grid = panel.getPanel();
+
+    Label sizeLabel = grid.findLabelByPrefix("Size (");
+    Label presetLabel = grid.findLabelByPrefix("Preset");
+    Label seedLabel = grid.findLabelByPrefix("Seed type");
+    Label densityLabel = grid.findLabelByPrefix("Density (");
+    Label birthLabel = grid.findLabelByPrefix("Birth");
+    Label survivalLabel = grid.findLabelByPrefix("Survival");
+    Label ruleLabel = grid.findLabelByPrefix("Rule");
+
+    Assert.assertNotNull(sizeLabel);
+    Assert.assertNotNull(presetLabel);
+    Assert.assertNotNull(seedLabel);
+    Assert.assertNotNull(densityLabel);
+    Assert.assertNotNull(birthLabel);
+    Assert.assertNotNull(survivalLabel);
+    Assert.assertNull(ruleLabel);
+
+    Assert.assertEquals(Integer.valueOf(1), GridPane.getRowIndex(sizeLabel));
+    Assert.assertEquals(Integer.valueOf(2), GridPane.getRowIndex(presetLabel));
+    Assert.assertEquals(Integer.valueOf(3), GridPane.getRowIndex(seedLabel));
+    Assert.assertEquals(Integer.valueOf(4), GridPane.getRowIndex(densityLabel));
+    Assert.assertEquals(Integer.valueOf(5), GridPane.getRowIndex(birthLabel));
+    Assert.assertEquals(Integer.valueOf(6), GridPane.getRowIndex(survivalLabel));
+
+    // Density slider is placed horizontally on the same row in column 1
+    Assert.assertEquals(Integer.valueOf(4), GridPane.getRowIndex(panel.getDensitySlider()));
+    Assert.assertEquals(Integer.valueOf(1), GridPane.getColumnIndex(panel.getDensitySlider()));
+
+    // Slider labels have a fixed minimum width so digit changes do not shift the slider track
+    Assert.assertEquals(UiStyles.FORM_LABEL_COLUMN_MIN_WIDTH, sizeLabel.getMinWidth(), 0.001);
+    Assert.assertEquals(UiStyles.FORM_LABEL_COLUMN_MIN_WIDTH, densityLabel.getMinWidth(), 0.001);
+  }
+
+  @Test
+  public void testParameterTooltipsAttachedOnlyToExpectedLabels() {
+    LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+    ParametersPanel grid = panel.getPanel();
+
+    Label sizeLabel = grid.findLabelByPrefix("Size (");
+    Label presetLabel = grid.findLabelByPrefix("Preset");
+    Label seedLabel = grid.findLabelByPrefix("Seed type");
+    Label densityLabel = grid.findLabelByPrefix("Density (");
+    Label birthLabel = grid.findLabelByPrefix("Birth");
+    Label survivalLabel = grid.findLabelByPrefix("Survival");
+
+    Assert.assertNull(sizeLabel.getTooltip());
+    Assert.assertNull(presetLabel.getTooltip());
+
+    Assert.assertNotNull(seedLabel.getTooltip());
+    Assert.assertEquals(ParametersPanel.SEED_TYPE_TOOLTIP, seedLabel.getTooltip().getText());
+
+    Assert.assertNotNull(densityLabel.getTooltip());
+    Assert.assertEquals(
+        LifeLikeParametersPanel.DENSITY_TOOLTIP, densityLabel.getTooltip().getText());
+
+    Assert.assertNotNull(birthLabel.getTooltip());
+    Assert.assertEquals(LifeLikeParametersPanel.BIRTH_TOOLTIP, birthLabel.getTooltip().getText());
+
+    Assert.assertNotNull(survivalLabel.getTooltip());
+    Assert.assertEquals(
+        LifeLikeParametersPanel.SURVIVAL_TOOLTIP, survivalLabel.getTooltip().getText());
   }
 
   @Test
@@ -59,23 +131,20 @@ public class LifeLikeParametersPanelTest {
   }
 
   @Test
-  public void testPresetSelectionUpdatesTogglesAndRuleNotation() {
+  public void testPresetSelectionUpdatesToggles() {
     LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
 
     panel.selectPreset(LifeLikePreset.HIGH_LIFE);
     Assert.assertEquals(Set.of(3, 6), panel.getBirthCounts());
     Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
-    Assert.assertEquals("B36/S23", panel.getRuleNotation());
 
     panel.selectPreset(LifeLikePreset.SEEDS);
     Assert.assertEquals(Set.of(2), panel.getBirthCounts());
     Assert.assertEquals(Set.of(), panel.getSurvivalCounts());
-    Assert.assertEquals("B2/S", panel.getRuleNotation());
 
     panel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
     Assert.assertEquals(Set.of(3), panel.getBirthCounts());
     Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
-    Assert.assertEquals("B3/S23", panel.getRuleNotation());
   }
 
   @Test
@@ -87,7 +156,6 @@ public class LifeLikeParametersPanelTest {
     Assert.assertEquals(LifeLikePreset.CUSTOM, panel.getPreset());
     Assert.assertEquals(Set.of(3, 6), panel.getBirthCounts());
     Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
-    Assert.assertEquals("B36/S23", panel.getRuleNotation());
   }
 
   @Test
@@ -97,20 +165,17 @@ public class LifeLikeParametersPanelTest {
     // Start at B3/S23 (Conway's Game of Life), add Birth 6 -> B36/S23 (HighLife)
     panel.toggleBirth(6);
     Assert.assertEquals(LifeLikePreset.HIGH_LIFE, panel.getPreset());
-    Assert.assertEquals("B36/S23", panel.getRuleNotation());
 
     // Deselect Birth 6 and Birth 3 -> B/S23 (Custom)
     panel.toggleBirth(6);
     panel.toggleBirth(3);
     Assert.assertEquals(LifeLikePreset.CUSTOM, panel.getPreset());
-    Assert.assertEquals("B/S23", panel.getRuleNotation());
 
     // Select Birth 2 and deselect Survival 2 and 3 -> B2/S (Seeds)
     panel.toggleBirth(2);
     panel.toggleSurvival(2);
     panel.toggleSurvival(3);
     Assert.assertEquals(LifeLikePreset.SEEDS, panel.getPreset());
-    Assert.assertEquals("B2/S", panel.getRuleNotation());
   }
 
   @Test
@@ -129,14 +194,12 @@ public class LifeLikeParametersPanelTest {
     panel.getSurvivalToggle(4).setSelected(true);
     Assert.assertFalse(panel.getSurvivalToggle(4).isSelected());
     Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
-    Assert.assertEquals("B3/S23", panel.getRuleNotation());
 
     // Deselecting Survival 3 re-enables other survival toggles
     panel.toggleSurvival(3);
     Assert.assertFalse(panel.getSurvivalToggle(4).isDisabled());
     panel.toggleSurvival(4);
     Assert.assertEquals(Set.of(2, 4), panel.getSurvivalCounts());
-    Assert.assertEquals("B3/S24", panel.getRuleNotation());
   }
 
   @Test
@@ -146,12 +209,10 @@ public class LifeLikeParametersPanelTest {
     // Deselect Birth 3 -> empty birth set
     panel.toggleBirth(3);
     Assert.assertEquals(Set.of(), panel.getBirthCounts());
-    Assert.assertEquals("B/S23", panel.getRuleNotation());
 
     // Select Birth 0 -> zero count in birth set
     panel.toggleBirth(0);
     Assert.assertEquals(Set.of(0), panel.getBirthCounts());
-    Assert.assertEquals("B0/S23", panel.getRuleNotation());
   }
 
   @Test
