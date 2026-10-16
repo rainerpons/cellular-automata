@@ -1,183 +1,174 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.config.WorkspaceConfig;
+import com.cellularautomata.config.SeedType;
+import com.cellularautomata.ui.shared.LabeledSlider;
 import com.cellularautomata.ui.shared.UiStyles;
-import javafx.collections.FXCollections;
+import java.util.List;
+import java.util.function.IntSupplier;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
 
 /**
- * The parameters section of the sidebar. Provides controls for configuring the automaton size, rule
- * number, and seed type. Exposes read-only accessors for external consumers to retrieve the current
- * values without exposing internal control implementations.
+ * Reusable two-column grid container for the Parameters section of a workspace sidebar. Owns the
+ * section heading, column sizing constraints, row insertion, tooltip attachment on parameter
+ * labels, and shared parameter control factories.
  */
 public final class ParametersPanel extends GridPane {
-  static final int MIN_SIZE = 4;
-  static final int MAX_SIZE = 128;
-  static final int DEFAULT_SIZE = 8;
+  public static final int MIN_SIZE = 4;
+  public static final int MAX_SIZE = 128;
+  public static final int DEFAULT_SIZE = 8;
 
-  private final WorkspaceConfig config;
-
-  private Slider sizeSlider;
-  private Spinner<Integer> statesSpinner;
-  private Spinner<Integer> ruleSpinner;
-  private ComboBox<String> seedComboBox;
+  public static final String SEED_TYPE_TOOLTIP =
+      "Determines how cells are initially populated when generating a new automaton.";
 
   private int currentRow = 1;
 
-  /**
-   * Constructs the parameters panel.
-   *
-   * @param config the workspace configuration
-   */
-  public ParametersPanel(WorkspaceConfig config) {
-    this.config = config;
-
+  /** Constructs a parameters panel with the section heading and two-column constraints. */
+  public ParametersPanel() {
     setHgap(UiStyles.FORM_LABEL_COLUMN_GAP);
 
-    // Add section heading.
+    ColumnConstraints labelColumn = new ColumnConstraints();
+    labelColumn.setMinWidth(UiStyles.FORM_LABEL_COLUMN_MIN_WIDTH);
+    ColumnConstraints controlColumn = new ColumnConstraints();
+    controlColumn.setHgrow(Priority.ALWAYS);
+    getColumnConstraints().addAll(labelColumn, controlColumn);
+
     addHeading();
+  }
 
-    // Add parameter controls.
-    addSizeControls();
-    if (config.supportsCustomStates()) {
-      addStatesControls();
+  /**
+   * Adds the standard horizontal Size slider row (4 to 128, default 8) to the panel.
+   *
+   * @return the created {@link LabeledSlider}
+   */
+  public LabeledSlider addSizeSliderRow() {
+    LabeledSlider sizeSlider =
+        new LabeledSlider(
+            MIN_SIZE, MAX_SIZE, DEFAULT_SIZE, 1, false, true, size -> "Size (" + size + ")");
+    addSliderRow(sizeSlider, null, true);
+    return sizeSlider;
+  }
+
+  /**
+   * Adds a horizontal {@link LabeledSlider} row with its label in column 0 and slider in column 1.
+   *
+   * @param labeledSlider the labeled slider to add
+   * @param tooltipText optional tooltip text for the label, or {@code null} for no tooltip
+   * @param includeBottomGap whether to apply the standard row bottom margin
+   * @return the row's label control
+   */
+  public Label addSliderRow(
+      LabeledSlider labeledSlider, String tooltipText, boolean includeBottomGap) {
+    Label label = labeledSlider.getLabel();
+    if (tooltipText != null) {
+      UiStyles.installTooltip(label, tooltipText);
     }
-    addRuleControls();
-    addSeedControls();
-  }
-
-  /**
-   * Gets the size value.
-   *
-   * @return the size value
-   */
-  public int getSizeValue() {
-    return (int) sizeSlider.getValue();
-  }
-
-  /**
-   * Gets the states value.
-   *
-   * @return the states value
-   */
-  public int getStatesValue() {
-    if (statesSpinner == null) {
-      return config.getDefaultStates();
+    if (includeBottomGap) {
+      Insets bottomMargin = new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0);
+      GridPane.setMargin(label, bottomMargin);
+      GridPane.setMargin(labeledSlider.getSlider(), bottomMargin);
     }
-    return statesSpinner.getValue();
+    add(label, 0, currentRow);
+    add(labeledSlider.getSlider(), 1, currentRow++);
+    return label;
   }
 
   /**
-   * Gets the rule text.
+   * Adds a labeled parameter control row with the label in column 0 and control in column 1.
    *
-   * @return the rule text
+   * @param labelText the parameter label text
+   * @param tooltipText optional tooltip text for the label, or {@code null} for no tooltip
+   * @param control the control node for column 1
+   * @param includeBottomGap whether to apply the standard row bottom margin
+   * @return the created label control
    */
-  public String getRuleText() {
-    return ruleSpinner.getEditor().getText();
+  public Label addControlRow(
+      String labelText, String tooltipText, Node control, boolean includeBottomGap) {
+    Label label = new Label(labelText);
+    if (tooltipText != null) {
+      UiStyles.installTooltip(label, tooltipText);
+    }
+    if (includeBottomGap) {
+      Insets bottomMargin = new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0);
+      GridPane.setMargin(label, bottomMargin);
+      GridPane.setMargin(control, bottomMargin);
+    }
+    add(label, 0, currentRow);
+    add(control, 1, currentRow++);
+    return label;
   }
 
   /**
-   * Gets the seed type.
+   * Adds a Seed type dropdown row with the shared Seed type tooltip on its label.
    *
-   * @return the seed type
+   * @param seedTypes the selectable seed types
+   * @param defaultSeedType the initially selected seed type
+   * @param includeBottomGap whether to apply the standard row bottom margin
+   * @return the created combo box
    */
-  public String getSeedType() {
-    return seedComboBox.getValue();
+  public ComboBox<SeedType> addSeedTypeRow(
+      List<SeedType> seedTypes, SeedType defaultSeedType, boolean includeBottomGap) {
+    ComboBox<SeedType> seedComboBox = UiStyles.createDropdown(seedTypes, defaultSeedType);
+    addControlRow("Seed type", SEED_TYPE_TOOLTIP, seedComboBox, includeBottomGap);
+    return seedComboBox;
   }
 
-  private void addHeading() {
-    final Label heading = UiStyles.createHeading("Parameters");
-    GridPane.setColumnSpan(heading, 2);
-    GridPane.setMargin(heading, new Insets(0, 0, UiStyles.PARAMETERS_HEADING_GAP, 0));
-    add(heading, 0, 0);
-  }
-
-  private void addSizeControls() {
-    final Label sizeLabel = new Label("Size (" + DEFAULT_SIZE + ")");
-    GridPane.setColumnSpan(sizeLabel, 2);
-    GridPane.setMargin(sizeLabel, new Insets(0, 0, UiStyles.LABEL_TO_CONTROL_GAP, 0));
-    add(sizeLabel, 0, currentRow++);
-
-    sizeSlider = new Slider(MIN_SIZE, MAX_SIZE, DEFAULT_SIZE);
-    sizeSlider.setBlockIncrement(1);
-    sizeSlider.setMajorTickUnit(1);
-    sizeSlider.setMinorTickCount(0);
-    sizeSlider.setSnapToTicks(true);
-    sizeSlider
-        .valueProperty()
-        .addListener(
-            (obs, oldVal, newVal) -> sizeLabel.setText("Size (" + newVal.intValue() + ")"));
-    GridPane.setColumnSpan(sizeSlider, 2);
-    GridPane.setMargin(sizeSlider, new Insets(0, 0, UiStyles.CONTROL_GROUP_GAP, 0));
-    add(sizeSlider, 0, currentRow++);
-  }
-
-  private <T> Spinner<T> createSpinner(SpinnerValueFactory<T> factory) {
-    Spinner<T> spinner = new Spinner<>();
-    spinner.setValueFactory(factory);
-    spinner.setEditable(true);
-    spinner
-        .getEditor()
-        .setTextFormatter(
-            new TextFormatter<>(
-                change -> {
-                  if (!change.getControlNewText().matches("\\d*")) {
-                    return null;
-                  }
-                  return change;
-                }));
-    spinner.getEditor().setAlignment(Pos.CENTER_LEFT);
-    UiStyles.applyControlHeight(spinner);
-    spinner.setMaxWidth(Double.MAX_VALUE);
-    GridPane.setHgrow(spinner, Priority.ALWAYS);
-    GridPane.setMargin(spinner, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
+  /**
+   * Adds an editable integer spinner row bounded by a fixed range.
+   *
+   * @param labelText the parameter label text
+   * @param min the minimum spinner value
+   * @param max the maximum spinner value
+   * @param defaultValue the initial spinner value
+   * @param includeBottomGap whether to apply the standard row bottom margin
+   * @return the created spinner
+   */
+  public Spinner<Integer> addIntegerSpinnerRow(
+      String labelText, int min, int max, int defaultValue, boolean includeBottomGap) {
+    SpinnerValueFactory<Integer> valueFactory =
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, defaultValue);
+    Spinner<Integer> spinner = createNumericSpinner(valueFactory);
+    addControlRow(labelText, null, spinner, includeBottomGap);
     return spinner;
   }
 
-  private void addStatesControls() {
-    Label statesLabel = new Label("States");
-    GridPane.setMargin(statesLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
-    add(statesLabel, 0, currentRow);
-
-    SpinnerValueFactory<Integer> valueFactory =
-        new SpinnerValueFactory.IntegerSpinnerValueFactory(
-            config.getMinStates(), config.getMaxStates(), config.getDefaultStates());
-    statesSpinner = createSpinner(valueFactory);
-    add(statesSpinner, 1, currentRow++);
-  }
-
-  private void addRuleControls() {
-    Label ruleLabel = new Label("Rule number");
-    GridPane.setMargin(ruleLabel, new Insets(0, 0, UiStyles.FORM_ROW_BOTTOM_GAP, 0));
-    add(ruleLabel, 0, currentRow);
-
+  /**
+   * Adds an editable rule number spinner row with dynamic maximum rule bounds.
+   *
+   * @param minRule the minimum allowed rule number
+   * @param defaultRule the initial rule number
+   * @param maxRuleSupplier supplier for the current maximum allowed rule number
+   * @param includeBottomGap whether to apply the standard row bottom margin
+   * @return the created rule spinner
+   */
+  public Spinner<Integer> addRuleSpinnerRow(
+      int minRule, int defaultRule, IntSupplier maxRuleSupplier, boolean includeBottomGap) {
     SpinnerValueFactory<Integer> valueFactory =
         new SpinnerValueFactory<Integer>() {
           @Override
           public void decrement(int steps) {
-            int current = getValue() == null ? config.getMinRule() : getValue();
-            setValue(Math.max(config.getMinRule(), current - steps));
+            int current = getValue() == null ? minRule : getValue();
+            setValue(Math.max(minRule, current - steps));
           }
 
           @Override
           public void increment(int steps) {
-            int states = getStatesValue();
-            int maxRule = config.getMaxRule(states);
-            int current = getValue() == null ? config.getMinRule() : getValue();
+            int maxRule = maxRuleSupplier.getAsInt();
+            int current = getValue() == null ? minRule : getValue();
             setValue(Math.min(maxRule, current + steps));
           }
         };
-    valueFactory.setValue(config.getDefaultRule());
+    valueFactory.setValue(defaultRule);
     valueFactory.setConverter(
         new StringConverter<Integer>() {
           @Override
@@ -198,20 +189,49 @@ public final class ParametersPanel extends GridPane {
           }
         });
 
-    ruleSpinner = createSpinner(valueFactory);
-    add(ruleSpinner, 1, currentRow++);
+    Spinner<Integer> ruleSpinner = createNumericSpinner(valueFactory);
+    addControlRow("Rule number", null, ruleSpinner, includeBottomGap);
+    return ruleSpinner;
   }
 
-  private void addSeedControls() {
-    Label seedLabel = new Label("Seed type");
-    add(seedLabel, 0, currentRow);
+  Label findLabelByPrefix(String prefix) {
+    for (Node child : getChildren()) {
+      Integer col = GridPane.getColumnIndex(child);
+      if (child instanceof Label label
+          && (col == null || col == 0)
+          && label.getText() != null
+          && label.getText().startsWith(prefix)) {
+        return label;
+      }
+    }
+    return null;
+  }
 
-    seedComboBox =
-        new ComboBox<>(FXCollections.observableArrayList("Uniform", "Sparse", "Alternating"));
-    seedComboBox.setValue("Uniform");
-    UiStyles.applyControlHeight(seedComboBox);
-    seedComboBox.setMaxWidth(Double.MAX_VALUE);
-    GridPane.setHgrow(seedComboBox, Priority.ALWAYS);
-    add(seedComboBox, 1, currentRow++);
+  private void addHeading() {
+    final Label heading = UiStyles.createHeading("Parameters");
+    GridPane.setColumnSpan(heading, 2);
+    GridPane.setMargin(heading, new Insets(0, 0, UiStyles.PARAMETERS_HEADING_GAP, 0));
+    add(heading, 0, 0);
+  }
+
+  private static <T> Spinner<T> createNumericSpinner(SpinnerValueFactory<T> factory) {
+    Spinner<T> spinner = new Spinner<>();
+    spinner.setValueFactory(factory);
+    spinner.setEditable(true);
+    spinner
+        .getEditor()
+        .setTextFormatter(
+            new TextFormatter<>(
+                change -> {
+                  if (!change.getControlNewText().matches("\\d*")) {
+                    return null;
+                  }
+                  return change;
+                }));
+    spinner.getEditor().setAlignment(Pos.CENTER_LEFT);
+    UiStyles.applyControlHeight(spinner);
+    spinner.setMaxWidth(Double.MAX_VALUE);
+    GridPane.setHgrow(spinner, Priority.ALWAYS);
+    return spinner;
   }
 }

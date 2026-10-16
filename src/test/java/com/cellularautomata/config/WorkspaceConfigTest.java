@@ -36,4 +36,25 @@ public class WorkspaceConfigTest {
     // 5 states max rule = 1220703124
     Assert.assertEquals(1220703124, config.getMaxRule(5));
   }
+
+  @Test
+  public void testLifeLikeCapabilities() {
+    WorkspaceConfig config = WorkspaceConfig.LIFE_LIKE;
+
+    Assert.assertEquals("Cellular Automata (Life-Like)", config.getWindowTitle());
+    Assert.assertFalse(config.supportsCustomStates());
+    Assert.assertEquals(2, config.getMinStates());
+    Assert.assertEquals(2, config.getMaxStates());
+    Assert.assertEquals(2, config.getDefaultStates());
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testLifeLikeGetMaxRuleThrows() {
+    WorkspaceConfig.LIFE_LIKE.getMaxRule(2);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testLifeLikeInstantiateRuleThrows() {
+    WorkspaceConfig.LIFE_LIKE.instantiateRule(0, 2);
+  }
 }

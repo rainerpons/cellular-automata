@@ -72,7 +72,9 @@ public class ModuleSelectionScreen extends VBox {
             "Uses the sum of nearby cell states to determine the next cell state.");
     ModuleCard lifeLike =
         new ModuleCard(
-            "Life-Like", "Uses birth and survival rules to determine the next cell state.");
+            WorkspaceConfig.LIFE_LIKE,
+            "Life-Like",
+            "Uses birth and survival rules to determine the next cell state.");
 
     cards.getChildren().addAll(elementary, totalistic, lifeLike);
 
@@ -86,9 +88,7 @@ public class ModuleSelectionScreen extends VBox {
     continueButton.setDisable(true);
 
     buttonWrapper = new StackPane(continueButton);
-    continueTooltip = new Tooltip("Select a module to continue.");
-    continueTooltip.getStyleClass().add("tooltip");
-    Tooltip.install(buttonWrapper, continueTooltip);
+    continueTooltip = UiStyles.installTooltip(buttonWrapper, "Select a module to continue.");
 
     elementary.setOnMouseClicked(e -> handleCardSelection(elementary));
     totalistic.setOnMouseClicked(e -> handleCardSelection(totalistic));

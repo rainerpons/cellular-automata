@@ -18,19 +18,9 @@ public class ModuleCard extends StackPane {
   private final WorkspaceConfig config;
 
   /**
-   * Constructs a new module card without a bound workspace configuration.
-   *
-   * @param titleText the title of the module
-   * @param descText the description of the module
-   */
-  public ModuleCard(String titleText, String descText) {
-    this(null, titleText, descText);
-  }
-
-  /**
    * Constructs a new module card.
    *
-   * @param config the configuration of the workspace, or null if not yet bound
+   * @param config the configuration of the workspace
    * @param titleText the title of the module
    * @param descText the description of the module
    */
