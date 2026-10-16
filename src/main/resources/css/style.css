@@ -118,6 +118,10 @@
     -fx-padding: 0 8 0 8;
 }
 
+.simulation-icon {
+    -fx-fill: -fx-text-primary;
+}
+
 .continue-button {
     -fx-background-color: -fx-accent-green;
     -fx-border-color: transparent;

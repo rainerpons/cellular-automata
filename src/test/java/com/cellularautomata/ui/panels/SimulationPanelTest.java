@@ -4,6 +4,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.Region;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,15 +33,19 @@ public class SimulationPanelTest {
     Assert.assertTrue(panel.getResetButton().isDisabled());
 
     Assert.assertFalse(panel.isPlaying());
-    Assert.assertEquals(SimulationPanel.PLAY_ICON, panel.getPlayPauseButton().getText());
+    Assert.assertEquals(
+        ContentDisplay.GRAPHIC_ONLY, panel.getPlayPauseButton().getContentDisplay());
+    Assert.assertEquals(SimulationPanel.PLAY_ICON_PATH, panel.getPlayPauseIconPath());
     Assert.assertEquals("Play", panel.getPlayPauseButton().getTooltip().getText());
     Assert.assertEquals("Play", panel.getPlayPauseButton().getAccessibleText());
 
-    Assert.assertEquals(SimulationPanel.STEP_ICON, panel.getStepButton().getText());
+    Assert.assertEquals(ContentDisplay.GRAPHIC_ONLY, panel.getStepButton().getContentDisplay());
+    Assert.assertEquals(SimulationPanel.STEP_ICON_PATH, panel.getStepIconPath());
     Assert.assertEquals("Step", panel.getStepButton().getTooltip().getText());
     Assert.assertEquals("Step", panel.getStepButton().getAccessibleText());
 
-    Assert.assertEquals(SimulationPanel.RESET_ICON, panel.getResetButton().getText());
+    Assert.assertEquals(ContentDisplay.GRAPHIC_ONLY, panel.getResetButton().getContentDisplay());
+    Assert.assertEquals(SimulationPanel.RESET_ICON_PATH, panel.getResetIconPath());
     Assert.assertEquals("Reset", panel.getResetButton().getTooltip().getText());
     Assert.assertEquals("Reset", panel.getResetButton().getAccessibleText());
   }
@@ -49,13 +56,13 @@ public class SimulationPanelTest {
 
     panel.setPlaying(true);
     Assert.assertTrue(panel.isPlaying());
-    Assert.assertEquals(SimulationPanel.PAUSE_ICON, panel.getPlayPauseButton().getText());
+    Assert.assertEquals(SimulationPanel.PAUSE_ICON_PATH, panel.getPlayPauseIconPath());
     Assert.assertEquals("Pause", panel.getPlayPauseButton().getTooltip().getText());
     Assert.assertEquals("Pause", panel.getPlayPauseButton().getAccessibleText());
 
     panel.setPlaying(false);
     Assert.assertFalse(panel.isPlaying());
-    Assert.assertEquals(SimulationPanel.PLAY_ICON, panel.getPlayPauseButton().getText());
+    Assert.assertEquals(SimulationPanel.PLAY_ICON_PATH, panel.getPlayPauseIconPath());
     Assert.assertEquals("Play", panel.getPlayPauseButton().getTooltip().getText());
     Assert.assertEquals("Play", panel.getPlayPauseButton().getAccessibleText());
   }
@@ -84,5 +91,22 @@ public class SimulationPanelTest {
     Assert.assertTrue(playPauseFired.get());
     Assert.assertTrue(stepFired.get());
     Assert.assertTrue(resetFired.get());
+  }
+
+  @Test
+  public void testLifeLikeSidebarPanelSectionOrder() {
+    LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
+    SimulationPanel simulationPanel = new SimulationPanel();
+    CommandsPanel commandsPanel = new CommandsPanel();
+
+    SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, simulationPanel, commandsPanel);
+
+    Assert.assertEquals(6, sidebarPanel.getChildren().size());
+    Assert.assertSame(parametersPanel, sidebarPanel.getChildren().get(0));
+    Assert.assertTrue(sidebarPanel.getChildren().get(1) instanceof Separator);
+    Assert.assertSame(simulationPanel, sidebarPanel.getChildren().get(2));
+    Assert.assertTrue(sidebarPanel.getChildren().get(3) instanceof Separator);
+    Assert.assertSame(commandsPanel, sidebarPanel.getChildren().get(4));
+    Assert.assertTrue(sidebarPanel.getChildren().get(5) instanceof Region);
   }
 }

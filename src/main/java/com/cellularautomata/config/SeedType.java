@@ -5,7 +5,10 @@ public enum SeedType {
   /** Random initialization using a configurable alive-cell density percentage. */
   DENSITY("Density"),
 
-  /** Uniform random distribution across cell states. */
+  /**
+   * Uniform random distribution across cell states (an independent 50/50 random alive/dead
+   * distribution in binary Life-like automata, rather than all cells alive).
+   */
   UNIFORM("Uniform"),
 
   /** Single active cell placed randomly among dead cells. */

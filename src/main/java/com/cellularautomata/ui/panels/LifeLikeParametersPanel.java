@@ -71,7 +71,7 @@ public final class LifeLikeParametersPanel extends GridPane {
   }
 
   public int getSizeValue() {
-    return (int) sizeSlider.getValue();
+    return (int) Math.round(sizeSlider.getValue());
   }
 
   public LifeLikePreset getPreset() {
@@ -181,7 +181,8 @@ public final class LifeLikeParametersPanel extends GridPane {
     sizeSlider
         .valueProperty()
         .addListener(
-            (obs, oldVal, newVal) -> sizeLabel.setText("Size (" + newVal.intValue() + ")"));
+            (obs, oldVal, newVal) ->
+                sizeLabel.setText("Size (" + Math.round(newVal.doubleValue()) + ")"));
     GridPane.setColumnSpan(sizeSlider, 2);
     GridPane.setMargin(sizeSlider, new Insets(0, 0, UiStyles.CONTROL_GROUP_GAP, 0));
     add(sizeSlider, 0, currentRow++);
@@ -281,9 +282,6 @@ public final class LifeLikeParametersPanel extends GridPane {
               boolean showDensity = newVal == SeedType.DENSITY;
               densityLabel.setVisible(showDensity);
               densitySlider.setVisible(showDensity);
-              if (getScene() != null && getScene().getWindow() != null) {
-                getScene().getWindow().sizeToScene();
-              }
             });
     add(seedComboBox, 1, currentRow++);
   }
