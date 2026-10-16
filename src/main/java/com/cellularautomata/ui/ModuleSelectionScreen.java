@@ -70,8 +70,11 @@ public class ModuleSelectionScreen extends VBox {
             WorkspaceConfig.TOTALISTIC,
             "Totalistic",
             "Uses the sum of nearby cell states to determine the next cell state.");
+    ModuleCard lifeLike =
+        new ModuleCard(
+            "Life-like", "Uses birth and survival rules to determine the next cell state.");
 
-    cards.getChildren().addAll(elementary, totalistic);
+    cards.getChildren().addAll(elementary, totalistic, lifeLike);
 
     // Footer
     VBox footer = new VBox(FOOTER_SPACING);
@@ -89,6 +92,7 @@ public class ModuleSelectionScreen extends VBox {
 
     elementary.setOnMouseClicked(e -> handleCardSelection(elementary));
     totalistic.setOnMouseClicked(e -> handleCardSelection(totalistic));
+    lifeLike.setOnMouseClicked(e -> handleCardSelection(lifeLike));
 
     Label footerText = new Label("You can switch modules at any time from settings.");
     footerText.getStyleClass().add("module-selection-footer");
@@ -97,7 +101,7 @@ public class ModuleSelectionScreen extends VBox {
 
     continueButton.setOnAction(
         e -> {
-          if (onContinue == null || selectedCard == null) {
+          if (onContinue == null || selectedCard == null || selectedCard.getConfig() == null) {
             return;
           }
           onContinue.accept(selectedCard.getConfig());
