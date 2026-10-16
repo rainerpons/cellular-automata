@@ -72,7 +72,7 @@ public class ModuleSelectionScreen extends VBox {
             "Uses the sum of nearby cell states to determine the next cell state.");
     ModuleCard lifeLike =
         new ModuleCard(
-            "Life-like", "Uses birth and survival rules to determine the next cell state.");
+            "Life-Like", "Uses birth and survival rules to determine the next cell state.");
 
     cards.getChildren().addAll(elementary, totalistic, lifeLike);
 
