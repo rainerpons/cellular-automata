@@ -14,27 +14,33 @@ import javafx.scene.layout.VBox;
  */
 public final class SidebarPanel extends VBox {
   /**
-   * Constructs the sidebar panel for Elementary and Totalistic workspaces.
+   * Constructs the sidebar panel for the Elementary workspace.
    *
-   * @param parametersPanel the parameters panel
+   * @param parametersPanel the Elementary parameters panel
    * @param commandsPanel the commands panel
    */
-  public SidebarPanel(ParametersPanel parametersPanel, CommandsPanel commandsPanel) {
-    addSections(parametersPanel, commandsPanel);
+  public SidebarPanel(ElementaryParametersPanel parametersPanel, CommandsPanel commandsPanel) {
+    addSections(parametersPanel.getPanel(), commandsPanel);
   }
 
   /**
-   * Constructs the sidebar panel for the Life-like workspace.
+   * Constructs the sidebar panel for the Totalistic workspace.
    *
-   * @param parametersPanel the Life-like parameters panel
-   * @param simulationPanel the simulation controls panel
+   * @param parametersPanel the Totalistic parameters panel
    * @param commandsPanel the commands panel
    */
-  public SidebarPanel(
-      LifeLikeParametersPanel parametersPanel,
-      SimulationPanel simulationPanel,
-      CommandsPanel commandsPanel) {
-    addSections(parametersPanel, simulationPanel, commandsPanel);
+  public SidebarPanel(TotalisticParametersPanel parametersPanel, CommandsPanel commandsPanel) {
+    addSections(parametersPanel.getPanel(), commandsPanel);
+  }
+
+  /**
+   * Constructs the sidebar panel for the Life-like workspace, containing only the parameters
+   * section.
+   *
+   * @param parametersPanel the Life-like parameters panel
+   */
+  public SidebarPanel(LifeLikeParametersPanel parametersPanel) {
+    addSections(parametersPanel.getPanel());
   }
 
   private void addSections(Node... sections) {
