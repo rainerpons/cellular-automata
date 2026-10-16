@@ -1,6 +1,8 @@
 package com.cellularautomata.config;
 
-/** Seed initialization types supported by the Life-like cellular automata workspace. */
+import java.util.List;
+
+/** Seed initialization types supported by cellular automata workspaces. */
 public enum SeedType {
   /** Random initialization using a configurable alive-cell density percentage. */
   DENSITY("Density"),
@@ -25,6 +27,15 @@ public enum SeedType {
 
   public String getDisplayName() {
     return displayName;
+  }
+
+  /**
+   * Returns the seed types supported by one-dimensional (Elementary and Totalistic) workspaces.
+   *
+   * @return an unmodifiable list of 1D seed types
+   */
+  public static List<SeedType> oneDimensionalValues() {
+    return List.of(UNIFORM, SPARSE, ALTERNATING);
   }
 
   @Override

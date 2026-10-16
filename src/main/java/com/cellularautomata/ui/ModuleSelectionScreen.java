@@ -88,9 +88,7 @@ public class ModuleSelectionScreen extends VBox {
     continueButton.setDisable(true);
 
     buttonWrapper = new StackPane(continueButton);
-    continueTooltip = new Tooltip("Select a module to continue.");
-    continueTooltip.getStyleClass().add("tooltip");
-    Tooltip.install(buttonWrapper, continueTooltip);
+    continueTooltip = UiStyles.installTooltip(buttonWrapper, "Select a module to continue.");
 
     elementary.setOnMouseClicked(e -> handleCardSelection(elementary));
     totalistic.setOnMouseClicked(e -> handleCardSelection(totalistic));
