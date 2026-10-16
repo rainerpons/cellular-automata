@@ -3,8 +3,10 @@ package com.cellularautomata.ui;
 import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
+import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
 import com.cellularautomata.ui.panels.ParametersPanel;
 import com.cellularautomata.ui.panels.SidebarPanel;
+import com.cellularautomata.ui.panels.SimulationPanel;
 import com.cellularautomata.ui.shared.UiStyles;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -46,6 +48,7 @@ public class MainApp extends Application {
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
 
     primaryStage.setScene(scene);
+    primaryStage.sizeToScene();
   }
 
   private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
@@ -57,11 +60,19 @@ public class MainApp extends Application {
     backLink.setOnMouseClicked(e -> showModuleSelectionScreen(primaryStage));
     VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
     final VBox displayContainer = new VBox(displayPanel, backLink);
-    ParametersPanel parametersPanel = new ParametersPanel(config);
-    CommandsPanel commandsPanel = new CommandsPanel();
-    SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
 
-    new MainController(displayPanel, parametersPanel, commandsPanel, dialogService, config);
+    SidebarPanel sidebarPanel;
+    if (config == WorkspaceConfig.LIFE_LIKE) {
+      LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
+      SimulationPanel simulationPanel = new SimulationPanel();
+      CommandsPanel commandsPanel = new CommandsPanel();
+      sidebarPanel = new SidebarPanel(parametersPanel, simulationPanel, commandsPanel);
+    } else {
+      ParametersPanel parametersPanel = new ParametersPanel(config);
+      CommandsPanel commandsPanel = new CommandsPanel();
+      sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+      new MainController(displayPanel, parametersPanel, commandsPanel, dialogService, config);
+    }
 
     HBox root = new HBox(UiStyles.APP_SPACING);
     root.setPadding(new Insets(UiStyles.APP_SPACING));
@@ -71,5 +82,6 @@ public class MainApp extends Application {
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
     primaryStage.setScene(scene);
+    primaryStage.sizeToScene();
   }
 }
