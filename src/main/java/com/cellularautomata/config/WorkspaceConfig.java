@@ -32,6 +32,14 @@ public enum WorkspaceConfig {
     public int getMaxRule(int states) {
       return TotalisticRule.calculateMaxRule(states);
     }
+  },
+
+  /** Life-like cellular automata workspace configuration. */
+  LIFE_LIKE("Cellular Automata (Life-Like)", 0, 0, 2, 2, 2) {
+    @Override
+    public int getMaxRule(int states) {
+      throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
+    }
   };
 
   /** The application window title for this workspace. */
@@ -120,6 +128,8 @@ public enum WorkspaceConfig {
     return switch (this) {
       case ELEMENTARY -> new ElementaryRule(ruleNumber);
       case TOTALISTIC -> new TotalisticRule(ruleNumber, states);
+      case LIFE_LIKE ->
+          throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
     };
   }
 }

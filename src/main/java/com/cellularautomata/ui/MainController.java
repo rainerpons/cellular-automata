@@ -133,6 +133,8 @@ class MainController {
       case TOTALISTIC ->
           String.format(
               "%s_states%d_rule%d_size%d_%s.png", baseName, states, ruleNumber, size, timestamp);
+      case LIFE_LIKE ->
+          throw new UnsupportedOperationException("Life-like image saving is not yet supported");
     };
   }
 }
