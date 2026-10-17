@@ -19,6 +19,7 @@ public final class UiStyles {
   public static final String HEADING_STYLE_CLASS = "h3";
   public static final String TOOLTIP_STYLE_CLASS = "tooltip";
   public static final int CONTROL_HEIGHT = 35;
+  public static final int TOOLBAR_BUTTON_SIZE = 32;
   public static final int FORM_LABEL_COLUMN_MIN_WIDTH = 95;
 
   // Vertical and horizontal spacing

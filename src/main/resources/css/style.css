@@ -107,6 +107,10 @@
     -fx-opacity: 0.45;
 }
 
+.simulation-button {
+    -fx-padding: 0;
+}
+
 .simulation-icon {
     -fx-fill: -fx-text-primary;
 }
