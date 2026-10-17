@@ -9,47 +9,22 @@ public enum WorkspaceConfig {
   /** Elementary cellular automata workspace configuration. */
   ELEMENTARY(
       "Cellular Automata (Elementary)",
-      ElementaryRule.MIN_RULE_NUMBER,
-      ElementaryRule.DEFAULT_RULE_NUMBER,
       ElementaryRule.STATE_COUNT,
       ElementaryRule.STATE_COUNT,
-      ElementaryRule.STATE_COUNT) {
-    @Override
-    public int getMaxRule(int states) {
-      return ElementaryRule.MAX_RULE_NUMBER;
-    }
-  },
+      ElementaryRule.STATE_COUNT),
 
   /** Totalistic cellular automata workspace configuration. */
   TOTALISTIC(
       "Cellular Automata (Totalistic)",
-      TotalisticRule.MIN_RULE_NUMBER,
-      TotalisticRule.DEFAULT_RULE_NUMBER,
       TotalisticRule.MIN_STATES,
       TotalisticRule.MAX_STATES,
-      TotalisticRule.DEFAULT_STATES) {
-    @Override
-    public int getMaxRule(int states) {
-      return TotalisticRule.calculateMaxRule(states);
-    }
-  },
+      TotalisticRule.DEFAULT_STATES),
 
   /** Life-like cellular automata workspace configuration. */
-  LIFE_LIKE("Cellular Automata (Life-Like)", 0, 0, 2, 2, 2) {
-    @Override
-    public int getMaxRule(int states) {
-      throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
-    }
-  };
+  LIFE_LIKE("Cellular Automata (Life-Like)", 2, 2, 2);
 
   /** The application window title for this workspace. */
   private final String windowTitle;
-
-  /** The minimum allowed rule number. */
-  private final int minRule;
-
-  /** The default rule number. */
-  private final int defaultRule;
 
   /** The minimum allowed number of states. */
   private final int minStates;
@@ -60,16 +35,8 @@ public enum WorkspaceConfig {
   /** The default number of states. */
   private final int defaultStates;
 
-  WorkspaceConfig(
-      String windowTitle,
-      int minRule,
-      int defaultRule,
-      int minStates,
-      int maxStates,
-      int defaultStates) {
+  WorkspaceConfig(String windowTitle, int minStates, int maxStates, int defaultStates) {
     this.windowTitle = windowTitle;
-    this.minRule = minRule;
-    this.defaultRule = defaultRule;
     this.minStates = minStates;
     this.maxStates = maxStates;
     this.defaultStates = defaultStates;
@@ -79,20 +46,50 @@ public enum WorkspaceConfig {
     return windowTitle;
   }
 
+  /**
+   * Returns the minimum allowed rule number for numeric-rule workspaces.
+   *
+   * @return the minimum rule number
+   * @throws UnsupportedOperationException if this workspace does not use numeric rule numbers
+   */
   public int getMinRule() {
-    return minRule;
+    return switch (this) {
+      case ELEMENTARY -> ElementaryRule.MIN_RULE_NUMBER;
+      case TOTALISTIC -> TotalisticRule.MIN_RULE_NUMBER;
+      case LIFE_LIKE ->
+          throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
+    };
   }
 
   /**
-   * Returns the maximum allowed rule number for a given state count.
+   * Returns the maximum allowed rule number for a given state count in numeric-rule workspaces.
    *
    * @param states the state count
-   * @return the maximum rule
+   * @return the maximum rule number
+   * @throws UnsupportedOperationException if this workspace does not use numeric rule numbers
    */
-  public abstract int getMaxRule(int states);
+  public int getMaxRule(int states) {
+    return switch (this) {
+      case ELEMENTARY -> ElementaryRule.MAX_RULE_NUMBER;
+      case TOTALISTIC -> TotalisticRule.calculateMaxRule(states);
+      case LIFE_LIKE ->
+          throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
+    };
+  }
 
+  /**
+   * Returns the default rule number for numeric-rule workspaces.
+   *
+   * @return the default rule number
+   * @throws UnsupportedOperationException if this workspace does not use numeric rule numbers
+   */
   public int getDefaultRule() {
-    return defaultRule;
+    return switch (this) {
+      case ELEMENTARY -> ElementaryRule.DEFAULT_RULE_NUMBER;
+      case TOTALISTIC -> TotalisticRule.DEFAULT_RULE_NUMBER;
+      case LIFE_LIKE ->
+          throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
+    };
   }
 
   /**

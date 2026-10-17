@@ -2,21 +2,18 @@ package com.cellularautomata.config;
 
 import java.util.List;
 
-/** Seed initialization types supported by cellular automata workspaces. */
+/** Initial cell pattern types selectable across cellular automata workspaces. */
 public enum SeedType {
-  /** Random initialization using a configurable alive-cell density percentage. */
+  /** Random pattern populated according to a selected alive-cell percentage. */
   DENSITY("Density"),
 
-  /**
-   * Uniform random distribution across cell states (an independent 50/50 random alive/dead
-   * distribution in binary Life-like automata, rather than all cells alive).
-   */
+  /** Random pattern with an equal likelihood of each cell state. */
   UNIFORM("Uniform"),
 
-  /** Single active cell placed randomly among dead cells. */
+  /** Pattern containing a single active cell among inactive cells. */
   SPARSE("Sparse"),
 
-  /** Alternating active and dead cells. */
+  /** Pattern alternating between active and inactive cell states. */
   ALTERNATING("Alternating");
 
   private final String displayName;

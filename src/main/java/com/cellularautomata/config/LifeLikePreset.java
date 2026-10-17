@@ -79,24 +79,25 @@ public enum LifeLikePreset {
    * @return the formatted B/S notation string
    */
   public static String formatNotation(Set<Integer> birthCounts, Set<Integer> survivalCounts) {
-    return "B" + formatCountSet(birthCounts) + "/S" + formatCountSet(survivalCounts);
+    return "B%s/S%s".formatted(formatCountSet(birthCounts), formatCountSet(survivalCounts));
   }
 
   private static String formatCountSet(Set<Integer> counts) {
+    validateCountSet(counts);
+    StringBuilder builder = new StringBuilder();
+    counts.stream().sorted().forEach(builder::append);
+    return builder.toString();
+  }
+
+  private static void validateCountSet(Set<Integer> counts) {
     if (counts == null) {
       throw new IllegalArgumentException("Neighbor count set cannot be null.");
     }
-    StringBuilder builder = new StringBuilder();
-    counts.stream()
-        .peek(
-            count -> {
-              if (count == null || count < MIN_NEIGHBOR_COUNT || count > MAX_NEIGHBOR_COUNT) {
-                throw new IllegalArgumentException("Neighbor counts must be between 0 and 8.");
-              }
-            })
-        .sorted()
-        .forEach(builder::append);
-    return builder.toString();
+    for (Integer count : counts) {
+      if (count == null || count < MIN_NEIGHBOR_COUNT || count > MAX_NEIGHBOR_COUNT) {
+        throw new IllegalArgumentException("Neighbor counts must be between 0 and 8.");
+      }
+    }
   }
 
   @Override
