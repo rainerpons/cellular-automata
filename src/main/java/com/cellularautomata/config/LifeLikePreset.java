@@ -3,8 +3,10 @@ package com.cellularautomata.config;
 import java.util.Set;
 
 /**
- * Predefined and custom rule presets for the Life-like cellular automata workspace. Each named
- * preset defines a fixed set of birth and survival neighbor counts in the range 0 to 8.
+ * Predefined and custom rule presets for the Life-like cellular automata
+ * workspace. Each named
+ * preset defines a fixed set of birth and survival neighbor counts in the range
+ * 0 to 8.
  */
 public enum LifeLikePreset {
   /** Conway's Game of Life (B3/S23). */
@@ -49,10 +51,11 @@ public enum LifeLikePreset {
   }
 
   /**
-   * Resolves the preset matching the given birth and survival neighbor count sets, or {@link
+   * Resolves the preset matching the given birth and survival neighbor count
+   * sets, or {@link
    * #CUSTOM} if no named preset matches.
    *
-   * @param birthCounts the selected birth neighbor counts
+   * @param birthCounts    the selected birth neighbor counts
    * @param survivalCounts the selected survival neighbor counts
    * @return the matching preset or {@link #CUSTOM}
    */
@@ -60,6 +63,7 @@ public enum LifeLikePreset {
     if (birthCounts == null || survivalCounts == null) {
       throw new IllegalArgumentException("Birth and survival count sets cannot be null.");
     }
+
     for (LifeLikePreset preset : values()) {
       if (!preset.isCustom()
           && preset.birthCounts.equals(birthCounts)
@@ -67,14 +71,16 @@ public enum LifeLikePreset {
         return preset;
       }
     }
+
     return CUSTOM;
   }
 
   /**
-   * Formats birth and survival neighbor count sets into standard B/S rule notation with counts in
+   * Formats birth and survival neighbor count sets into standard B/S rule
+   * notation with counts in
    * ascending order (for example, {@code B3/S23} or {@code B2/S}).
    *
-   * @param birthCounts the birth neighbor counts (0 to 8)
+   * @param birthCounts    the birth neighbor counts (0 to 8)
    * @param survivalCounts the survival neighbor counts (0 to 8)
    * @return the formatted B/S notation string
    */
@@ -84,8 +90,13 @@ public enum LifeLikePreset {
 
   private static String formatCountSet(Set<Integer> counts) {
     validateCountSet(counts);
+
     StringBuilder builder = new StringBuilder();
-    counts.stream().sorted().forEach(builder::append);
+    counts
+        .stream()
+        .sorted()
+        .forEach(builder::append);
+
     return builder.toString();
   }
 
@@ -93,6 +104,7 @@ public enum LifeLikePreset {
     if (counts == null) {
       throw new IllegalArgumentException("Neighbor count set cannot be null.");
     }
+
     for (Integer count : counts) {
       if (count == null || count < MIN_NEIGHBOR_COUNT || count > MAX_NEIGHBOR_COUNT) {
         throw new IllegalArgumentException("Neighbor counts must be between 0 and 8.");
