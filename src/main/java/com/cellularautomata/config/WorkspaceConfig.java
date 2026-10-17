@@ -1,17 +1,14 @@
 package com.cellularautomata.config;
 
 import com.cellularautomata.engine.rules.ElementaryRule;
+import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.engine.rules.Rule;
 import com.cellularautomata.engine.rules.TotalisticRule;
 
 /** Defines the configuration and constraints for a cellular automata workspace. */
 public enum WorkspaceConfig {
   /** Elementary cellular automata workspace configuration. */
-  ELEMENTARY(
-      "Cellular Automata (Elementary)",
-      ElementaryRule.STATE_COUNT,
-      ElementaryRule.STATE_COUNT,
-      ElementaryRule.STATE_COUNT),
+  ELEMENTARY("Cellular Automata (Elementary)", ElementaryRule.STATE_COUNT),
 
   /** Totalistic cellular automata workspace configuration. */
   TOTALISTIC(
@@ -21,7 +18,10 @@ public enum WorkspaceConfig {
       TotalisticRule.DEFAULT_STATES),
 
   /** Life-like cellular automata workspace configuration. */
-  LIFE_LIKE("Cellular Automata (Life-Like)", 2, 2, 2);
+  LIFE_LIKE("Cellular Automata (Life-Like)", LifeLikeRule.STATE_COUNT);
+
+  private static final String LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE =
+      "Life-like rules use birth and survival counts";
 
   /** The application window title for this workspace. */
   private final String windowTitle;
@@ -34,6 +34,10 @@ public enum WorkspaceConfig {
 
   /** The default number of states. */
   private final int defaultStates;
+
+  WorkspaceConfig(String windowTitle, int stateCount) {
+    this(windowTitle, stateCount, stateCount, stateCount);
+  }
 
   WorkspaceConfig(String windowTitle, int minStates, int maxStates, int defaultStates) {
     this.windowTitle = windowTitle;
@@ -57,7 +61,7 @@ public enum WorkspaceConfig {
       case ELEMENTARY -> ElementaryRule.MIN_RULE_NUMBER;
       case TOTALISTIC -> TotalisticRule.MIN_RULE_NUMBER;
       case LIFE_LIKE ->
-          throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
+          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
     };
   }
 
@@ -73,7 +77,7 @@ public enum WorkspaceConfig {
       case ELEMENTARY -> ElementaryRule.MAX_RULE_NUMBER;
       case TOTALISTIC -> TotalisticRule.calculateMaxRule(states);
       case LIFE_LIKE ->
-          throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
+          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
     };
   }
 
@@ -88,7 +92,7 @@ public enum WorkspaceConfig {
       case ELEMENTARY -> ElementaryRule.DEFAULT_RULE_NUMBER;
       case TOTALISTIC -> TotalisticRule.DEFAULT_RULE_NUMBER;
       case LIFE_LIKE ->
-          throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
+          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
     };
   }
 
@@ -126,7 +130,7 @@ public enum WorkspaceConfig {
       case ELEMENTARY -> new ElementaryRule(ruleNumber);
       case TOTALISTIC -> new TotalisticRule(ruleNumber, states);
       case LIFE_LIKE ->
-          throw new UnsupportedOperationException("Life-like rules use birth and survival counts");
+          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
     };
   }
 }

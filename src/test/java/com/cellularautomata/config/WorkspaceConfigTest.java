@@ -1,6 +1,7 @@
 package com.cellularautomata.config;
 
 import com.cellularautomata.engine.rules.ElementaryRule;
+import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.engine.rules.TotalisticRule;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,9 +14,9 @@ public class WorkspaceConfigTest {
 
     Assert.assertEquals("Cellular Automata (Elementary)", config.getWindowTitle());
     Assert.assertFalse(config.supportsCustomStates());
-    Assert.assertEquals(2, config.getMinStates());
-    Assert.assertEquals(2, config.getMaxStates());
-    Assert.assertEquals(2, config.getDefaultStates());
+    Assert.assertEquals(ElementaryRule.STATE_COUNT, config.getMinStates());
+    Assert.assertEquals(ElementaryRule.STATE_COUNT, config.getMaxStates());
+    Assert.assertEquals(ElementaryRule.STATE_COUNT, config.getDefaultStates());
 
     Assert.assertEquals(ElementaryRule.MIN_RULE_NUMBER, config.getMinRule());
     Assert.assertEquals(ElementaryRule.DEFAULT_RULE_NUMBER, config.getDefaultRule());
@@ -49,9 +50,9 @@ public class WorkspaceConfigTest {
 
     Assert.assertEquals("Cellular Automata (Life-Like)", config.getWindowTitle());
     Assert.assertFalse(config.supportsCustomStates());
-    Assert.assertEquals(2, config.getMinStates());
-    Assert.assertEquals(2, config.getMaxStates());
-    Assert.assertEquals(2, config.getDefaultStates());
+    Assert.assertEquals(LifeLikeRule.STATE_COUNT, config.getMinStates());
+    Assert.assertEquals(LifeLikeRule.STATE_COUNT, config.getMaxStates());
+    Assert.assertEquals(LifeLikeRule.STATE_COUNT, config.getDefaultStates());
   }
 
   @Test(expected = UnsupportedOperationException.class)

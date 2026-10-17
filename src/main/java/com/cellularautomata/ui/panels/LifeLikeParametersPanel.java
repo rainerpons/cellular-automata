@@ -2,6 +2,7 @@ package com.cellularautomata.ui.panels;
 
 import com.cellularautomata.config.LifeLikePreset;
 import com.cellularautomata.config.SeedType;
+import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.ui.shared.LabeledSlider;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.ArrayList;
@@ -22,8 +23,11 @@ import javafx.scene.layout.Priority;
  * and birth and survival neighbor count toggles (0 to 8).
  */
 public final class LifeLikeParametersPanel {
-  static final int MIN_NEIGHBOR_COUNT = 0;
-  static final int MAX_NEIGHBOR_COUNT = 8;
+  /**
+   * Intentional UI cap limiting selection to at most two birth counts and two survival counts for
+   * the current workspace scope. Kept in the UI layer rather than {@link LifeLikeRule} or {@link
+   * LifeLikePreset} because general Life-like cellular automata permit any subset of 0..8.
+   */
   static final int MAX_SELECTED_COUNTS_PER_SET = 2;
 
   static final int MIN_DENSITY = 0;
@@ -198,7 +202,9 @@ public final class LifeLikeParametersPanel {
   private HBox createNeighborToggleRow(List<ToggleButton> targetList) {
     HBox row = new HBox(TOGGLE_GAP);
     GridPane.setHgrow(row, Priority.ALWAYS);
-    for (int count = MIN_NEIGHBOR_COUNT; count <= MAX_NEIGHBOR_COUNT; count++) {
+    for (int count = LifeLikeRule.MIN_NEIGHBOR_COUNT;
+        count <= LifeLikeRule.MAX_NEIGHBOR_COUNT;
+        count++) {
       ToggleButton toggle = new ToggleButton(Integer.toString(count));
       toggle.getStyleClass().add("neighbor-toggle");
       UiStyles.applyControlHeight(toggle);
@@ -237,6 +243,7 @@ public final class LifeLikeParametersPanel {
     if (updatingControls) {
       return;
     }
+    // Enforce the UI-level cap of at most two selected neighbor counts per set.
     if (changedToggle.isSelected() && countSelected(toggles) > MAX_SELECTED_COUNTS_PER_SET) {
       updatingControls = true;
       try {
