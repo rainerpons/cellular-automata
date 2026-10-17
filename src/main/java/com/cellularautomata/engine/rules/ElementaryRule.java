@@ -25,12 +25,7 @@ public final class ElementaryRule implements Rule {
       throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
     }
     this.ruleNumber = ruleNumber;
-
-    String binary = Integer.toBinaryString(ruleNumber);
-    while (binary.length() < RULE_WIDTH) {
-      binary = "0".concat(binary);
-    }
-    this.binaryRule = binary;
+    this.binaryRule = toBinaryRepresentation(ruleNumber);
   }
 
   @Override
@@ -53,5 +48,13 @@ public final class ElementaryRule implements Rule {
    */
   public static boolean isValid(int rule) {
     return rule >= MIN_RULE_NUMBER && rule <= MAX_RULE_NUMBER;
+  }
+
+  private static String toBinaryRepresentation(int ruleNumber) {
+    String binary = Integer.toBinaryString(ruleNumber);
+    while (binary.length() < RULE_WIDTH) {
+      binary = "0".concat(binary);
+    }
+    return binary;
   }
 }

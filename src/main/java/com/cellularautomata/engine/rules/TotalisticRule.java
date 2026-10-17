@@ -18,6 +18,28 @@ public final class TotalisticRule implements Rule {
   private final String ruleRepresentation;
 
   /**
+   * Constructs a TotalisticRule for the specified number of states and calculates its
+   * representation.
+   *
+   * @param ruleNumber totalistic rule number
+   * @param states the number of states
+   * @throws IllegalArgumentException if the rule is invalid
+   */
+  public TotalisticRule(int ruleNumber, int states) {
+    if (states < MIN_STATES || states > MAX_STATES) {
+      throw new IllegalArgumentException(
+          "States must be between " + MIN_STATES + " and " + MAX_STATES);
+    }
+    if (ruleNumber < MIN_RULE_NUMBER || ruleNumber > calculateMaxRule(states)) {
+      throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
+    }
+
+    this.ruleNumber = ruleNumber;
+    this.states = states;
+    this.ruleRepresentation = toBaseRepresentation(ruleNumber, states);
+  }
+
+  /**
    * Calculates the maximum valid rule number for the given number of states. Bounds the result to
    * Integer.MAX_VALUE.
    *
@@ -34,42 +56,6 @@ public final class TotalisticRule implements Rule {
     return max.intValue();
   }
 
-  /**
-   * Constructs a TotalisticRule for the specified number of states and calculates its
-   * representation.
-   *
-   * @param ruleNumber totalistic rule number
-   * @param states the number of states
-   * @throws IllegalArgumentException if the rule is invalid
-   */
-  public TotalisticRule(int ruleNumber, int states) {
-    if (states < MIN_STATES || states > MAX_STATES) {
-      throw new IllegalArgumentException(
-          "States must be between " + MIN_STATES + " and " + MAX_STATES);
-    }
-    if (ruleNumber < MIN_RULE_NUMBER) {
-      throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
-    }
-
-    int max = calculateMaxRule(states);
-    if (ruleNumber > max) {
-      throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
-    }
-
-    this.ruleNumber = ruleNumber;
-    this.states = states;
-
-    int length = 3 * (states - 1) + 1;
-    StringBuilder sb = new StringBuilder(length);
-    int current = ruleNumber;
-    for (int i = 0; i < length; i++) {
-      int remainder = current % states;
-      sb.insert(0, Character.forDigit(remainder, 10));
-      current /= states;
-    }
-    this.ruleRepresentation = sb.toString();
-  }
-
   @Override
   public int getRuleNumber() {
     return ruleNumber;
@@ -84,5 +70,17 @@ public final class TotalisticRule implements Rule {
     }
     int index = (ruleRepresentation.length() - 1) - sum;
     return ruleRepresentation.charAt(index);
+  }
+
+  private static String toBaseRepresentation(int ruleNumber, int states) {
+    int length = 3 * (states - 1) + 1;
+    StringBuilder sb = new StringBuilder(length);
+    int current = ruleNumber;
+    for (int i = 0; i < length; i++) {
+      int remainder = current % states;
+      sb.insert(0, Character.forDigit(remainder, 10));
+      current /= states;
+    }
+    return sb.toString();
   }
 }
