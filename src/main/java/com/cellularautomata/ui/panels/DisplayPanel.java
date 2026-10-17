@@ -74,7 +74,7 @@ public final class DisplayPanel extends VBox {
     }
   }
 
-  String getPlaceholderText() {
+  public String getPlaceholderText() {
     return placeholderLabel.getText();
   }
 }

@@ -42,6 +42,15 @@ public class MainApp extends Application {
     primaryStage.show();
   }
 
+  HBox createWorkspace(WorkspaceConfig config, Runnable onNavigateBack) {
+    Label backLink = createBackLink(onNavigateBack);
+    return switch (config) {
+      case ELEMENTARY -> createElementaryWorkspace(backLink);
+      case TOTALISTIC -> createTotalisticWorkspace(backLink);
+      case LIFE_LIKE -> createLifeLikeWorkspace(backLink);
+    };
+  }
+
   private void showModuleSelectionScreen(Stage primaryStage) {
     primaryStage.setTitle("Cellular Automata");
 
@@ -57,23 +66,17 @@ public class MainApp extends Application {
   private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
     primaryStage.setTitle(config.getWindowTitle());
 
-    Label backLink = createBackLink(primaryStage);
-    HBox root =
-        switch (config) {
-          case ELEMENTARY -> createElementaryWorkspace(backLink);
-          case TOTALISTIC -> createTotalisticWorkspace(backLink);
-          case LIFE_LIKE -> createLifeLikeWorkspace(backLink);
-        };
+    HBox root = createWorkspace(config, () -> showModuleSelectionScreen(primaryStage));
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
     primaryStage.setScene(scene);
   }
 
-  private Label createBackLink(Stage primaryStage) {
+  private static Label createBackLink(Runnable onNavigateBack) {
     Label backLink = new Label("← Back to Modules");
     backLink.getStyleClass().add("navigation-link");
-    backLink.setOnMouseClicked(e -> showModuleSelectionScreen(primaryStage));
+    backLink.setOnMouseClicked(e -> onNavigateBack.run());
     return backLink;
   }
 
