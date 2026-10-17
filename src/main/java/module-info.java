@@ -2,6 +2,9 @@ module com.cellularautomata {
   requires javafx.controls;
   requires transitive javafx.graphics;
   requires javafx.swing;
+  requires org.kordamp.ikonli.core;
+  requires org.kordamp.ikonli.javafx;
+  requires org.kordamp.ikonli.materialdesign2;
   requires static com.github.spotbugs.annotations;
 
   exports com.cellularautomata.app;

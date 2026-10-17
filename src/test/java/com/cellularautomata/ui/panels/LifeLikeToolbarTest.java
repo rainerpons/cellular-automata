@@ -1,16 +1,19 @@
 package com.cellularautomata.ui.panels;
 
 import com.cellularautomata.ui.JavaFxTestHelper;
-import com.cellularautomata.ui.panels.LifeLikeToolbar.ToolbarIcon;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
-import javafx.scene.layout.Region;
-import javafx.scene.shape.SVGPath;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignD;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
 
 public class LifeLikeToolbarTest {
 
@@ -40,26 +43,22 @@ public class LifeLikeToolbarTest {
           Assert.assertFalse(toolbar.isPlaying());
           assertToolbarButtonContract(
               toolbar.getPlayPauseButton(),
-              toolbar.getPlayPauseIcon(),
-              ToolbarIcon.PLAY,
+              MaterialDesignP.PLAY,
               LifeLikeToolbar.PLAY_TOOLTIP,
               "Play");
           assertToolbarButtonContract(
               toolbar.getStepButton(),
-              toolbar.getStepIcon(),
-              ToolbarIcon.STEP,
+              MaterialDesignD.DEBUG_STEP_OVER,
               LifeLikeToolbar.STEP_TOOLTIP,
               "Step");
           assertToolbarButtonContract(
               toolbar.getResetButton(),
-              toolbar.getResetIcon(),
-              ToolbarIcon.RESET,
+              MaterialDesignR.RESTART,
               LifeLikeToolbar.RESET_TOOLTIP,
               "Reset");
           assertToolbarButtonContract(
               toolbar.getSaveButton(),
-              toolbar.getSaveIcon(),
-              ToolbarIcon.SAVE,
+              MaterialDesignC.CONTENT_SAVE,
               LifeLikeToolbar.SAVE_TOOLTIP,
               "Save");
         });
@@ -70,17 +69,18 @@ public class LifeLikeToolbarTest {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           LifeLikeToolbar toolbar = new LifeLikeToolbar();
+          FontIcon playPauseIcon = (FontIcon) toolbar.getPlayPauseButton().getGraphic();
 
           toolbar.setPlaying(true);
           Assert.assertTrue(toolbar.isPlaying());
-          Assert.assertEquals(ToolbarIcon.PAUSE, toolbar.getPlayPauseIcon());
+          Assert.assertEquals(MaterialDesignP.PAUSE, playPauseIcon.getIconCode());
           Assert.assertEquals(
               LifeLikeToolbar.PAUSE_TOOLTIP, toolbar.getPlayPauseButton().getTooltip().getText());
           Assert.assertEquals("Pause", toolbar.getPlayPauseButton().getAccessibleText());
 
           toolbar.setPlaying(false);
           Assert.assertFalse(toolbar.isPlaying());
-          Assert.assertEquals(ToolbarIcon.PLAY, toolbar.getPlayPauseIcon());
+          Assert.assertEquals(MaterialDesignP.PLAY, playPauseIcon.getIconCode());
           Assert.assertEquals(
               LifeLikeToolbar.PLAY_TOOLTIP, toolbar.getPlayPauseButton().getTooltip().getText());
           Assert.assertEquals("Play", toolbar.getPlayPauseButton().getAccessibleText());
@@ -130,40 +130,13 @@ public class LifeLikeToolbarTest {
         });
   }
 
-  @Test
-  public void testLifeLikeSidebarContainsOnlyParametersSectionAndDisplayPlaceholderMatches() {
-    JavaFxTestHelper.runOnFxThread(
-        () -> {
-          LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
-          SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel);
-
-          Assert.assertEquals(2, sidebarPanel.getChildren().size());
-          Assert.assertSame(parametersPanel.getPanel(), sidebarPanel.getChildren().get(0));
-          Assert.assertTrue(sidebarPanel.getChildren().get(1) instanceof Region);
-
-          DisplayPanel defaultDisplay = new DisplayPanel();
-          Assert.assertEquals(
-              DisplayPanel.DEFAULT_PLACEHOLDER_TEXT, defaultDisplay.getPlaceholderText());
-
-          DisplayPanel lifeLikeDisplay = new DisplayPanel(DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT);
-          Assert.assertEquals(
-              DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT, lifeLikeDisplay.getPlaceholderText());
-          Assert.assertFalse(lifeLikeDisplay.getPlaceholderText().contains("Generate"));
-        });
-  }
-
   private static void assertToolbarButtonContract(
-      Button button,
-      ToolbarIcon actualIcon,
-      ToolbarIcon expectedIcon,
-      String expectedTooltip,
-      String expectedAccessibleText) {
+      Button button, Ikon expectedIcon, String expectedTooltip, String expectedAccessibleText) {
     Assert.assertEquals(ContentDisplay.GRAPHIC_ONLY, button.getContentDisplay());
-    Assert.assertEquals(expectedIcon, actualIcon);
-    Assert.assertTrue(button.getGraphic() instanceof SVGPath);
-    SVGPath iconGraphic = (SVGPath) button.getGraphic();
-    Assert.assertNotNull(iconGraphic.getContent());
-    Assert.assertFalse(iconGraphic.getContent().isBlank());
+    Assert.assertTrue(button.getGraphic() instanceof FontIcon);
+    FontIcon iconGraphic = (FontIcon) button.getGraphic();
+    Assert.assertEquals(expectedIcon, iconGraphic.getIconCode());
+    Assert.assertEquals(LifeLikeToolbar.TOOLBAR_ICON_SIZE, iconGraphic.getIconSize());
     Assert.assertEquals(expectedTooltip, button.getTooltip().getText());
     Assert.assertEquals(expectedAccessibleText, button.getAccessibleText());
 

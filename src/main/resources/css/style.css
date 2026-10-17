@@ -112,6 +112,7 @@
 }
 
 .simulation-icon {
+    -fx-icon-color: -fx-text-primary;
     -fx-fill: -fx-text-primary;
 }
 
