@@ -26,18 +26,15 @@ public final class TotalisticParametersPanel {
   public TotalisticParametersPanel() {
     sizeSlider = panel.addSizeSliderRow();
     statesSpinner =
-        panel.addIntegerSpinnerRow(
-            "States",
-            CONFIG.getMinStates(),
-            CONFIG.getMaxStates(),
-            CONFIG.getDefaultStates(),
-            true);
+        NumericSpinnerFactory.createIntegerSpinner(
+            CONFIG.getMinStates(), CONFIG.getMaxStates(), CONFIG.getDefaultStates());
+    panel.addControlRow("States", null, statesSpinner, true);
     ruleSpinner =
-        panel.addRuleSpinnerRow(
+        NumericSpinnerFactory.createRuleSpinner(
             CONFIG.getMinRule(),
             CONFIG.getDefaultRule(),
-            () -> CONFIG.getMaxRule(getStatesValue()),
-            true);
+            () -> CONFIG.getMaxRule(getStatesValue()));
+    panel.addControlRow("Rule number", null, ruleSpinner, true);
     seedComboBox = panel.addSeedTypeRow(SeedType.oneDimensionalValues(), SeedType.UNIFORM, false);
   }
 

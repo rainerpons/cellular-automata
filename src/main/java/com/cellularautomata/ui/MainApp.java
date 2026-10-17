@@ -57,50 +57,76 @@ public class MainApp extends Application {
   private void launchWorkspace(Stage primaryStage, WorkspaceConfig config) {
     primaryStage.setTitle(config.getWindowTitle());
 
-    Label backLink = new Label("← Back to Modules");
-    backLink.getStyleClass().add("navigation-link");
-    backLink.setOnMouseClicked(e -> showModuleSelectionScreen(primaryStage));
-
-    final VBox displayContainer;
-    final SidebarPanel sidebarPanel;
-    if (config == WorkspaceConfig.LIFE_LIKE) {
-      LifeLikeToolbar toolbar = new LifeLikeToolbar();
-
-      Region footerSpacer = new Region();
-      HBox.setHgrow(footerSpacer, Priority.ALWAYS);
-      HBox footerRow = new HBox(backLink, footerSpacer, toolbar);
-      footerRow.setAlignment(Pos.CENTER_LEFT);
-      VBox.setMargin(footerRow, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
-
-      DisplayPanel displayPanel = new DisplayPanel(DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT);
-      displayContainer = new VBox(displayPanel, footerRow);
-
-      LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
-      sidebarPanel = new SidebarPanel(parametersPanel);
-    } else {
-      DisplayPanel displayPanel = new DisplayPanel();
-      VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
-      displayContainer = new VBox(displayPanel, backLink);
-
-      CommandsPanel commandsPanel = new CommandsPanel();
-      if (config == WorkspaceConfig.TOTALISTIC) {
-        TotalisticParametersPanel parametersPanel = new TotalisticParametersPanel();
-        sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
-        new MainController(displayPanel, parametersPanel, commandsPanel, dialogService, config);
-      } else {
-        ElementaryParametersPanel parametersPanel = new ElementaryParametersPanel();
-        sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
-        new MainController(displayPanel, parametersPanel, commandsPanel, dialogService, config);
-      }
-    }
-
-    HBox root = new HBox(UiStyles.APP_SPACING);
-    root.setPadding(new Insets(UiStyles.APP_SPACING));
-    HBox.setHgrow(sidebarPanel, Priority.ALWAYS);
-    root.getChildren().addAll(displayContainer, sidebarPanel);
+    Label backLink = createBackLink(primaryStage);
+    HBox root =
+        switch (config) {
+          case ELEMENTARY -> createElementaryWorkspace(backLink);
+          case TOTALISTIC -> createTotalisticWorkspace(backLink);
+          case LIFE_LIKE -> createLifeLikeWorkspace(backLink);
+        };
 
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
     primaryStage.setScene(scene);
+  }
+
+  private Label createBackLink(Stage primaryStage) {
+    Label backLink = new Label("← Back to Modules");
+    backLink.getStyleClass().add("navigation-link");
+    backLink.setOnMouseClicked(e -> showModuleSelectionScreen(primaryStage));
+    return backLink;
+  }
+
+  private HBox createElementaryWorkspace(Label backLink) {
+    DisplayPanel displayPanel = new DisplayPanel();
+    ElementaryParametersPanel parametersPanel = new ElementaryParametersPanel();
+    CommandsPanel commandsPanel = new CommandsPanel();
+    SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+    new MainController(
+        displayPanel, parametersPanel, commandsPanel, dialogService, WorkspaceConfig.ELEMENTARY);
+    return createWorkspaceRoot(
+        createOneDimensionalDisplayContainer(displayPanel, backLink), sidebarPanel);
+  }
+
+  private HBox createTotalisticWorkspace(Label backLink) {
+    DisplayPanel displayPanel = new DisplayPanel();
+    TotalisticParametersPanel parametersPanel = new TotalisticParametersPanel();
+    CommandsPanel commandsPanel = new CommandsPanel();
+    SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
+    new MainController(
+        displayPanel, parametersPanel, commandsPanel, dialogService, WorkspaceConfig.TOTALISTIC);
+    return createWorkspaceRoot(
+        createOneDimensionalDisplayContainer(displayPanel, backLink), sidebarPanel);
+  }
+
+  private HBox createLifeLikeWorkspace(Label backLink) {
+    LifeLikeToolbar toolbar = new LifeLikeToolbar();
+
+    Region footerSpacer = new Region();
+    HBox.setHgrow(footerSpacer, Priority.ALWAYS);
+    HBox footerRow = new HBox(backLink, footerSpacer, toolbar);
+    footerRow.setAlignment(Pos.CENTER_LEFT);
+    VBox.setMargin(footerRow, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
+
+    DisplayPanel displayPanel = new DisplayPanel(DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT);
+    VBox displayContainer = new VBox(displayPanel, footerRow);
+
+    LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
+    SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel);
+    return createWorkspaceRoot(displayContainer, sidebarPanel);
+  }
+
+  private static VBox createOneDimensionalDisplayContainer(
+      DisplayPanel displayPanel, Label backLink) {
+    VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
+    return new VBox(displayPanel, backLink);
+  }
+
+  private static HBox createWorkspaceRoot(VBox displayContainer, SidebarPanel sidebarPanel) {
+    HBox root = new HBox(UiStyles.APP_SPACING);
+    root.setPadding(new Insets(UiStyles.APP_SPACING));
+    HBox.setHgrow(sidebarPanel, Priority.ALWAYS);
+    root.getChildren().addAll(displayContainer, sidebarPanel);
+    return root;
   }
 }

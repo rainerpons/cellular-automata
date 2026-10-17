@@ -23,11 +23,11 @@ public final class ElementaryParametersPanel {
   public ElementaryParametersPanel() {
     sizeSlider = panel.addSizeSliderRow();
     ruleSpinner =
-        panel.addRuleSpinnerRow(
+        NumericSpinnerFactory.createRuleSpinner(
             CONFIG.getMinRule(),
             CONFIG.getDefaultRule(),
-            () -> CONFIG.getMaxRule(getStatesValue()),
-            true);
+            () -> CONFIG.getMaxRule(getStatesValue()));
+    panel.addControlRow("Rule number", null, ruleSpinner, true);
     seedComboBox = panel.addSeedTypeRow(SeedType.oneDimensionalValues(), SeedType.UNIFORM, false);
   }
 

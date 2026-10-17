@@ -4,24 +4,18 @@ import com.cellularautomata.config.SeedType;
 import com.cellularautomata.ui.shared.LabeledSlider;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.List;
-import java.util.function.IntSupplier;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.util.StringConverter;
 
 /**
  * Reusable two-column grid container for the Parameters section of a workspace sidebar. Owns the
  * section heading, column sizing constraints, row insertion, tooltip attachment on parameter
- * labels, and shared parameter control factories.
+ * labels, and shared parameter rows.
  */
 public final class ParametersPanel extends GridPane {
   public static final int MIN_SIZE = 4;
@@ -54,7 +48,7 @@ public final class ParametersPanel extends GridPane {
   public LabeledSlider addSizeSliderRow() {
     LabeledSlider sizeSlider =
         new LabeledSlider(
-            MIN_SIZE, MAX_SIZE, DEFAULT_SIZE, 1, false, true, size -> "Size (" + size + ")");
+            MIN_SIZE, MAX_SIZE, DEFAULT_SIZE, 1, false, true, size -> "Size (%d)".formatted(size));
     addSliderRow(sizeSlider, null, true);
     return sizeSlider;
   }
@@ -123,77 +117,6 @@ public final class ParametersPanel extends GridPane {
     return seedComboBox;
   }
 
-  /**
-   * Adds an editable integer spinner row bounded by a fixed range.
-   *
-   * @param labelText the parameter label text
-   * @param min the minimum spinner value
-   * @param max the maximum spinner value
-   * @param defaultValue the initial spinner value
-   * @param includeBottomGap whether to apply the standard row bottom margin
-   * @return the created spinner
-   */
-  public Spinner<Integer> addIntegerSpinnerRow(
-      String labelText, int min, int max, int defaultValue, boolean includeBottomGap) {
-    SpinnerValueFactory<Integer> valueFactory =
-        new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, defaultValue);
-    Spinner<Integer> spinner = createNumericSpinner(valueFactory);
-    addControlRow(labelText, null, spinner, includeBottomGap);
-    return spinner;
-  }
-
-  /**
-   * Adds an editable rule number spinner row with dynamic maximum rule bounds.
-   *
-   * @param minRule the minimum allowed rule number
-   * @param defaultRule the initial rule number
-   * @param maxRuleSupplier supplier for the current maximum allowed rule number
-   * @param includeBottomGap whether to apply the standard row bottom margin
-   * @return the created rule spinner
-   */
-  public Spinner<Integer> addRuleSpinnerRow(
-      int minRule, int defaultRule, IntSupplier maxRuleSupplier, boolean includeBottomGap) {
-    SpinnerValueFactory<Integer> valueFactory =
-        new SpinnerValueFactory<Integer>() {
-          @Override
-          public void decrement(int steps) {
-            int current = getValue() == null ? minRule : getValue();
-            setValue(Math.max(minRule, current - steps));
-          }
-
-          @Override
-          public void increment(int steps) {
-            int maxRule = maxRuleSupplier.getAsInt();
-            int current = getValue() == null ? minRule : getValue();
-            setValue(Math.min(maxRule, current + steps));
-          }
-        };
-    valueFactory.setValue(defaultRule);
-    valueFactory.setConverter(
-        new StringConverter<Integer>() {
-          @Override
-          public String toString(Integer value) {
-            return value == null ? "" : value.toString();
-          }
-
-          @Override
-          public Integer fromString(String string) {
-            try {
-              if (string == null || string.isEmpty()) {
-                return valueFactory.getValue();
-              }
-              return Integer.parseInt(string);
-            } catch (NumberFormatException e) {
-              return valueFactory.getValue();
-            }
-          }
-        });
-
-    Spinner<Integer> ruleSpinner = createNumericSpinner(valueFactory);
-    addControlRow("Rule number", null, ruleSpinner, includeBottomGap);
-    return ruleSpinner;
-  }
-
   Label findLabelByPrefix(String prefix) {
     for (Node child : getChildren()) {
       Integer col = GridPane.getColumnIndex(child);
@@ -212,26 +135,5 @@ public final class ParametersPanel extends GridPane {
     GridPane.setColumnSpan(heading, 2);
     GridPane.setMargin(heading, new Insets(0, 0, UiStyles.PARAMETERS_HEADING_GAP, 0));
     add(heading, 0, 0);
-  }
-
-  private static <T> Spinner<T> createNumericSpinner(SpinnerValueFactory<T> factory) {
-    Spinner<T> spinner = new Spinner<>();
-    spinner.setValueFactory(factory);
-    spinner.setEditable(true);
-    spinner
-        .getEditor()
-        .setTextFormatter(
-            new TextFormatter<>(
-                change -> {
-                  if (!change.getControlNewText().matches("\\d*")) {
-                    return null;
-                  }
-                  return change;
-                }));
-    spinner.getEditor().setAlignment(Pos.CENTER_LEFT);
-    UiStyles.applyControlHeight(spinner);
-    spinner.setMaxWidth(Double.MAX_VALUE);
-    GridPane.setHgrow(spinner, Priority.ALWAYS);
-    return spinner;
   }
 }

@@ -190,7 +190,7 @@ public final class LifeLikeParametersPanel {
             25,
             true,
             false,
-            density -> "Density (" + density + "%)");
+            density -> "Density (%d%%)".formatted(density));
     panel.addSliderRow(slider, DENSITY_TOOLTIP, true);
     return slider;
   }
