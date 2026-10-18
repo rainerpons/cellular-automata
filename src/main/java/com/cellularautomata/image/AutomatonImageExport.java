@@ -51,7 +51,10 @@ public final class AutomatonImageExport {
    * @return the initial save directory, or {@code null} if neither exists
    */
   public static File resolveInitialSaveDirectory() {
-    String userHome = System.getProperty("user.home");
+    return resolveInitialSaveDirectory(System.getProperty("user.home"));
+  }
+
+  static File resolveInitialSaveDirectory(String userHome) {
     if (userHome == null || userHome.isBlank()) {
       return null;
     }

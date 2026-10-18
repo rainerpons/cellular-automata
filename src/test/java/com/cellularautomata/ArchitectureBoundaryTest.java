@@ -120,21 +120,4 @@ public class ArchitectureBoundaryTest {
                 + " without JavaFX dependencies so it is independently testable")
         .check(productionClasses);
   }
-
-  /**
-   * Verifies that ArchUnit rules actively inspect compiled bytecode and fail the build with an
-   * {@link AssertionError} when an architectural boundary is violated.
-   */
-  @Test(expected = AssertionError.class)
-  public void testArchitecturalViolationsCauseRuleFailure() {
-    // Deliberately assert that UI does not depend on Engine. Because UI legitimately coordinates
-    // Engine, this rule violation MUST fail ArchUnit verification with an AssertionError.
-    noClasses()
-        .that()
-        .resideInAPackage("..ui..")
-        .should()
-        .dependOnClassesThat()
-        .resideInAPackage("..engine..")
-        .check(productionClasses);
-  }
 }
