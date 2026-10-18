@@ -1,33 +1,31 @@
 package com.cellularautomata.ui;
 
-import com.cellularautomata.config.SeedType;
 import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.automata.AutomataEngine;
 import com.cellularautomata.engine.automata.AutomataResult;
+import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.Rule;
+import com.cellularautomata.engine.rules.TotalisticRule;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
-import com.cellularautomata.ui.panels.ElementaryParametersPanel;
-import com.cellularautomata.ui.panels.TotalisticParametersPanel;
+import com.cellularautomata.ui.panels.NumericRuleParametersPanel;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.OptionalInt;
-import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
 /** Controller responsible for coordinating actions between the UI panels and the core engine. */
 class MainController {
+  private static final String LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE =
+      "Life-like rules use birth and survival counts";
+
   private final DisplayPanel displayPanel;
-  private final IntSupplier sizeSupplier;
-  private final IntSupplier statesSupplier;
-  private final Supplier<String> ruleTextSupplier;
-  private final Supplier<SeedType> seedTypeSupplier;
+  private final NumericRuleParametersPanel parametersPanel;
   private final CommandsPanel commandsPanel;
   private final DialogService dialogService;
   private final WorkspaceConfig config;
@@ -36,71 +34,22 @@ class MainController {
   private Rule rule;
 
   /**
-   * Constructs the main controller for the Elementary workspace.
+   * Constructs the main controller for a numeric-rule workspace.
    *
    * @param displayPanel the display panel
-   * @param parametersPanel the Elementary parameters panel
+   * @param parametersPanel the numeric-rule parameters panel
    * @param commandsPanel the commands panel
    * @param dialogService the dialog service
    * @param config the workspace configuration
    */
   MainController(
       DisplayPanel displayPanel,
-      ElementaryParametersPanel parametersPanel,
-      CommandsPanel commandsPanel,
-      DialogService dialogService,
-      WorkspaceConfig config) {
-    this(
-        displayPanel,
-        parametersPanel::getSizeValue,
-        parametersPanel::getStatesValue,
-        parametersPanel::getRuleText,
-        parametersPanel::getSeedType,
-        commandsPanel,
-        dialogService,
-        config);
-  }
-
-  /**
-   * Constructs the main controller for the Totalistic workspace.
-   *
-   * @param displayPanel the display panel
-   * @param parametersPanel the Totalistic parameters panel
-   * @param commandsPanel the commands panel
-   * @param dialogService the dialog service
-   * @param config the workspace configuration
-   */
-  MainController(
-      DisplayPanel displayPanel,
-      TotalisticParametersPanel parametersPanel,
-      CommandsPanel commandsPanel,
-      DialogService dialogService,
-      WorkspaceConfig config) {
-    this(
-        displayPanel,
-        parametersPanel::getSizeValue,
-        parametersPanel::getStatesValue,
-        parametersPanel::getRuleText,
-        parametersPanel::getSeedType,
-        commandsPanel,
-        dialogService,
-        config);
-  }
-
-  private MainController(
-      DisplayPanel displayPanel,
-      IntSupplier sizeSupplier,
-      IntSupplier statesSupplier,
-      Supplier<String> ruleTextSupplier,
-      Supplier<SeedType> seedTypeSupplier,
+      NumericRuleParametersPanel parametersPanel,
       CommandsPanel commandsPanel,
       DialogService dialogService,
       WorkspaceConfig config) {
     this.displayPanel = displayPanel;
-    this.sizeSupplier = sizeSupplier;
-    this.statesSupplier = statesSupplier;
-    this.ruleTextSupplier = ruleTextSupplier;
-    this.seedTypeSupplier = seedTypeSupplier;
+    this.parametersPanel = parametersPanel;
     this.commandsPanel = commandsPanel;
     this.dialogService = dialogService;
     this.config = config;
@@ -113,58 +62,53 @@ class MainController {
   }
 
   private void generateAutomaton() {
-    int states = statesSupplier.getAsInt();
+    int states = parametersPanel.getStatesValue();
 
     // Defensive safeguard for manual text entry outside the spinner bounds
-    if (config.supportsCustomStates()
-        && (states < config.getMinStates() || states > config.getMaxStates())) {
-      dialogService.showStatesError(config.getMinStates(), config.getMaxStates());
+    if (config.supportsCustomStates() && !TotalisticRule.isValidStateCount(states)) {
+      dialogService.showStatesError(TotalisticRule.MIN_STATES, TotalisticRule.MAX_STATES);
       return;
     }
 
-    int maxRule = config.getMaxRule(states);
+    int minRule = getMinRule();
+    int maxRule = getMaxRule(states);
     OptionalInt parsedRule =
-        RuleValidator.parseRule(ruleTextSupplier.get(), config.getMinRule(), maxRule);
+        RuleValidator.parseRule(parametersPanel.getRuleText(), minRule, maxRule);
     if (!parsedRule.isPresent()) {
-      dialogService.showRuleError(config.getMinRule(), maxRule);
+      dialogService.showRuleError(minRule, maxRule);
       return;
     }
 
     int parsedRuleInt = parsedRule.getAsInt();
-    rule = config.instantiateRule(parsedRuleInt, states);
+    rule = instantiateRule(parsedRuleInt, states);
     AutomataResult result =
         AutomataEngine.generate(
-            rule, sizeSupplier.getAsInt(), states, seedTypeSupplier.get().getDisplayName());
+            rule,
+            parametersPanel.getSizeValue(),
+            states,
+            parametersPanel.getSeedType().getDisplayName());
 
     BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap(), states);
-    resizedAutomatonImage = AutomatonImage.resizeImage(400, 400, automatonImage);
+    resizedAutomatonImage =
+        AutomatonImage.resizeImage(
+            AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, automatonImage);
 
     displayPanel.setAutomatonImage(SwingFXUtils.toFXImage(resizedAutomatonImage, null));
     commandsPanel.setSaveEnabled(true);
   }
 
   private void saveAutomatonImage() {
-    FileChooser fileChooser = new FileChooser();
-
-    File desktop = new File(System.getProperty("user.home"), "Desktop");
-    if (desktop.exists() && desktop.isDirectory()) {
-      fileChooser.setInitialDirectory(desktop);
-    } else {
-      File home = new File(System.getProperty("user.home"));
-      if (home.exists() && home.isDirectory()) {
-        fileChooser.setInitialDirectory(home);
-      }
-    }
-
-    fileChooser.setInitialFileName(
-        generateFileName(
+    String initialFileName =
+        AutomatonImage.generateFileName(
             config,
             rule.getRuleNumber(),
-            sizeSupplier.getAsInt(),
-            statesSupplier.getAsInt(),
-            java.time.LocalDateTime.now()));
-    Window window = displayPanel.getScene().getWindow();
-    File file = fileChooser.showSaveDialog(window);
+            parametersPanel.getSizeValue(),
+            parametersPanel.getStatesValue(),
+            LocalDateTime.now());
+    Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
+    File file =
+        dialogService.showSaveFileDialog(
+            window, AutomatonImage.resolveInitialSaveDirectory(), initialFileName);
     if (file == null) {
       return;
     }
@@ -177,20 +121,30 @@ class MainController {
     }
   }
 
-  static String generateFileName(
-      WorkspaceConfig config, int ruleNumber, int size, int states, java.time.LocalDateTime time) {
-    String timestamp =
-        time.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss"));
-    String baseName = config.name().toLowerCase();
-
+  int getMinRule() {
     return switch (config) {
-      case ELEMENTARY ->
-          String.format("%s_rule%d_size%d_%s.png", baseName, ruleNumber, size, timestamp);
-      case TOTALISTIC ->
-          String.format(
-              "%s_states%d_rule%d_size%d_%s.png", baseName, states, ruleNumber, size, timestamp);
+      case ELEMENTARY -> ElementaryRule.MIN_RULE_NUMBER;
+      case TOTALISTIC -> TotalisticRule.MIN_RULE_NUMBER;
       case LIFE_LIKE ->
-          throw new UnsupportedOperationException("Life-like image saving is not yet supported");
+          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
+    };
+  }
+
+  int getMaxRule(int states) {
+    return switch (config) {
+      case ELEMENTARY -> ElementaryRule.MAX_RULE_NUMBER;
+      case TOTALISTIC -> TotalisticRule.calculateMaxRule(states);
+      case LIFE_LIKE ->
+          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
+    };
+  }
+
+  Rule instantiateRule(int ruleNumber, int states) {
+    return switch (config) {
+      case ELEMENTARY -> new ElementaryRule(ruleNumber);
+      case TOTALISTIC -> new TotalisticRule(ruleNumber, states);
+      case LIFE_LIKE ->
+          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
     };
   }
 }
