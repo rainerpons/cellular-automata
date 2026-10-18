@@ -16,11 +16,6 @@ public final class LifeLikeRule {
   /** Maximum possible number of living neighbors in a 2D Moore neighborhood. */
   public static final int MAX_NEIGHBOR_COUNT = 8;
 
-  public static final LifeLikeRule CONWAYS_GAME_OF_LIFE =
-      new LifeLikeRule(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
-  public static final LifeLikeRule HIGH_LIFE = new LifeLikeRule(LifeLikePreset.HIGH_LIFE);
-  public static final LifeLikeRule SEEDS = new LifeLikeRule(LifeLikePreset.SEEDS);
-
   private final Set<Integer> birthCounts;
   private final Set<Integer> survivalCounts;
   private final boolean[] birthTable;
@@ -40,32 +35,17 @@ public final class LifeLikeRule {
     validateNeighborCounts(survivalCounts);
     this.birthCounts = Set.copyOf(birthCounts);
     this.survivalCounts = Set.copyOf(survivalCounts);
-    this.birthTable = new boolean[MAX_NEIGHBOR_COUNT + 1];
-    for (int count : this.birthCounts) {
-      this.birthTable[count] = true;
-    }
-    this.survivalTable = new boolean[MAX_NEIGHBOR_COUNT + 1];
-    for (int count : this.survivalCounts) {
-      this.survivalTable[count] = true;
-    }
+    this.birthTable = createLookupTable(this.birthCounts);
+    this.survivalTable = createLookupTable(this.survivalCounts);
     this.notation = formatNotation(this.birthCounts, this.survivalCounts);
   }
 
-  /**
-   * Constructs a Life-like rule from a predefined {@link LifeLikePreset}.
-   *
-   * @param preset the preset to initialize from
-   * @throws IllegalArgumentException if preset is null
-   */
-  public LifeLikeRule(LifeLikePreset preset) {
-    this(requirePreset(preset).getBirthCounts(), preset.getSurvivalCounts());
-  }
-
-  private static LifeLikePreset requirePreset(LifeLikePreset preset) {
-    if (preset == null) {
-      throw new IllegalArgumentException("Preset cannot be null.");
+  private static boolean[] createLookupTable(Set<Integer> counts) {
+    boolean[] table = new boolean[MAX_NEIGHBOR_COUNT + 1];
+    for (int count : counts) {
+      table[count] = true;
     }
-    return preset;
+    return table;
   }
 
   /**
@@ -79,12 +59,8 @@ public final class LifeLikeRule {
   public boolean evaluate(boolean currentlyAlive, int liveNeighborCount) {
     if (!isValidNeighborCount(liveNeighborCount)) {
       throw new IllegalArgumentException(
-          "Neighbor count must be between "
-              + MIN_NEIGHBOR_COUNT
-              + " and "
-              + MAX_NEIGHBOR_COUNT
-              + ": "
-              + liveNeighborCount);
+          "Neighbor count must be between %d and %d: %d"
+              .formatted(MIN_NEIGHBOR_COUNT, MAX_NEIGHBOR_COUNT, liveNeighborCount));
     }
     return currentlyAlive ? survivalTable[liveNeighborCount] : birthTable[liveNeighborCount];
   }
@@ -101,7 +77,7 @@ public final class LifeLikeRule {
    */
   public int evaluate(int currentState, int liveNeighborCount) {
     if (currentState != 0 && currentState != 1) {
-      throw new IllegalArgumentException("Cell state must be 0 or 1: " + currentState);
+      throw new IllegalArgumentException("Cell state must be 0 or 1: %d".formatted(currentState));
     }
     return evaluate(currentState == 1, liveNeighborCount) ? 1 : 0;
   }
