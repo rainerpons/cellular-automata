@@ -3,6 +3,7 @@ package com.cellularautomata.engine;
 import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.Rule;
 import com.cellularautomata.engine.rules.TotalisticRule;
+import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -204,5 +205,84 @@ public class GeneratorTest {
     Assert.assertEquals(4, alternating.getSize());
     String state = alternating.getState();
     Assert.assertTrue(state.equals("4040") || state.equals("0404"));
+  }
+
+  @Test
+  public void testGenerateGridDensity() {
+    Grid2D grid0 = Generator.generateGrid(4, "density", 0.0);
+    Assert.assertEquals(0, grid0.countLiveCells());
+
+    Grid2D grid100 = Generator.generateGrid(4, "density", 100.0);
+    Assert.assertEquals(16, grid100.countLiveCells());
+
+    Random random1 = new Random(42);
+    Random random2 = new Random(42);
+    Grid2D seeded1 = Generator.generateGrid(8, "density", 40.0, random1);
+    Grid2D seeded2 = Generator.generateGrid(8, "density", 40.0, random2);
+    Assert.assertEquals(seeded1, seeded2);
+  }
+
+  @Test
+  public void testGenerateGridUniform() {
+    Random random1 = new Random(999);
+    Random random2 = new Random(999);
+    Grid2D grid1 = Generator.generateGrid(6, "uniform", 0.0, random1);
+    Grid2D grid2 = Generator.generateGrid(6, "uniform", 0.0, random2);
+    Assert.assertEquals(grid1, grid2);
+
+    Grid2D defaultGrid = Generator.generateGrid(6, "uniform", 0.0);
+    Assert.assertEquals(6, defaultGrid.getSize());
+  }
+
+  @Test
+  public void testGenerateGridSparse() {
+    Grid2D sparse = Generator.generateGrid(5, "sparse", 0.0);
+    Assert.assertEquals(5, sparse.getSize());
+    Assert.assertEquals(1, sparse.countLiveCells());
+    Assert.assertTrue(sparse.isAlive(2, 2));
+  }
+
+  @Test
+  public void testGenerateGridAlternating() {
+    Grid2D alternating = Generator.generateGrid(4, "alternating", 0.0);
+    Assert.assertEquals(4, alternating.getSize());
+    Assert.assertTrue(alternating.isAlive(0, 0));
+    Assert.assertFalse(alternating.isAlive(0, 1));
+    Assert.assertTrue(alternating.isAlive(1, 1));
+  }
+
+  @Test
+  public void testGenerateGridCaseInsensitive() {
+    Grid2D density = Generator.generateGrid(4, "DeNsItY", 100.0);
+    Assert.assertEquals(16, density.countLiveCells());
+
+    Grid2D uniform = Generator.generateGrid(4, "UNIFORM", 0.0);
+    Assert.assertEquals(4, uniform.getSize());
+
+    Grid2D sparse = Generator.generateGrid(4, "sPaRsE", 0.0);
+    Assert.assertEquals(1, sparse.countLiveCells());
+
+    Grid2D alternating = Generator.generateGrid(4, "ALTERNATING", 0.0);
+    Assert.assertEquals(4, alternating.getSize());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerateGridRejectsNullSeedType() {
+    Generator.generateGrid(4, null, 50.0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerateGridRejectsNullRandom() {
+    Generator.generateGrid(4, "density", 50.0, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerateGridRejectsUnsupportedSeedType() {
+    Generator.generateGrid(4, "unknown", 50.0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerateGridRejectsInvalidSize() {
+    Generator.generateGrid(0, "density", 50.0);
   }
 }
