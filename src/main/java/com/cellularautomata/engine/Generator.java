@@ -108,4 +108,48 @@ public final class Generator {
     }
     return new Vector(successor.toString());
   }
+
+  /**
+   * Generates a 2D grid seed based on the specified size, seed type, and alive density percentage.
+   *
+   * @param size side length of the square grid
+   * @param seedType seed type string ("density", "uniform", "sparse", "alternating")
+   * @param densityPercentage live cell density percentage (0 to 100) used when seedType is
+   *     "density"
+   * @return generated Grid2D
+   * @throws IllegalArgumentException if seedType is null or unsupported, or if parameters are
+   *     invalid
+   */
+  public static Grid2D generateGrid(int size, String seedType, double densityPercentage) {
+    return generateGrid(size, seedType, densityPercentage, RANDOM);
+  }
+
+  /**
+   * Generates a 2D grid seed based on the specified size, seed type, alive density percentage, and
+   * Random instance.
+   *
+   * @param size side length of the square grid
+   * @param seedType seed type string ("density", "uniform", "sparse", "alternating")
+   * @param densityPercentage live cell density percentage (0 to 100) used when seedType is
+   *     "density"
+   * @param random random number generator
+   * @return generated Grid2D
+   * @throws IllegalArgumentException if seedType or random is null, or if seedType is unsupported
+   */
+  public static Grid2D generateGrid(
+      int size, String seedType, double densityPercentage, Random random) {
+    if (seedType == null) {
+      throw new IllegalArgumentException("Seed type cannot be null.");
+    }
+    if (random == null) {
+      throw new IllegalArgumentException("Random cannot be null.");
+    }
+    return switch (seedType.toLowerCase(java.util.Locale.ROOT)) {
+      case "density" -> Grid2D.ofDensity(size, densityPercentage / 100.0, random);
+      case "uniform" -> Grid2D.ofUniform(size, random);
+      case "sparse" -> Grid2D.ofSparse(size);
+      case "alternating" -> Grid2D.ofAlternating(size);
+      default -> throw new IllegalArgumentException("Unsupported seed type: " + seedType);
+    };
+  }
 }
