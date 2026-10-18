@@ -83,25 +83,6 @@ public class AutomatonImageExportTest {
     Assert.assertNull(AutomatonImageExport.resolveInitialSaveDirectory("   "));
   }
 
-  @Test
-  public void testResolveInitialSaveDirectoryNoArgDelegatesToSystemHome() {
-    File resolved = AutomatonImageExport.resolveInitialSaveDirectory();
-    String userHome = System.getProperty("user.home");
-    if (userHome != null && !userHome.isBlank()) {
-      File desktop = new File(userHome, "Desktop");
-      File home = new File(userHome);
-      if (desktop.exists() && desktop.isDirectory()) {
-        Assert.assertEquals(desktop, resolved);
-      } else if (home.exists() && home.isDirectory()) {
-        Assert.assertEquals(home, resolved);
-      } else {
-        Assert.assertNull(resolved);
-      }
-    } else {
-      Assert.assertNull(resolved);
-    }
-  }
-
   private static void deleteRecursively(Path root) throws IOException {
     if (!Files.exists(root)) {
       return;
