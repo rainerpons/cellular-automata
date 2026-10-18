@@ -1,6 +1,7 @@
 package com.cellularautomata.engine.automata;
 
 import com.cellularautomata.engine.Grid2D;
+import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,14 +9,15 @@ import org.junit.Test;
 /** Tests for {@link LifeLikeSimulation}. */
 public class LifeLikeSimulationTest {
 
+  private static final LifeLikeRule CONWAY = LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule();
+
   @Test
   public void testConstructionAndInitialState() {
-    Grid2D initialGrid = Grid2D.ofSparse(5, 2, 2);
-    LifeLikeSimulation simulation =
-        new LifeLikeSimulation(LifeLikeRule.CONWAYS_GAME_OF_LIFE, initialGrid);
+    Grid2D initialGrid = new Grid2D(5, (r, c) -> r == 2 && c == 2);
+    LifeLikeSimulation simulation = new LifeLikeSimulation(CONWAY, initialGrid);
 
     Assert.assertEquals(0L, simulation.getGeneration());
-    Assert.assertEquals(LifeLikeRule.CONWAYS_GAME_OF_LIFE, simulation.getRule());
+    Assert.assertEquals(CONWAY, simulation.getRule());
     Assert.assertEquals(initialGrid, simulation.getInitialGrid());
     Assert.assertEquals(initialGrid, simulation.getCurrentGrid());
     Assert.assertEquals(5, simulation.getSize());
@@ -31,7 +33,7 @@ public class LifeLikeSimulationTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorRejectsNullInitialGrid() {
-    new LifeLikeSimulation(LifeLikeRule.CONWAYS_GAME_OF_LIFE, null);
+    new LifeLikeSimulation(CONWAY, null);
   }
 
   @Test
@@ -43,8 +45,7 @@ public class LifeLikeSimulationTest {
     blinker[2][3] = true;
     Grid2D initialGrid = new Grid2D(5, blinker);
 
-    LifeLikeSimulation simulation =
-        new LifeLikeSimulation(LifeLikeRule.CONWAYS_GAME_OF_LIFE, initialGrid);
+    LifeLikeSimulation simulation = new LifeLikeSimulation(CONWAY, initialGrid);
 
     simulation.step();
     Assert.assertEquals(1L, simulation.getGeneration());
@@ -64,9 +65,8 @@ public class LifeLikeSimulationTest {
 
   @Test
   public void testResetRestoresInitialGridAndGeneration() {
-    Grid2D initialGrid = Grid2D.ofSparse(5, 2, 2);
-    LifeLikeSimulation simulation =
-        new LifeLikeSimulation(LifeLikeRule.CONWAYS_GAME_OF_LIFE, initialGrid);
+    Grid2D initialGrid = new Grid2D(5, (r, c) -> r == 2 && c == 2);
+    LifeLikeSimulation simulation = new LifeLikeSimulation(CONWAY, initialGrid);
 
     Assert.assertEquals(1, simulation.getLiveCellCount());
 
@@ -97,7 +97,7 @@ public class LifeLikeSimulationTest {
       {false, false, true}
     };
     Grid2D grid = new Grid2D(3, matrix);
-    LifeLikeSimulation simulation = new LifeLikeSimulation(LifeLikeRule.CONWAYS_GAME_OF_LIFE, grid);
+    LifeLikeSimulation simulation = new LifeLikeSimulation(CONWAY, grid);
 
     Assert.assertEquals(3, simulation.getSize());
     Assert.assertEquals(3, simulation.getLiveCellCount());

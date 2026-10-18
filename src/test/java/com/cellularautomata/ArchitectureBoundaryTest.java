@@ -104,6 +104,23 @@ public class ArchitectureBoundaryTest {
   }
 
   /**
+   * Ensures mathematical rules in {@code engine.rules} remain independent of presets in {@code
+   * engine.presets}, upholding the architectural invariant that presets depend on rules, never the
+   * reverse.
+   */
+  @Test
+  public void testEngineRulesDoNotDependOnPresets() {
+    noClasses()
+        .that()
+        .resideInAPackage("..engine.rules..")
+        .should()
+        .dependOnClassesThat()
+        .resideInAPackage("..engine.presets..")
+        .because("Presets must depend on mathematical rules, never the reverse")
+        .check(productionClasses);
+  }
+
+  /**
    * Ensures the Life-like selection model remains a headless, pure Java state container that can be
    * tested and manipulated without requiring the JavaFX toolkit.
    */

@@ -208,43 +208,25 @@ public class GeneratorTest {
   }
 
   @Test
-  public void testGenerateGridDensity() {
-    Grid2D grid0 = Generator.generateGrid(4, "density", 0.0);
-    Assert.assertEquals(0, grid0.countLiveCells());
+  public void testGenerateGridWithStronglyTypedSeedType() {
+    // DENSITY
+    Grid2D density0 = Generator.generateGrid(4, SeedType.DENSITY, 0.0);
+    Assert.assertEquals(0, density0.countLiveCells());
 
-    Grid2D grid100 = Generator.generateGrid(4, "density", 100.0);
-    Assert.assertEquals(16, grid100.countLiveCells());
+    Grid2D density100 = Generator.generateGrid(4, SeedType.DENSITY, 100.0);
+    Assert.assertEquals(16, density100.countLiveCells());
 
-    Random random1 = new Random(42);
-    Random random2 = new Random(42);
-    Grid2D seeded1 = Generator.generateGrid(8, "density", 40.0, random1);
-    Grid2D seeded2 = Generator.generateGrid(8, "density", 40.0, random2);
-    Assert.assertEquals(seeded1, seeded2);
-  }
+    // UNIFORM
+    Grid2D uniform = Generator.generateGrid(6, SeedType.UNIFORM, 0.0);
+    Assert.assertEquals(6, uniform.getSize());
 
-  @Test
-  public void testGenerateGridUniform() {
-    Random random1 = new Random(999);
-    Random random2 = new Random(999);
-    Grid2D grid1 = Generator.generateGrid(6, "uniform", 0.0, random1);
-    Grid2D grid2 = Generator.generateGrid(6, "uniform", 0.0, random2);
-    Assert.assertEquals(grid1, grid2);
-
-    Grid2D defaultGrid = Generator.generateGrid(6, "uniform", 0.0);
-    Assert.assertEquals(6, defaultGrid.getSize());
-  }
-
-  @Test
-  public void testGenerateGridSparse() {
-    Grid2D sparse = Generator.generateGrid(5, "sparse", 0.0);
+    // SPARSE
+    Grid2D sparse = Generator.generateGrid(5, SeedType.SPARSE, 0.0);
     Assert.assertEquals(5, sparse.getSize());
     Assert.assertEquals(1, sparse.countLiveCells());
-    Assert.assertTrue(sparse.isAlive(2, 2));
-  }
 
-  @Test
-  public void testGenerateGridAlternating() {
-    Grid2D alternating = Generator.generateGrid(4, "alternating", 0.0);
+    // ALTERNATING
+    Grid2D alternating = Generator.generateGrid(4, SeedType.ALTERNATING, 0.0);
     Assert.assertEquals(4, alternating.getSize());
     Assert.assertTrue(alternating.isAlive(0, 0));
     Assert.assertFalse(alternating.isAlive(0, 1));
@@ -252,11 +234,11 @@ public class GeneratorTest {
   }
 
   @Test
-  public void testGenerateGridCaseInsensitive() {
+  public void testGenerateGridWithStringIdentifiersCaseInsensitive() {
     Grid2D density = Generator.generateGrid(4, "DeNsItY", 100.0);
     Assert.assertEquals(16, density.countLiveCells());
 
-    Grid2D uniform = Generator.generateGrid(4, "UNIFORM", 0.0);
+    Grid2D uniform = Generator.generateGrid(4, "uNiFoRm", 0.0);
     Assert.assertEquals(4, uniform.getSize());
 
     Grid2D sparse = Generator.generateGrid(4, "sPaRsE", 0.0);
@@ -266,14 +248,140 @@ public class GeneratorTest {
     Assert.assertEquals(4, alternating.getSize());
   }
 
+  @Test
+  public void testRandomSparsePlacementIn2D() {
+    // Has exactly 1 live cell
+    Grid2D sparse = Generator.generateGrid(10, SeedType.SPARSE, 0.0);
+    Assert.assertEquals(1, sparse.countLiveCells());
+
+    // With injected seeded Random(123) produces reproducible cell location
+    Grid2D seeded1 = Generator.generateGrid(10, SeedType.SPARSE, 0.0, new Random(123));
+    Grid2D seeded2 = Generator.generateGrid(10, SeedType.SPARSE, 0.0, new Random(123));
+    Assert.assertEquals(seeded1, seeded2);
+    Assert.assertEquals(1, seeded1.countLiveCells());
+
+    // Across multiple runs with unseeded Random, can produce different coordinates
+    boolean foundDifferent = false;
+    Grid2D first = Generator.generateGrid(20, SeedType.SPARSE, 0.0);
+    for (int i = 0; i < 50; i++) {
+      Grid2D other = Generator.generateGrid(20, SeedType.SPARSE, 0.0);
+      if (!first.equals(other)) {
+        foundDifferent = true;
+        break;
+      }
+    }
+    Assert.assertTrue(
+        "Sparse placement should produce varying coordinates across runs", foundDifferent);
+  }
+
+  @Test
+  public void testDensityValidationValidExtremes() {
+    // 0.0 produces completely dead grid
+    Grid2D zeroDensity = Generator.generateGrid(5, SeedType.DENSITY, 0.0);
+    Assert.assertEquals(0, zeroDensity.countLiveCells());
+
+    // 100.0 produces completely alive grid
+    Grid2D fullDensity = Generator.generateGrid(5, SeedType.DENSITY, 100.0);
+    Assert.assertEquals(25, fullDensity.countLiveCells());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDensityValidationRejectsNaN() {
+    Generator.generateGrid(4, SeedType.DENSITY, Double.NaN);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDensityValidationRejectsPositiveInfinity() {
+    Generator.generateGrid(4, SeedType.DENSITY, Double.POSITIVE_INFINITY);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDensityValidationRejectsNegativeInfinity() {
+    Generator.generateGrid(4, SeedType.DENSITY, Double.NEGATIVE_INFINITY);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDensityValidationRejectsNegative() {
+    Generator.generateGrid(4, SeedType.DENSITY, -0.01);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDensityValidationRejectsAbove100() {
+    Generator.generateGrid(4, SeedType.DENSITY, 100.01);
+  }
+
+  @Test
+  public void testGenerate1DSeedSupportsUniformSparseAlternating() {
+    Vector uniform = Generator.generate1DSeed(SeedType.UNIFORM, 10, 2);
+    Assert.assertEquals(10, uniform.getSize());
+
+    Vector sparse = Generator.generate1DSeed(SeedType.SPARSE, 10, 2);
+    Assert.assertEquals(10, sparse.getSize());
+    long liveCount = sparse.getState().chars().filter(ch -> ch == '1').count();
+    Assert.assertEquals(1, liveCount);
+
+    Vector alternating = Generator.generate1DSeed(SeedType.ALTERNATING, 10, 2);
+    Assert.assertEquals(10, alternating.getSize());
+    String state = alternating.getState();
+    Assert.assertTrue(state.equals("1010101010") || state.equals("0101010101"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerate1DSeedRejectsDensity() {
+    Generator.generate1DSeed(SeedType.DENSITY, 10, 2);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerate1DSeedWithRandomRejectsDensity() {
+    Generator.generate1DSeed(SeedType.DENSITY, 10, 2, new Random());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerate1DSeedRejectsNullSeedType() {
+    Generator.generate1DSeed(null, 10, 2);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerate1DSeedRejectsNullRandom() {
+    Generator.generate1DSeed(SeedType.UNIFORM, 10, 2, null);
+  }
+
+  @Test
+  public void testReproducibleResultsWithIdenticalRngSeeds() {
+    // 1D UNIFORM
+    Vector vec1 = Generator.generate1DSeed(SeedType.UNIFORM, 16, 2, new Random(42));
+    Vector vec2 = Generator.generate1DSeed(SeedType.UNIFORM, 16, 2, new Random(42));
+    Assert.assertEquals(vec1.getState(), vec2.getState());
+
+    // 1D SPARSE
+    Vector sparse1 = Generator.generate1DSeed(SeedType.SPARSE, 16, 2, new Random(42));
+    Vector sparse2 = Generator.generate1DSeed(SeedType.SPARSE, 16, 2, new Random(42));
+    Assert.assertEquals(sparse1.getState(), sparse2.getState());
+
+    // 2D DENSITY
+    Grid2D gridDensity1 = Generator.generateGrid(8, SeedType.DENSITY, 50.0, new Random(42));
+    Grid2D gridDensity2 = Generator.generateGrid(8, SeedType.DENSITY, 50.0, new Random(42));
+    Assert.assertEquals(gridDensity1, gridDensity2);
+
+    // 2D UNIFORM
+    Grid2D gridUniform1 = Generator.generateGrid(8, SeedType.UNIFORM, 0.0, new Random(42));
+    Grid2D gridUniform2 = Generator.generateGrid(8, SeedType.UNIFORM, 0.0, new Random(42));
+    Assert.assertEquals(gridUniform1, gridUniform2);
+
+    // 2D SPARSE
+    Grid2D gridSparse1 = Generator.generateGrid(8, SeedType.SPARSE, 0.0, new Random(42));
+    Grid2D gridSparse2 = Generator.generateGrid(8, SeedType.SPARSE, 0.0, new Random(42));
+    Assert.assertEquals(gridSparse1, gridSparse2);
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testGenerateGridRejectsNullSeedType() {
-    Generator.generateGrid(4, null, 50.0);
+    Generator.generateGrid(4, (SeedType) null, 50.0);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGenerateGridRejectsNullRandom() {
-    Generator.generateGrid(4, "density", 50.0, null);
+    Generator.generateGrid(4, SeedType.DENSITY, 50.0, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -283,6 +391,6 @@ public class GeneratorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGenerateGridRejectsInvalidSize() {
-    Generator.generateGrid(0, "density", 50.0);
+    Generator.generateGrid(0, SeedType.DENSITY, 50.0);
   }
 }

@@ -1,7 +1,7 @@
 package com.cellularautomata.engine;
 
+import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
-import java.util.Random;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,6 +39,26 @@ public class Grid2DTest {
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyFactoryRejectsZeroSize() {
     Grid2D.empty(0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorRejectsOverflowSize() {
+    new Grid2D(50000);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testConstructorRejectsMaxIntegerSize() {
+    new Grid2D(Integer.MAX_VALUE);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmptyFactoryRejectsOverflowSize() {
+    Grid2D.empty(50000);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testCellInitializerRejectsOverflowSize() {
+    new Grid2D(50000, (r, c) -> false);
   }
 
   @Test
@@ -184,100 +204,6 @@ public class Grid2DTest {
   }
 
   @Test
-  public void testOfDensitySeedGeneration() {
-    // 0% density produces empty grid
-    Grid2D emptyFromZeroFraction = Grid2D.ofDensity(4, 0.0);
-    Assert.assertEquals(0, emptyFromZeroFraction.countLiveCells());
-
-    Grid2D emptyFromZeroPercent = Grid2D.ofDensity(4, 0);
-    Assert.assertEquals(0, emptyFromZeroPercent.countLiveCells());
-
-    // 100% density produces completely alive grid
-    Grid2D fullFromFraction = Grid2D.ofDensity(4, 1.0);
-    Assert.assertEquals(16, fullFromFraction.countLiveCells());
-
-    Grid2D fullFromPercent = Grid2D.ofDensity(4, 100.0);
-    Assert.assertEquals(16, fullFromPercent.countLiveCells());
-
-    // Deterministic random generation
-    Grid2D seededGrid1 = Grid2D.ofDensity(10, 0.5, new Random(42));
-    Grid2D seededGrid2 = Grid2D.ofDensity(10, 0.5, new Random(42));
-    Assert.assertEquals(seededGrid1, seededGrid2);
-    Assert.assertTrue(seededGrid1.countLiveCells() > 0);
-    Assert.assertTrue(seededGrid1.countLiveCells() < 100);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testOfDensityRejectsNegativeProbability() {
-    Grid2D.ofDensity(4, -0.1);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testOfDensityRejectsProbabilityOver100() {
-    Grid2D.ofDensity(4, 100.1);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testOfDensityRejectsNullRandom() {
-    Grid2D.ofDensity(4, 0.5, null);
-  }
-
-  @Test
-  public void testOfUniformSeedGeneration() {
-    Grid2D seeded1 = Grid2D.ofUniform(8, new Random(12345));
-    Grid2D seeded2 = Grid2D.ofUniform(8, new Random(12345));
-    Assert.assertEquals(seeded1, seeded2);
-
-    Grid2D uniform = Grid2D.ofUniform(8);
-    Assert.assertEquals(8, uniform.getSize());
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testOfUniformRejectsNullRandom() {
-    Grid2D.ofUniform(4, null);
-  }
-
-  @Test
-  public void testOfSparseSeedGeneration() {
-    // Default center placement for odd size
-    Grid2D oddSparse = Grid2D.ofSparse(5);
-    Assert.assertEquals(1, oddSparse.countLiveCells());
-    Assert.assertTrue(oddSparse.isAlive(2, 2));
-
-    // Default center placement for even size (size / 2)
-    Grid2D evenSparse = Grid2D.ofSparse(4);
-    Assert.assertEquals(1, evenSparse.countLiveCells());
-    Assert.assertTrue(evenSparse.isAlive(2, 2));
-
-    // Explicit coordinate placement
-    Grid2D explicitSparse = Grid2D.ofSparse(5, 0, 4);
-    Assert.assertEquals(1, explicitSparse.countLiveCells());
-    Assert.assertTrue(explicitSparse.isAlive(0, 4));
-    Assert.assertFalse(explicitSparse.isAlive(2, 2));
-  }
-
-  @Test(expected = IndexOutOfBoundsException.class)
-  public void testOfSparseRejectsOutOfBoundsCoordinates() {
-    Grid2D.ofSparse(5, 5, 0);
-  }
-
-  @Test
-  public void testOfAlternatingSeedGeneration() {
-    Grid2D altDefault = Grid2D.ofAlternating(3);
-    Assert.assertTrue(altDefault.isAlive(0, 0));
-    Assert.assertFalse(altDefault.isAlive(0, 1));
-    Assert.assertTrue(altDefault.isAlive(0, 2));
-    Assert.assertFalse(altDefault.isAlive(1, 0));
-    Assert.assertTrue(altDefault.isAlive(1, 1));
-
-    Grid2D altFalse = Grid2D.ofAlternating(3, false);
-    Assert.assertFalse(altFalse.isAlive(0, 0));
-    Assert.assertTrue(altFalse.isAlive(0, 1));
-    Assert.assertFalse(altFalse.isAlive(0, 2));
-    Assert.assertTrue(altFalse.isAlive(1, 0));
-  }
-
-  @Test
   public void testImmutabilityAndDefensiveCopying() {
     boolean[][] inputMatrix = {
       {true, false},
@@ -308,8 +234,10 @@ public class Grid2DTest {
     Grid2D gen0 = new Grid2D(5, blinkerH);
     Assert.assertEquals(3, gen0.countLiveCells());
 
+    LifeLikeRule conway = LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule();
+
     // Step 1: Blinker becomes vertical at (1, 2), (2, 2), (3, 2)
-    Grid2D gen1 = gen0.nextGeneration(LifeLikeRule.CONWAYS_GAME_OF_LIFE);
+    Grid2D gen1 = gen0.nextGeneration(conway);
     Assert.assertEquals(3, gen1.countLiveCells());
     Assert.assertTrue(gen1.isAlive(1, 2));
     Assert.assertTrue(gen1.isAlive(2, 2));
@@ -318,7 +246,7 @@ public class Grid2DTest {
     Assert.assertFalse(gen1.isAlive(2, 3));
 
     // Step 2: Blinker returns to horizontal
-    Grid2D gen2 = gen1.nextGeneration(LifeLikeRule.CONWAYS_GAME_OF_LIFE);
+    Grid2D gen2 = gen1.nextGeneration(conway);
     Assert.assertEquals(gen0, gen2);
   }
 
@@ -333,10 +261,12 @@ public class Grid2DTest {
     Grid2D gen0 = new Grid2D(4, block);
     Assert.assertEquals(4, gen0.countLiveCells());
 
-    Grid2D gen1 = gen0.nextGeneration(LifeLikeRule.CONWAYS_GAME_OF_LIFE);
+    LifeLikeRule conway = LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule();
+
+    Grid2D gen1 = gen0.nextGeneration(conway);
     Assert.assertEquals(gen0, gen1);
 
-    Grid2D gen2 = gen1.nextGeneration(LifeLikeRule.CONWAYS_GAME_OF_LIFE);
+    Grid2D gen2 = gen1.nextGeneration(conway);
     Assert.assertEquals(gen0, gen2);
   }
 
@@ -348,7 +278,7 @@ public class Grid2DTest {
     matrix[1][2] = true;
     Grid2D gen0 = new Grid2D(4, matrix);
 
-    Grid2D gen1 = gen0.nextGeneration(LifeLikeRule.SEEDS);
+    Grid2D gen1 = gen0.nextGeneration(LifeLikePreset.SEEDS.toRule());
     // (1, 1) and (1, 2) had 1 neighbor each, and S is empty, so they die
     Assert.assertFalse(gen1.isAlive(1, 1));
     Assert.assertFalse(gen1.isAlive(1, 2));

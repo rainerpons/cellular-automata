@@ -1,5 +1,6 @@
 package com.cellularautomata.engine.rules;
 
+import com.cellularautomata.engine.presets.LifeLikePreset;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -85,30 +86,55 @@ public class LifeLikeRuleTest {
   }
 
   @Test
-  public void testPresetsConstantsAndNotation() {
-    Assert.assertEquals("B3/S23", LifeLikeRule.CONWAYS_GAME_OF_LIFE.getNotation());
-    Assert.assertEquals(Set.of(3), LifeLikeRule.CONWAYS_GAME_OF_LIFE.getBirthCounts());
-    Assert.assertEquals(Set.of(2, 3), LifeLikeRule.CONWAYS_GAME_OF_LIFE.getSurvivalCounts());
+  public void testStandardRuleNotations() {
+    LifeLikeRule conway = LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule();
+    Assert.assertEquals("B3/S23", conway.getNotation());
+    Assert.assertEquals(Set.of(3), conway.getBirthCounts());
+    Assert.assertEquals(Set.of(2, 3), conway.getSurvivalCounts());
 
-    Assert.assertEquals("B36/S23", LifeLikeRule.HIGH_LIFE.getNotation());
-    Assert.assertEquals(Set.of(3, 6), LifeLikeRule.HIGH_LIFE.getBirthCounts());
-    Assert.assertEquals(Set.of(2, 3), LifeLikeRule.HIGH_LIFE.getSurvivalCounts());
+    LifeLikeRule highLife = LifeLikePreset.HIGH_LIFE.toRule();
+    Assert.assertEquals("B36/S23", highLife.getNotation());
+    Assert.assertEquals(Set.of(3, 6), highLife.getBirthCounts());
+    Assert.assertEquals(Set.of(2, 3), highLife.getSurvivalCounts());
 
-    Assert.assertEquals("B2/S", LifeLikeRule.SEEDS.getNotation());
-    Assert.assertEquals(Set.of(2), LifeLikeRule.SEEDS.getBirthCounts());
-    Assert.assertEquals(Set.of(), LifeLikeRule.SEEDS.getSurvivalCounts());
+    LifeLikeRule seeds = LifeLikePreset.SEEDS.toRule();
+    Assert.assertEquals("B2/S", seeds.getNotation());
+    Assert.assertEquals(Set.of(2), seeds.getBirthCounts());
+    Assert.assertEquals(Set.of(), seeds.getSurvivalCounts());
   }
 
   @Test
-  public void testConstructorWithPreset() {
-    LifeLikeRule conwayFromPreset = new LifeLikeRule(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
-    Assert.assertEquals(LifeLikeRule.CONWAYS_GAME_OF_LIFE, conwayFromPreset);
-    Assert.assertEquals("B3/S23", conwayFromPreset.getNotation());
-  }
+  public void testHighLifeB6BirthBehaviorComparedToConway() {
+    LifeLikeRule conway = LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule();
+    LifeLikeRule highLife = LifeLikePreset.HIGH_LIFE.toRule();
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructorWithNullPresetThrows() {
-    new LifeLikeRule((LifeLikePreset) null);
+    // Dead cell with 6 live neighbors is born in HighLife, stays dead in Conway
+    Assert.assertTrue(highLife.isBirth(6));
+    Assert.assertFalse(conway.isBirth(6));
+
+    Assert.assertTrue(highLife.evaluate(false, 6));
+    Assert.assertFalse(conway.evaluate(false, 6));
+
+    Assert.assertEquals(1, highLife.evaluate(0, 6));
+    Assert.assertEquals(0, conway.evaluate(0, 6));
+
+    // Dead cell with 3 live neighbors is born in both
+    Assert.assertTrue(highLife.isBirth(3));
+    Assert.assertTrue(conway.isBirth(3));
+    Assert.assertTrue(highLife.evaluate(false, 3));
+    Assert.assertTrue(conway.evaluate(false, 3));
+
+    // Live cells with 2 or 3 survive in both
+    Assert.assertTrue(highLife.isSurvival(2));
+    Assert.assertTrue(conway.isSurvival(2));
+    Assert.assertTrue(highLife.isSurvival(3));
+    Assert.assertTrue(conway.isSurvival(3));
+
+    // Live cell with 6 dies in both (S is 23 for both)
+    Assert.assertFalse(highLife.isSurvival(6));
+    Assert.assertFalse(conway.isSurvival(6));
+    Assert.assertFalse(highLife.evaluate(true, 6));
+    Assert.assertFalse(conway.evaluate(true, 6));
   }
 
   @Test
@@ -152,7 +178,7 @@ public class LifeLikeRuleTest {
 
   @Test
   public void testEvaluateBooleanAndIntegerStatesConway() {
-    LifeLikeRule conway = LifeLikeRule.CONWAYS_GAME_OF_LIFE;
+    LifeLikeRule conway = LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule();
 
     // Dead cell (currentlyAlive = false, currentState = 0)
     for (int count = 0; count <= 8; count++) {
@@ -175,35 +201,36 @@ public class LifeLikeRuleTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEvaluateBooleanRejectsNegativeCount() {
-    LifeLikeRule.CONWAYS_GAME_OF_LIFE.evaluate(false, -1);
+    LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule().evaluate(false, -1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEvaluateBooleanRejectsCountAbove8() {
-    LifeLikeRule.CONWAYS_GAME_OF_LIFE.evaluate(true, 9);
+    LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule().evaluate(true, 9);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEvaluateIntRejectsInvalidCellState2() {
-    LifeLikeRule.CONWAYS_GAME_OF_LIFE.evaluate(2, 3);
+    LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule().evaluate(2, 3);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEvaluateIntRejectsInvalidCellStateNegative() {
-    LifeLikeRule.CONWAYS_GAME_OF_LIFE.evaluate(-1, 3);
+    LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule().evaluate(-1, 3);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEvaluateIntRejectsNegativeCount() {
-    LifeLikeRule.CONWAYS_GAME_OF_LIFE.evaluate(0, -1);
+    LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule().evaluate(0, -1);
   }
 
   @Test
   public void testIsBirthAndIsSurvivalOutOfBoundsReturnFalse() {
-    Assert.assertFalse(LifeLikeRule.CONWAYS_GAME_OF_LIFE.isBirth(-1));
-    Assert.assertFalse(LifeLikeRule.CONWAYS_GAME_OF_LIFE.isBirth(9));
-    Assert.assertFalse(LifeLikeRule.CONWAYS_GAME_OF_LIFE.isSurvival(-1));
-    Assert.assertFalse(LifeLikeRule.CONWAYS_GAME_OF_LIFE.isSurvival(9));
+    LifeLikeRule conway = LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule();
+    Assert.assertFalse(conway.isBirth(-1));
+    Assert.assertFalse(conway.isBirth(9));
+    Assert.assertFalse(conway.isSurvival(-1));
+    Assert.assertFalse(conway.isSurvival(9));
   }
 
   @Test
@@ -264,8 +291,8 @@ public class LifeLikeRuleTest {
   @Test
   public void testValueObjectContracts() {
     LifeLikeRule conway1 = new LifeLikeRule(Set.of(3), Set.of(2, 3));
-    LifeLikeRule conway2 = LifeLikeRule.CONWAYS_GAME_OF_LIFE;
-    LifeLikeRule highLife = LifeLikeRule.HIGH_LIFE;
+    LifeLikeRule conway2 = LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule();
+    LifeLikeRule highLife = LifeLikePreset.HIGH_LIFE.toRule();
 
     Assert.assertEquals(conway1, conway1);
     Assert.assertEquals(conway1, conway2);
