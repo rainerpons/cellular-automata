@@ -1,7 +1,7 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.engine.SeedType;
-import com.cellularautomata.engine.presets.LifeLikePreset;
+import com.cellularautomata.config.SeedType;
+import com.cellularautomata.engine.rules.LifeLikePreset;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.List;
@@ -158,14 +158,14 @@ public class LifeLikeParametersPanelTest {
   }
 
   @Test
-  public void testSettingNullPresetDirectlyLeavesCurrentCountsUnchanged() {
+  public void testSelectingCustomPresetDirectlyLeavesCurrentCountsUnchanged() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
           panel.selectPreset(LifeLikePreset.HIGH_LIFE);
 
-          panel.selectPreset(null);
-          Assert.assertEquals(LifeLikePreset.HIGH_LIFE, panel.getPreset());
+          panel.selectPreset(LifeLikePreset.CUSTOM);
+          Assert.assertEquals(LifeLikePreset.CUSTOM, panel.getPreset());
           Assert.assertEquals(Set.of(3, 6), panel.getBirthCounts());
           Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
         });
@@ -184,8 +184,7 @@ public class LifeLikeParametersPanelTest {
           // Deselect Birth 6 and Birth 3 -> B/S23 (Custom)
           panel.toggleBirth(6);
           panel.toggleBirth(3);
-          Assert.assertNull(panel.getPreset());
-          Assert.assertTrue(panel.getSelectionModel().isCustom());
+          Assert.assertEquals(LifeLikePreset.CUSTOM, panel.getPreset());
 
           // Select Birth 2 and deselect Survival 2 and 3 -> B2/S (Seeds)
           panel.toggleBirth(2);

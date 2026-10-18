@@ -1,6 +1,6 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.engine.SeedType;
+import com.cellularautomata.config.SeedType;
 
 /**
  * Contract for parameter panels in workspaces that configure cellular automata using numeric rules.

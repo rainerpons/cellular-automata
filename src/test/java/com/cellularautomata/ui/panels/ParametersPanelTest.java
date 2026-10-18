@@ -1,6 +1,6 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.engine.SeedType;
+import com.cellularautomata.config.SeedType;
 import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.TotalisticRule;
 import com.cellularautomata.ui.JavaFxTestHelper;

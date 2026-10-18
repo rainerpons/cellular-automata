@@ -1,6 +1,6 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.engine.presets.LifeLikePreset;
+import com.cellularautomata.engine.rules.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import java.util.Set;
 import java.util.TreeSet;
@@ -20,17 +20,14 @@ final class LifeLikeRuleSelectionModel {
 
   private final Set<Integer> birthCounts = new TreeSet<>();
   private final Set<Integer> survivalCounts = new TreeSet<>();
+  private LifeLikePreset preset;
 
   LifeLikeRuleSelectionModel() {
     selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
   }
 
   LifeLikePreset getPreset() {
-    return LifeLikePreset.fromCounts(birthCounts, survivalCounts).orElse(null);
-  }
-
-  boolean isCustom() {
-    return getPreset() == null;
+    return preset;
   }
 
   Set<Integer> getBirthCounts() {
@@ -64,10 +61,13 @@ final class LifeLikeRuleSelectionModel {
     if (preset == null) {
       throw new IllegalArgumentException("Preset cannot be null.");
     }
-    birthCounts.clear();
-    birthCounts.addAll(preset.getBirthCounts());
-    survivalCounts.clear();
-    survivalCounts.addAll(preset.getSurvivalCounts());
+    this.preset = preset;
+    if (!preset.isCustom()) {
+      birthCounts.clear();
+      birthCounts.addAll(preset.getBirthCounts());
+      survivalCounts.clear();
+      survivalCounts.addAll(preset.getSurvivalCounts());
+    }
   }
 
   boolean setBirthSelected(int neighborCount, boolean selected) {
@@ -98,6 +98,7 @@ final class LifeLikeRuleSelectionModel {
     } else {
       targetCounts.remove(neighborCount);
     }
+    preset = LifeLikePreset.fromCounts(birthCounts, survivalCounts);
     return true;
   }
 
