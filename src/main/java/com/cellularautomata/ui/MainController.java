@@ -1,5 +1,6 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.config.SeedType;
 import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.automata.AutomataEngine;
@@ -8,11 +9,14 @@ import com.cellularautomata.engine.rules.Rule;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
-import com.cellularautomata.ui.panels.ParametersPanel;
+import com.cellularautomata.ui.panels.ElementaryParametersPanel;
+import com.cellularautomata.ui.panels.TotalisticParametersPanel;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.OptionalInt;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -20,7 +24,10 @@ import javafx.stage.Window;
 /** Controller responsible for coordinating actions between the UI panels and the core engine. */
 class MainController {
   private final DisplayPanel displayPanel;
-  private final ParametersPanel parametersPanel;
+  private final IntSupplier sizeSupplier;
+  private final IntSupplier statesSupplier;
+  private final Supplier<String> ruleTextSupplier;
+  private final Supplier<SeedType> seedTypeSupplier;
   private final CommandsPanel commandsPanel;
   private final DialogService dialogService;
   private final WorkspaceConfig config;
@@ -29,22 +36,71 @@ class MainController {
   private Rule rule;
 
   /**
-   * Constructs the main controller to wire up the application logic.
+   * Constructs the main controller for the Elementary workspace.
    *
    * @param displayPanel the display panel
-   * @param parametersPanel the parameters panel
+   * @param parametersPanel the Elementary parameters panel
    * @param commandsPanel the commands panel
    * @param dialogService the dialog service
    * @param config the workspace configuration
    */
   MainController(
       DisplayPanel displayPanel,
-      ParametersPanel parametersPanel,
+      ElementaryParametersPanel parametersPanel,
+      CommandsPanel commandsPanel,
+      DialogService dialogService,
+      WorkspaceConfig config) {
+    this(
+        displayPanel,
+        parametersPanel::getSizeValue,
+        parametersPanel::getStatesValue,
+        parametersPanel::getRuleText,
+        parametersPanel::getSeedType,
+        commandsPanel,
+        dialogService,
+        config);
+  }
+
+  /**
+   * Constructs the main controller for the Totalistic workspace.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the Totalistic parameters panel
+   * @param commandsPanel the commands panel
+   * @param dialogService the dialog service
+   * @param config the workspace configuration
+   */
+  MainController(
+      DisplayPanel displayPanel,
+      TotalisticParametersPanel parametersPanel,
+      CommandsPanel commandsPanel,
+      DialogService dialogService,
+      WorkspaceConfig config) {
+    this(
+        displayPanel,
+        parametersPanel::getSizeValue,
+        parametersPanel::getStatesValue,
+        parametersPanel::getRuleText,
+        parametersPanel::getSeedType,
+        commandsPanel,
+        dialogService,
+        config);
+  }
+
+  private MainController(
+      DisplayPanel displayPanel,
+      IntSupplier sizeSupplier,
+      IntSupplier statesSupplier,
+      Supplier<String> ruleTextSupplier,
+      Supplier<SeedType> seedTypeSupplier,
       CommandsPanel commandsPanel,
       DialogService dialogService,
       WorkspaceConfig config) {
     this.displayPanel = displayPanel;
-    this.parametersPanel = parametersPanel;
+    this.sizeSupplier = sizeSupplier;
+    this.statesSupplier = statesSupplier;
+    this.ruleTextSupplier = ruleTextSupplier;
+    this.seedTypeSupplier = seedTypeSupplier;
     this.commandsPanel = commandsPanel;
     this.dialogService = dialogService;
     this.config = config;
@@ -57,7 +113,7 @@ class MainController {
   }
 
   private void generateAutomaton() {
-    int states = parametersPanel.getStatesValue();
+    int states = statesSupplier.getAsInt();
 
     // Defensive safeguard for manual text entry outside the spinner bounds
     if (config.supportsCustomStates()
@@ -68,7 +124,7 @@ class MainController {
 
     int maxRule = config.getMaxRule(states);
     OptionalInt parsedRule =
-        RuleValidator.parseRule(parametersPanel.getRuleText(), config.getMinRule(), maxRule);
+        RuleValidator.parseRule(ruleTextSupplier.get(), config.getMinRule(), maxRule);
     if (!parsedRule.isPresent()) {
       dialogService.showRuleError(config.getMinRule(), maxRule);
       return;
@@ -78,7 +134,7 @@ class MainController {
     rule = config.instantiateRule(parsedRuleInt, states);
     AutomataResult result =
         AutomataEngine.generate(
-            rule, parametersPanel.getSizeValue(), states, parametersPanel.getSeedType());
+            rule, sizeSupplier.getAsInt(), states, seedTypeSupplier.get().getDisplayName());
 
     BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap(), states);
     resizedAutomatonImage = AutomatonImage.resizeImage(400, 400, automatonImage);
@@ -104,8 +160,8 @@ class MainController {
         generateFileName(
             config,
             rule.getRuleNumber(),
-            parametersPanel.getSizeValue(),
-            parametersPanel.getStatesValue(),
+            sizeSupplier.getAsInt(),
+            statesSupplier.getAsInt(),
             java.time.LocalDateTime.now()));
     Window window = displayPanel.getScene().getWindow();
     File file = fileChooser.showSaveDialog(window);
@@ -133,6 +189,8 @@ class MainController {
       case TOTALISTIC ->
           String.format(
               "%s_states%d_rule%d_size%d_%s.png", baseName, states, ruleNumber, size, timestamp);
+      case LIFE_LIKE ->
+          throw new UnsupportedOperationException("Life-like image saving is not yet supported");
     };
   }
 }

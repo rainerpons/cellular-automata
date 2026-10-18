@@ -15,22 +15,33 @@ import javafx.scene.text.TextAlignment;
  * automaton image, or a placeholder prompt before generation.
  */
 public final class DisplayPanel extends VBox {
+  public static final String DEFAULT_PLACEHOLDER_TEXT =
+      "Click the Generate automaton button to begin.\n\nSelect size, rule, and seed type.";
+  public static final String LIFE_LIKE_PLACEHOLDER_TEXT =
+      "Click Play or Step to begin.\n\nSelect size, preset, seed type, and birth/survival rules.";
+
   private final Label placeholderLabel;
   private final ImageView automatonImageView;
   private final StackPane imageContainer;
 
-  /** Constructs the display panel. */
+  /** Constructs the display panel with the default 1D generation placeholder text. */
   public DisplayPanel() {
+    this(DEFAULT_PLACEHOLDER_TEXT);
+  }
 
+  /**
+   * Constructs the display panel with the specified placeholder text.
+   *
+   * @param placeholderText the initial prompt displayed before an automaton is shown
+   */
+  public DisplayPanel(String placeholderText) {
     // Add section heading.
     Label displayHeading = UiStyles.createHeading("Display");
     VBox.setMargin(displayHeading, new Insets(0, 0, UiStyles.DISPLAY_HEADING_GAP, 0));
     getChildren().add(displayHeading);
 
     // Add placeholder label, replaced by the automaton image after generation.
-    placeholderLabel =
-        new Label(
-            "Click the Generate automaton button to begin.\n\nSelect size, rule, and seed type.");
+    placeholderLabel = new Label(placeholderText);
     placeholderLabel.setTextAlignment(TextAlignment.CENTER);
     placeholderLabel.setAlignment(Pos.CENTER);
     placeholderLabel.getStyleClass().add("placeholder");
@@ -61,5 +72,9 @@ public final class DisplayPanel extends VBox {
     if (!imageContainer.getChildren().contains(automatonImageView)) {
       imageContainer.getChildren().add(automatonImageView);
     }
+  }
+
+  public String getPlaceholderText() {
+    return placeholderLabel.getText();
   }
 }
