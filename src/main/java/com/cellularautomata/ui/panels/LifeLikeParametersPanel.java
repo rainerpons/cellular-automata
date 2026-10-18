@@ -1,13 +1,11 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.config.LifeLikePreset;
 import com.cellularautomata.config.SeedType;
+import com.cellularautomata.engine.rules.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.ui.shared.LabeledSlider;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javafx.scene.control.ComboBox;
@@ -23,13 +21,6 @@ import javafx.scene.layout.Priority;
  * and birth and survival neighbor count toggles (0 to 8).
  */
 public final class LifeLikeParametersPanel {
-  /**
-   * Intentional UI cap limiting selection to at most two birth counts and two survival counts for
-   * the current workspace scope. Kept in the UI layer rather than {@link LifeLikeRule} or {@link
-   * LifeLikePreset} because general Life-like cellular automata permit any subset of 0..8.
-   */
-  static final int MAX_SELECTED_COUNTS_PER_SET = 2;
-
   static final int MIN_DENSITY = 0;
   static final int MAX_DENSITY = 100;
   static final int DEFAULT_DENSITY = 50;
@@ -46,6 +37,7 @@ public final class LifeLikeParametersPanel {
   private static final int TOGGLE_GAP = 4;
   private static final int TOGGLE_MIN_WIDTH = 28;
 
+  private final LifeLikeRuleSelectionModel selectionModel = new LifeLikeRuleSelectionModel();
   private final ParametersPanel panel = new ParametersPanel();
   private final List<ToggleButton> birthToggles = new ArrayList<>();
   private final List<ToggleButton> survivalToggles = new ArrayList<>();
@@ -63,15 +55,15 @@ public final class LifeLikeParametersPanel {
     presetComboBox = addPresetRow();
     seedComboBox = panel.addSeedTypeRow(List.of(SeedType.values()), SeedType.DENSITY, true);
     densitySlider = addDensityRow();
-    panel.addControlRow("Birth", BIRTH_TOOLTIP, createNeighborToggleRow(birthToggles), true);
+    panel.addControlRow("Birth", BIRTH_TOOLTIP, createNeighborToggleRow(birthToggles, true), true);
     panel.addControlRow(
-        "Survival", SURVIVAL_TOOLTIP, createNeighborToggleRow(survivalToggles), false);
+        "Survival", SURVIVAL_TOOLTIP, createNeighborToggleRow(survivalToggles, false), false);
 
     seedComboBox
         .valueProperty()
         .addListener((obs, oldVal, newVal) -> densitySlider.setVisible(newVal == SeedType.DENSITY));
 
-    applyPresetSelection(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+    syncControlsFromModel();
   }
 
   public int getSizeValue() {
@@ -79,15 +71,15 @@ public final class LifeLikeParametersPanel {
   }
 
   public LifeLikePreset getPreset() {
-    return presetComboBox.getValue();
+    return selectionModel.getPreset();
   }
 
   public Set<Integer> getBirthCounts() {
-    return getSelectedCounts(birthToggles);
+    return selectionModel.getBirthCounts();
   }
 
   public Set<Integer> getSurvivalCounts() {
-    return getSelectedCounts(survivalToggles);
+    return selectionModel.getSurvivalCounts();
   }
 
   public SeedType getSeedType() {
@@ -100,6 +92,10 @@ public final class LifeLikeParametersPanel {
 
   ParametersPanel getPanel() {
     return panel;
+  }
+
+  LifeLikeRuleSelectionModel getSelectionModel() {
+    return selectionModel;
   }
 
   void setSizeValue(int size) {
@@ -176,10 +172,11 @@ public final class LifeLikeParametersPanel {
         .valueProperty()
         .addListener(
             (obs, oldVal, newVal) -> {
-              if (updatingControls || newVal == null || newVal.isCustom()) {
+              if (updatingControls || newVal == null) {
                 return;
               }
-              applyPresetSelection(newVal);
+              selectionModel.selectPreset(newVal);
+              syncControlsFromModel();
             });
     panel.addControlRow("Preset", null, comboBox, true);
     return comboBox;
@@ -199,12 +196,13 @@ public final class LifeLikeParametersPanel {
     return slider;
   }
 
-  private HBox createNeighborToggleRow(List<ToggleButton> targetList) {
+  private HBox createNeighborToggleRow(List<ToggleButton> targetList, boolean isBirth) {
     HBox row = new HBox(TOGGLE_GAP);
     GridPane.setHgrow(row, Priority.ALWAYS);
     for (int count = LifeLikeRule.MIN_NEIGHBOR_COUNT;
         count <= LifeLikeRule.MAX_NEIGHBOR_COUNT;
         count++) {
+      final int neighborCount = count;
       ToggleButton toggle = new ToggleButton(Integer.toString(count));
       toggle.getStyleClass().add("neighbor-toggle");
       UiStyles.applyControlHeight(toggle);
@@ -213,84 +211,43 @@ public final class LifeLikeParametersPanel {
       HBox.setHgrow(toggle, Priority.ALWAYS);
       toggle
           .selectedProperty()
-          .addListener((obs, oldVal, newVal) -> handleNeighborToggleChange(targetList, toggle));
+          .addListener(
+              (obs, oldVal, newVal) -> handleNeighborToggleChange(isBirth, neighborCount, newVal));
       targetList.add(toggle);
       row.getChildren().add(toggle);
     }
     return row;
   }
 
-  private void applyPresetSelection(LifeLikePreset preset) {
-    updatingControls = true;
-    try {
-      applyCountsToToggles(birthToggles, preset.getBirthCounts());
-      applyCountsToToggles(survivalToggles, preset.getSurvivalCounts());
-    } finally {
-      updatingControls = false;
-    }
-  }
-
-  private void applyCountsToToggles(List<ToggleButton> toggles, Set<Integer> counts) {
-    for (int i = 0; i < toggles.size(); i++) {
-      ToggleButton toggle = toggles.get(i);
-      toggle.setDisable(false);
-      toggle.setSelected(counts.contains(i));
-    }
-    updateToggleSetDisabledState(toggles);
-  }
-
-  private void handleNeighborToggleChange(List<ToggleButton> toggles, ToggleButton changedToggle) {
+  private void handleNeighborToggleChange(boolean isBirth, int neighborCount, boolean selected) {
     if (updatingControls) {
       return;
     }
-    // Enforce the UI-level cap of at most two selected neighbor counts per set.
-    if (changedToggle.isSelected() && countSelected(toggles) > MAX_SELECTED_COUNTS_PER_SET) {
-      updatingControls = true;
-      try {
-        changedToggle.setSelected(false);
-      } finally {
-        updatingControls = false;
-      }
-      return;
+    if (isBirth) {
+      selectionModel.setBirthSelected(neighborCount, selected);
+    } else {
+      selectionModel.setSurvivalSelected(neighborCount, selected);
     }
+    syncControlsFromModel();
+  }
 
-    updateToggleSetDisabledState(toggles);
-
-    Set<Integer> birthCounts = getBirthCounts();
-    Set<Integer> survivalCounts = getSurvivalCounts();
-
+  private void syncControlsFromModel() {
     updatingControls = true;
     try {
-      presetComboBox.setValue(LifeLikePreset.fromCounts(birthCounts, survivalCounts));
+      presetComboBox.setValue(selectionModel.getPreset());
+      for (int count = LifeLikeRule.MIN_NEIGHBOR_COUNT;
+          count <= LifeLikeRule.MAX_NEIGHBOR_COUNT;
+          count++) {
+        ToggleButton birthToggle = birthToggles.get(count);
+        birthToggle.setSelected(selectionModel.isBirthSelected(count));
+        birthToggle.setDisable(selectionModel.isBirthToggleDisabled(count));
+
+        ToggleButton survivalToggle = survivalToggles.get(count);
+        survivalToggle.setSelected(selectionModel.isSurvivalSelected(count));
+        survivalToggle.setDisable(selectionModel.isSurvivalToggleDisabled(count));
+      }
     } finally {
       updatingControls = false;
     }
-  }
-
-  private void updateToggleSetDisabledState(List<ToggleButton> toggles) {
-    boolean limitReached = countSelected(toggles) >= MAX_SELECTED_COUNTS_PER_SET;
-    for (ToggleButton toggle : toggles) {
-      toggle.setDisable(limitReached && !toggle.isSelected());
-    }
-  }
-
-  private int countSelected(List<ToggleButton> toggles) {
-    int selected = 0;
-    for (ToggleButton toggle : toggles) {
-      if (toggle.isSelected()) {
-        selected++;
-      }
-    }
-    return selected;
-  }
-
-  private Set<Integer> getSelectedCounts(List<ToggleButton> toggles) {
-    Set<Integer> counts = new LinkedHashSet<>();
-    for (int i = 0; i < toggles.size(); i++) {
-      if (toggles.get(i).isSelected()) {
-        counts.add(i);
-      }
-    }
-    return Collections.unmodifiableSet(counts);
   }
 }

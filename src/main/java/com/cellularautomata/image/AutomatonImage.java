@@ -17,6 +17,9 @@ import javax.imageio.ImageIO;
  */
 public final class AutomatonImage {
 
+  /** Standard width and height in pixels for the rendered automaton display image. */
+  public static final int DISPLAY_IMAGE_SIZE = 400;
+
   private AutomatonImage() {
     throw new IllegalStateException("Utility class");
   }
@@ -54,7 +57,7 @@ public final class AutomatonImage {
 
   /**
    * Generates a resized version of a buffered image created by the method {@link
-   * #getImageFromMap(Map)}.
+   * #getImageFromMap(Map, int)}.
    *
    * @param width desired width of new image
    * @param height desired height of new image

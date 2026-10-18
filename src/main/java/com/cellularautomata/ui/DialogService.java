@@ -1,6 +1,9 @@
 package com.cellularautomata.ui;
 
+import java.io.File;
 import javafx.scene.control.Alert;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 /** Service responsible for creating and displaying dialogs to the user. */
 public class DialogService {
@@ -43,6 +46,24 @@ public class DialogService {
             "The automaton image could not be saved.\n"
                 + "Please check that the selected location is writable and try again.");
     alert.showAndWait();
+  }
+
+  /**
+   * Displays a file save dialog configured with an optional initial directory and default file
+   * name.
+   *
+   * @param owner the owner window for the file chooser dialog
+   * @param initialDirectory the initial directory to open, if it exists
+   * @param initialFileName the default file name to populate
+   * @return the selected destination file, or {@code null} if the user cancels
+   */
+  public File showSaveFileDialog(Window owner, File initialDirectory, String initialFileName) {
+    FileChooser fileChooser = new FileChooser();
+    if (initialDirectory != null && initialDirectory.exists() && initialDirectory.isDirectory()) {
+      fileChooser.setInitialDirectory(initialDirectory);
+    }
+    fileChooser.setInitialFileName(initialFileName);
+    return fileChooser.showSaveDialog(owner);
   }
 
   private Alert createStyledErrorDialog(String title, String message) {

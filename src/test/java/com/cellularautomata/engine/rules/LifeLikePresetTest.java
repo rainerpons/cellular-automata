@@ -1,4 +1,4 @@
-package com.cellularautomata.config;
+package com.cellularautomata.engine.rules;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -6,6 +6,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+/** Tests for {@link LifeLikePreset}. */
 public class LifeLikePresetTest {
 
   @Test
@@ -32,38 +33,6 @@ public class LifeLikePresetTest {
   }
 
   @Test
-  public void testFormatNotationForPresetsAndEdgeCases() {
-    Assert.assertEquals("B3/S23", LifeLikePreset.formatNotation(Set.of(3), Set.of(2, 3)));
-    Assert.assertEquals("B36/S23", LifeLikePreset.formatNotation(Set.of(6, 3), Set.of(3, 2)));
-    Assert.assertEquals("B2/S", LifeLikePreset.formatNotation(Set.of(2), Set.of()));
-    Assert.assertEquals("B/S", LifeLikePreset.formatNotation(Set.of(), Set.of()));
-    Assert.assertEquals("B0/S", LifeLikePreset.formatNotation(Set.of(0), Set.of()));
-    Assert.assertEquals("B/S0", LifeLikePreset.formatNotation(Set.of(), Set.of(0)));
-    Assert.assertEquals("B08/S08", LifeLikePreset.formatNotation(Set.of(8, 0), Set.of(8, 0)));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testFormatNotationRejectsNegativeCount() {
-    LifeLikePreset.formatNotation(Set.of(-1), Set.of(2));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testFormatNotationRejectsOutOfRangeCount() {
-    LifeLikePreset.formatNotation(Set.of(3), Set.of(9));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testFormatNotationRejectsNullSet() {
-    LifeLikePreset.formatNotation(null, Set.of(2, 3));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testFormatNotationRejectsNullElement() {
-    Set<Integer> countsWithNull = new HashSet<>(Arrays.asList(2, null));
-    LifeLikePreset.formatNotation(countsWithNull, Set.of(2, 3));
-  }
-
-  @Test
   public void testFromCountsResolvesMatchingPresetOrCustom() {
     Assert.assertEquals(
         LifeLikePreset.CONWAYS_GAME_OF_LIFE, LifeLikePreset.fromCounts(Set.of(3), Set.of(2, 3)));
@@ -77,7 +46,23 @@ public class LifeLikePresetTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testFromCountsRejectsNull() {
+  public void testFromCountsRejectsNullSet() {
     LifeLikePreset.fromCounts(null, Set.of(2, 3));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFromCountsRejectsNullElement() {
+    Set<Integer> countsWithNull = new HashSet<>(Arrays.asList(2, null));
+    LifeLikePreset.fromCounts(countsWithNull, Set.of(2, 3));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFromCountsRejectsNegativeCount() {
+    LifeLikePreset.fromCounts(Set.of(-1), Set.of(2, 3));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFromCountsRejectsOutOfRangeCount() {
+    LifeLikePreset.fromCounts(Set.of(3), Set.of(9));
   }
 }

@@ -1,7 +1,7 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.config.LifeLikePreset;
 import com.cellularautomata.config.SeedType;
+import com.cellularautomata.engine.rules.LifeLikePreset;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.List;

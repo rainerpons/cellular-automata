@@ -1,7 +1,8 @@
 package com.cellularautomata.ui.panels;
 
 import com.cellularautomata.config.SeedType;
-import com.cellularautomata.config.WorkspaceConfig;
+import com.cellularautomata.engine.rules.ElementaryRule;
+import com.cellularautomata.engine.rules.TotalisticRule;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import java.util.List;
 import javafx.scene.control.Label;
@@ -26,10 +27,9 @@ public class ParametersPanelTest {
 
           Assert.assertEquals(8, panel.getSizeValue());
           Assert.assertEquals("Size (8)", panel.getSizeLabelText());
+          Assert.assertEquals(ElementaryRule.STATE_COUNT, panel.getStatesValue());
           Assert.assertEquals(
-              WorkspaceConfig.ELEMENTARY.getDefaultStates(), panel.getStatesValue());
-          Assert.assertEquals(
-              Integer.toString(WorkspaceConfig.ELEMENTARY.getDefaultRule()), panel.getRuleText());
+              Integer.toString(ElementaryRule.DEFAULT_RULE_NUMBER), panel.getRuleText());
           Assert.assertEquals(SeedType.UNIFORM, panel.getSeedType());
           Assert.assertEquals(
               List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
@@ -64,10 +64,9 @@ public class ParametersPanelTest {
 
           Assert.assertEquals(8, panel.getSizeValue());
           Assert.assertEquals("Size (8)", panel.getSizeLabelText());
+          Assert.assertEquals(TotalisticRule.DEFAULT_STATES, panel.getStatesValue());
           Assert.assertEquals(
-              WorkspaceConfig.TOTALISTIC.getDefaultStates(), panel.getStatesValue());
-          Assert.assertEquals(
-              Integer.toString(WorkspaceConfig.TOTALISTIC.getDefaultRule()), panel.getRuleText());
+              Integer.toString(TotalisticRule.DEFAULT_RULE_NUMBER), panel.getRuleText());
           Assert.assertEquals(SeedType.UNIFORM, panel.getSeedType());
           Assert.assertEquals(
               List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),

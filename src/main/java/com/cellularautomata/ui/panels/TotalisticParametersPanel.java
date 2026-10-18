@@ -1,7 +1,7 @@
 package com.cellularautomata.ui.panels;
 
 import com.cellularautomata.config.SeedType;
-import com.cellularautomata.config.WorkspaceConfig;
+import com.cellularautomata.engine.rules.TotalisticRule;
 import com.cellularautomata.ui.shared.LabeledSlider;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
@@ -11,9 +11,7 @@ import javafx.scene.control.Spinner;
  * ParametersPanel} to configure automaton size, state count, totalistic rule number, and
  * one-dimensional seed type.
  */
-public final class TotalisticParametersPanel {
-  private static final WorkspaceConfig CONFIG = WorkspaceConfig.TOTALISTIC;
-
+public final class TotalisticParametersPanel implements NumericRuleParametersPanel {
   private final ParametersPanel panel = new ParametersPanel();
   private final LabeledSlider sizeSlider;
   private final Spinner<Integer> statesSpinner;
@@ -27,29 +25,33 @@ public final class TotalisticParametersPanel {
     sizeSlider = panel.addSizeSliderRow();
     statesSpinner =
         NumericSpinnerFactory.createIntegerSpinner(
-            CONFIG.getMinStates(), CONFIG.getMaxStates(), CONFIG.getDefaultStates());
+            TotalisticRule.MIN_STATES, TotalisticRule.MAX_STATES, TotalisticRule.DEFAULT_STATES);
     panel.addControlRow("States", null, statesSpinner, true);
     ruleSpinner =
         NumericSpinnerFactory.createRuleSpinner(
-            CONFIG.getMinRule(),
-            CONFIG.getDefaultRule(),
-            () -> CONFIG.getMaxRule(getStatesValue()));
+            TotalisticRule.MIN_RULE_NUMBER,
+            TotalisticRule.DEFAULT_RULE_NUMBER,
+            () -> TotalisticRule.calculateMaxRule(getStatesValue()));
     panel.addControlRow("Rule number", null, ruleSpinner, true);
     seedComboBox = panel.addSeedTypeRow(SeedType.oneDimensionalValues(), SeedType.UNIFORM, false);
   }
 
+  @Override
   public int getSizeValue() {
     return sizeSlider.getValue();
   }
 
+  @Override
   public int getStatesValue() {
     return statesSpinner.getValue();
   }
 
+  @Override
   public String getRuleText() {
     return ruleSpinner.getEditor().getText();
   }
 
+  @Override
   public SeedType getSeedType() {
     return seedComboBox.getValue();
   }
