@@ -13,21 +13,46 @@ import org.junit.Assert;
 public final class JavaFxTestHelper {
   private static final long TIMEOUT_SECONDS = 5;
 
+  private static boolean initialized;
+  private static Throwable initializationFailure;
+
   private JavaFxTestHelper() {}
 
-  /** Initializes the JavaFX toolkit if it is not already running. */
-  public static void ensureToolkitInitialized() {
+  /**
+   * Initializes the JavaFX toolkit once if it is not already running, or rethrows the recorded
+   * failure if a prior initialization attempt failed.
+   */
+  public static synchronized void ensureToolkitInitialized() {
+    if (initialized) {
+      return;
+    }
+    if (initializationFailure != null) {
+      throw new IllegalStateException(
+          "JavaFX toolkit initialization previously failed", initializationFailure);
+    }
+
     CountDownLatch latch = new CountDownLatch(1);
     try {
       Platform.startup(latch::countDown);
-      Assert.assertTrue(
-          "Timed out waiting for JavaFX toolkit startup",
-          latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
-    } catch (IllegalStateException e) {
-      // Toolkit already initialized
+      if (!latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        initializationFailure =
+            new IllegalStateException(
+                "Timed out waiting for JavaFX toolkit startup after "
+                    + TIMEOUT_SECONDS
+                    + " seconds");
+      } else {
+        initialized = true;
+      }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw new AssertionError("Interrupted while initializing JavaFX toolkit", e);
+      initializationFailure =
+          new IllegalStateException("Interrupted while initializing JavaFX toolkit", e);
+    } catch (Throwable t) {
+      initializationFailure = t;
+    }
+
+    if (initializationFailure != null) {
+      throw new IllegalStateException("Failed to initialize JavaFX toolkit", initializationFailure);
     }
   }
 
