@@ -2,7 +2,6 @@ package com.cellularautomata.engine;
 
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import java.util.Arrays;
-import java.util.Random;
 import java.util.function.BiPredicate;
 
 /**
@@ -18,14 +17,12 @@ public final class Grid2D {
    * Constructs an empty (all dead) square grid of the specified size.
    *
    * @param size side length of the square grid (N &gt;= 1)
-   * @throws IllegalArgumentException if size is less than 1
+   * @throws IllegalArgumentException if size is less than 1 or causes integer overflow
    */
   public Grid2D(int size) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Grid size must be at least 1: " + size);
-    }
+    int totalCells = validateSize(size);
     this.size = size;
-    this.cells = new boolean[size * size];
+    this.cells = new boolean[totalCells];
     this.liveCellCount = 0;
   }
 
@@ -34,27 +31,25 @@ public final class Grid2D {
    *
    * @param size side length of the square grid (N &gt;= 1)
    * @param matrix 2D boolean array representing cell states (row-major)
-   * @throws IllegalArgumentException if size &lt; 1, matrix is null, or dimensions do not match
-   *     size
+   * @throws IllegalArgumentException if size &lt; 1, size causes integer overflow, matrix is null,
+   *     or dimensions do not match size
    */
   public Grid2D(int size, boolean[][] matrix) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Grid size must be at least 1: " + size);
-    }
     if (matrix == null) {
       throw new IllegalArgumentException("Matrix cannot be null.");
     }
     if (matrix.length != size) {
       throw new IllegalArgumentException(
-          "Matrix row count " + matrix.length + " does not match size " + size);
+          "Matrix row count %d does not match size %d".formatted(matrix.length, size));
     }
+    int totalCells = validateSize(size);
     this.size = size;
-    this.cells = new boolean[size * size];
+    this.cells = new boolean[totalCells];
     int count = 0;
     for (int r = 0; r < size; r++) {
       if (matrix[r] == null || matrix[r].length != size) {
         throw new IllegalArgumentException(
-            "Matrix column count at row " + r + " does not match size " + size);
+            "Matrix column count at row %d does not match size %d".formatted(r, size));
       }
       int rowOffset = r * size;
       for (int c = 0; c < size; c++) {
@@ -73,17 +68,16 @@ public final class Grid2D {
    *
    * @param size side length of the square grid (N &gt;= 1)
    * @param cellInitializer predicate taking (row, col) returning true if cell is alive
-   * @throws IllegalArgumentException if size &lt; 1 or cellInitializer is null
+   * @throws IllegalArgumentException if size &lt; 1, size causes integer overflow, or
+   *     cellInitializer is null
    */
   public Grid2D(int size, BiPredicate<Integer, Integer> cellInitializer) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Grid size must be at least 1: " + size);
-    }
+    int totalCells = validateSize(size);
     if (cellInitializer == null) {
       throw new IllegalArgumentException("Cell initializer cannot be null.");
     }
     this.size = size;
-    this.cells = new boolean[size * size];
+    this.cells = new boolean[totalCells];
     int count = 0;
     for (int r = 0; r < size; r++) {
       int rowOffset = r * size;
@@ -104,6 +98,18 @@ public final class Grid2D {
     this.liveCellCount = liveCellCount;
   }
 
+  private static int validateSize(int size) {
+    if (size < 1) {
+      throw new IllegalArgumentException("Grid size must be at least 1: %d".formatted(size));
+    }
+    try {
+      return Math.multiplyExact(size, size);
+    } catch (ArithmeticException e) {
+      throw new IllegalArgumentException(
+          "Grid size causes integer overflow: %d".formatted(size), e);
+    }
+  }
+
   /**
    * Creates an empty (all dead) square grid of the specified size.
    *
@@ -114,130 +120,6 @@ public final class Grid2D {
     return new Grid2D(size);
   }
 
-  /**
-   * Creates a square grid populated according to the given alive cell probability.
-   *
-   * @param size side length of the square grid
-   * @param probability probability of each cell being alive (0.0 to 1.0 or percentage 0 to 100)
-   * @return initialized Grid2D instance
-   */
-  public static Grid2D ofDensity(int size, double probability) {
-    return ofDensity(size, probability, new Random());
-  }
-
-  /**
-   * Creates a grid populated according to the given alive probability or percentage.
-   *
-   * @param size side length of the square grid
-   * @param probability probability in [0.0, 1.0] or percentage in [0.0, 100.0]
-   * @param random random number generator
-   * @return initialized Grid2D
-   */
-  public static Grid2D ofDensity(int size, double probability, Random random) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Grid size must be at least 1: " + size);
-    }
-    if (random == null) {
-      throw new IllegalArgumentException("Random cannot be null.");
-    }
-    double normalizedProbability = probability;
-    if (normalizedProbability > 1.0 && normalizedProbability <= 100.0) {
-      normalizedProbability /= 100.0;
-    }
-    if (normalizedProbability < 0.0 || normalizedProbability > 1.0) {
-      throw new IllegalArgumentException(
-          "Probability must be between 0.0 and 1.0 (or percentage 0 to 100): " + probability);
-    }
-    if (normalizedProbability == 0.0) {
-      return empty(size);
-    }
-    double finalProb = normalizedProbability;
-    return new Grid2D(size, (r, c) -> finalProb == 1.0 || random.nextDouble() < finalProb);
-  }
-
-  /**
-   * Creates a square grid with uniform 50% alive cell distribution.
-   *
-   * @param size side length of the square grid
-   * @return initialized Grid2D instance
-   */
-  public static Grid2D ofUniform(int size) {
-    return ofUniform(size, new Random());
-  }
-
-  /**
-   * Creates a square grid with uniform 50% alive cell distribution using the specified Random.
-   *
-   * @param size side length of the square grid
-   * @param random random number generator
-   * @return initialized Grid2D instance
-   */
-  public static Grid2D ofUniform(int size, Random random) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Grid size must be at least 1: " + size);
-    }
-    if (random == null) {
-      throw new IllegalArgumentException("Random cannot be null.");
-    }
-    return new Grid2D(size, (r, c) -> random.nextBoolean());
-  }
-
-  /**
-   * Creates a square grid with a single living cell located at the center.
-   *
-   * @param size side length of the square grid
-   * @return initialized Grid2D instance
-   */
-  public static Grid2D ofSparse(int size) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Grid size must be at least 1: " + size);
-    }
-    return ofSparse(size, size / 2, size / 2);
-  }
-
-  /**
-   * Creates a square grid with a single living cell at the specified coordinates.
-   *
-   * @param size side length of the square grid
-   * @param row row coordinate of the living cell
-   * @param col column coordinate of the living cell
-   * @return initialized Grid2D instance
-   */
-  public static Grid2D ofSparse(int size, int row, int col) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Grid size must be at least 1: " + size);
-    }
-    if (row < 0 || row >= size || col < 0 || col >= size) {
-      throw new IndexOutOfBoundsException(
-          "Sparse coordinates out of bounds: (" + row + ", " + col + ") for size " + size);
-    }
-    return new Grid2D(size, (r, c) -> r == row && c == col);
-  }
-
-  /**
-   * Creates a checkerboard alternating square grid starting with an active cell at (0, 0).
-   *
-   * @param size side length of the square grid
-   * @return initialized Grid2D instance
-   */
-  public static Grid2D ofAlternating(int size) {
-    return ofAlternating(size, true);
-  }
-
-  /**
-   * Creates a checkerboard alternating square grid with the specified origin cell state.
-   *
-   * @param size side length of the square grid
-   * @param startsWithAlive true if cell (0, 0) is alive, false if dead
-   * @return initialized Grid2D instance
-   */
-  public static Grid2D ofAlternating(int size, boolean startsWithAlive) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Grid size must be at least 1: " + size);
-    }
-    return new Grid2D(size, (r, c) -> ((r + c) % 2 == 0) == startsWithAlive);
-  }
-
   public int getSize() {
     return size;
   }
@@ -246,16 +128,21 @@ public final class Grid2D {
     return row >= 0 && row < size && col >= 0 && col < size;
   }
 
-  public boolean isAlive(int row, int col) {
+  private void validateCoordinates(int row, int col) {
     if (!isInBounds(row, col)) {
       throw new IndexOutOfBoundsException(
-          "Coordinates out of bounds: (" + row + ", " + col + ") for size " + size);
+          "Coordinates out of bounds: (%d, %d) for size %d".formatted(row, col, size));
     }
+  }
+
+  public boolean isAlive(int row, int col) {
+    validateCoordinates(row, col);
     return cells[row * size + col];
   }
 
   public int getCell(int row, int col) {
-    return isAlive(row, col) ? 1 : 0;
+    validateCoordinates(row, col);
+    return cells[row * size + col] ? 1 : 0;
   }
 
   /**
@@ -268,10 +155,7 @@ public final class Grid2D {
    * @throws IndexOutOfBoundsException if (row, col) is outside the grid bounds
    */
   public int countLiveNeighbors(int row, int col) {
-    if (!isInBounds(row, col)) {
-      throw new IndexOutOfBoundsException(
-          "Coordinates out of bounds: (" + row + ", " + col + ") for size " + size);
-    }
+    validateCoordinates(row, col);
     int count = 0;
     for (int dr = -1; dr <= 1; dr++) {
       int nr = row + dr;
@@ -328,7 +212,7 @@ public final class Grid2D {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null.");
     }
-    boolean[] nextCells = new boolean[size * size];
+    boolean[] nextCells = new boolean[cells.length];
     int nextLiveCount = 0;
     for (int r = 0; r < size; r++) {
       int rowOffset = r * size;

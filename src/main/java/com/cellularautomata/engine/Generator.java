@@ -4,10 +4,8 @@ import com.cellularautomata.engine.rules.Rule;
 import java.util.Random;
 
 /**
- * The <code>Generator</code> class is a utility class for generating local update rules, initial
- * seeds, and successors of arbitrary vectors.
- *
- * @author Rainer Pons
+ * Utility class for generating local update rules, initial seeds, and successors of 1D vectors and
+ * 2D lattices.
  */
 public final class Generator {
   /** Shared random number generator. */
@@ -16,23 +14,82 @@ public final class Generator {
   /** State for the alternating seed to toggle between phases on each generation. */
   private static boolean alternatingStartsWithOne = true;
 
-  /** Prevents the instantiation of the <code>Generator</code> class. */
   private Generator() {
     throw new IllegalStateException("Generator is a utility class.");
   }
 
   /**
-   * Generates an initial seed where the state of each cell uniformly distributed.
+   * Generates a 1D seed based on the specified seed type, size, states, and Random instance.
+   *
+   * @param seedType 1D-compatible seed type
+   * @param size size of the seed
+   * @param states number of states
+   * @param random random number generator
+   * @return generated initial seed as Vector
+   * @throws IllegalArgumentException if seedType or random is null, or if seedType is DENSITY
+   */
+  // CHECKSTYLE.SUPPRESS: AbbreviationAsWordInName
+  public static Vector generate1DSeed(SeedType seedType, int size, int states, Random random) {
+    if (seedType == null) {
+      throw new IllegalArgumentException("Seed type cannot be null.");
+    }
+    if (random == null) {
+      throw new IllegalArgumentException("Random cannot be null.");
+    }
+    if (seedType == SeedType.DENSITY) {
+      throw new IllegalArgumentException("Density seed type is not supported for 1D automata.");
+    }
+    return switch (seedType) {
+      case UNIFORM -> generateSeed(size, states, random);
+      case SPARSE -> generateSparseSeed(size, states, random);
+      case ALTERNATING -> generateAlternatingSeed(size, states);
+      default ->
+          throw new IllegalArgumentException("Unsupported seed type: %s".formatted(seedType));
+    };
+  }
+
+  /**
+   * Generates a 1D seed based on seed type, size, and states using default randomness.
+   *
+   * @param seedType 1D-compatible seed type
+   * @param size size of the seed
+   * @param states number of states
+   * @return generated initial seed as Vector
+   * @throws IllegalArgumentException if seedType is null or DENSITY
+   */
+  // CHECKSTYLE.SUPPRESS: AbbreviationAsWordInName
+  public static Vector generate1DSeed(SeedType seedType, int size, int states) {
+    return generate1DSeed(seedType, size, states, RANDOM);
+  }
+
+  /**
+   * Generates an initial seed where the state of each cell is uniformly distributed.
    *
    * @param size amount of individual cells
    * @param states the number of states (2 to N)
    * @return initial seed as string
    */
   public static Vector generateSeed(int size, int states) {
+    return generateSeed(size, states, RANDOM);
+  }
+
+  /**
+   * Generates an initial seed where cell states are uniformly distributed with the given Random.
+   *
+   * @param size amount of individual cells
+   * @param states the number of states (2 to N)
+   * @param random random number generator
+   * @return initial seed as string
+   * @throws IllegalArgumentException if random is null
+   */
+  public static Vector generateSeed(int size, int states, Random random) {
+    if (random == null) {
+      throw new IllegalArgumentException("Random cannot be null.");
+    }
     StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
       for (int i = 0; i < size; i++) {
-        int val = RANDOM.nextInt(states);
+        int val = random.nextInt(states);
         seed.append(Character.forDigit(val, 10));
       }
     }
@@ -40,17 +97,32 @@ public final class Generator {
   }
 
   /**
-   * Generates a seed containing all zeroes except for a single active cell at a randomly selected
-   * position.
+   * Generates a seed containing all zeroes except for a single active cell at a random position.
    *
    * @param size size of the seed string
    * @param states number of states (used to determine the maximum active state value)
    * @return a Vector containing the sparse seed
    */
   public static Vector generateSparseSeed(int size, int states) {
+    return generateSparseSeed(size, states, RANDOM);
+  }
+
+  /**
+   * Generates a sparse seed with a single active cell at a random position using the given Random.
+   *
+   * @param size size of the seed string
+   * @param states number of states (used to determine the maximum active state value)
+   * @param random random number generator
+   * @return a Vector containing the sparse seed
+   * @throws IllegalArgumentException if random is null
+   */
+  public static Vector generateSparseSeed(int size, int states, Random random) {
+    if (random == null) {
+      throw new IllegalArgumentException("Random cannot be null.");
+    }
     StringBuilder seed = new StringBuilder(size > 0 ? size : 0);
     if (size > 0) {
-      var rand = RANDOM.nextInt(size);
+      var rand = random.nextInt(size);
       for (int i = 0; i < rand; i++) {
         seed.append('0');
       }
@@ -63,8 +135,7 @@ public final class Generator {
   }
 
   /**
-   * Generates a seed where each individual cell is different from its neighborhood cells. We
-   * alternate between 0 and states - 1.
+   * Generates a seed where each cell alternates states.
    *
    * @param size amount of individual cells
    * @param states the number of states
@@ -110,46 +181,90 @@ public final class Generator {
   }
 
   /**
-   * Generates a 2D grid seed based on the specified size, seed type, and alive density percentage.
+   * Generates a 2D grid seed based on size, seed type, alive density, and Random instance.
    *
    * @param size side length of the square grid
-   * @param seedType seed type string ("density", "uniform", "sparse", "alternating")
-   * @param densityPercentage live cell density percentage (0 to 100) used when seedType is
-   *     "density"
-   * @return generated Grid2D
-   * @throws IllegalArgumentException if seedType is null or unsupported, or if parameters are
-   *     invalid
-   */
-  public static Grid2D generateGrid(int size, String seedType, double densityPercentage) {
-    return generateGrid(size, seedType, densityPercentage, RANDOM);
-  }
-
-  /**
-   * Generates a 2D grid seed based on the specified size, seed type, alive density percentage, and
-   * Random instance.
-   *
-   * @param size side length of the square grid
-   * @param seedType seed type string ("density", "uniform", "sparse", "alternating")
-   * @param densityPercentage live cell density percentage (0 to 100) used when seedType is
-   *     "density"
+   * @param seedType seed type
+   * @param densityPercentage live cell density percentage (0 to 100)
    * @param random random number generator
    * @return generated Grid2D
-   * @throws IllegalArgumentException if seedType or random is null, or if seedType is unsupported
+   * @throws IllegalArgumentException if parameters are invalid or null
    */
   public static Grid2D generateGrid(
-      int size, String seedType, double densityPercentage, Random random) {
+      int size, SeedType seedType, double densityPercentage, Random random) {
+    if (size < 1) {
+      throw new IllegalArgumentException("Grid size must be at least 1: %d".formatted(size));
+    }
     if (seedType == null) {
       throw new IllegalArgumentException("Seed type cannot be null.");
     }
     if (random == null) {
       throw new IllegalArgumentException("Random cannot be null.");
     }
-    return switch (seedType.toLowerCase(java.util.Locale.ROOT)) {
-      case "density" -> Grid2D.ofDensity(size, densityPercentage / 100.0, random);
-      case "uniform" -> Grid2D.ofUniform(size, random);
-      case "sparse" -> Grid2D.ofSparse(size);
-      case "alternating" -> Grid2D.ofAlternating(size);
-      default -> throw new IllegalArgumentException("Unsupported seed type: " + seedType);
+    return switch (seedType) {
+      case DENSITY -> {
+        double probability = validateAndNormalizeDensity(densityPercentage);
+        if (probability == 0.0) {
+          yield Grid2D.empty(size);
+        }
+        yield new Grid2D(size, (r, c) -> probability == 1.0 || random.nextDouble() < probability);
+      }
+      case UNIFORM -> new Grid2D(size, (r, c) -> random.nextBoolean());
+      case SPARSE -> {
+        int targetRow = random.nextInt(size);
+        int targetCol = random.nextInt(size);
+        yield new Grid2D(size, (r, c) -> r == targetRow && c == targetCol);
+      }
+      case ALTERNATING -> new Grid2D(size, (r, c) -> (r + c) % 2 == 0);
     };
+  }
+
+  /**
+   * Generates a 2D grid seed based on size, seed type, and alive density percentage.
+   *
+   * @param size side length of the square grid
+   * @param seedType seed type
+   * @param densityPercentage live cell density percentage (0 to 100)
+   * @return generated Grid2D
+   */
+  public static Grid2D generateGrid(int size, SeedType seedType, double densityPercentage) {
+    return generateGrid(size, seedType, densityPercentage, new Random());
+  }
+
+  /**
+   * Backwards-compatible overload generating a 2D grid seed from a string seed type.
+   *
+   * @param size side length of the square grid
+   * @param seedType seed type string ("density", "uniform", "sparse", "alternating")
+   * @param densityPercentage live cell density percentage (0 to 100)
+   * @param random random number generator
+   * @return generated Grid2D
+   */
+  public static Grid2D generateGrid(
+      int size, String seedType, double densityPercentage, Random random) {
+    return generateGrid(size, SeedType.fromIdentifier(seedType), densityPercentage, random);
+  }
+
+  /**
+   * Backwards-compatible overload generating a 2D grid seed using default randomness.
+   *
+   * @param size side length of the square grid
+   * @param seedType seed type string ("density", "uniform", "sparse", "alternating")
+   * @param densityPercentage live cell density percentage (0 to 100)
+   * @return generated Grid2D
+   */
+  public static Grid2D generateGrid(int size, String seedType, double densityPercentage) {
+    return generateGrid(size, SeedType.fromIdentifier(seedType), densityPercentage);
+  }
+
+  private static double validateAndNormalizeDensity(double densityPercentage) {
+    if (Double.isNaN(densityPercentage)
+        || Double.isInfinite(densityPercentage)
+        || densityPercentage < 0.0
+        || densityPercentage > 100.0) {
+      throw new IllegalArgumentException(
+          "Density percentage must be between 0.0 and 100.0: %s".formatted(densityPercentage));
+    }
+    return densityPercentage / 100.0;
   }
 }

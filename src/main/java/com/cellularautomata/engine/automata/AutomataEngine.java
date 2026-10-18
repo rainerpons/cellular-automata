@@ -2,6 +2,7 @@ package com.cellularautomata.engine.automata;
 
 import com.cellularautomata.engine.Generator;
 import com.cellularautomata.engine.Grid2D;
+import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.Vector;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.engine.rules.Rule;
@@ -16,55 +17,131 @@ public final class AutomataEngine {
   }
 
   /**
-   * Generates an automaton map based on rule, size, and seed type.
+   * Generates a 1D automaton result based on rule, size, states, seed type, and Random instance.
    *
    * @param rule the rule to apply
    * @param size the size of the vector
    * @param states the number of states to generate the seed for
-   * @param seedType the string identifier for the seed ("uniform", "sparse", "alternating")
+   * @param seedType the seed type
+   * @param random the random number generator
    * @return the generated AutomataResult
-   * @throws IllegalArgumentException if seedType is null or unrecognized
+   * @throws IllegalArgumentException if rule, seedType, or random is null, or seedType is DENSITY
    */
-  public static AutomataResult generate(Rule rule, int size, int states, String seedType) {
-    if (seedType == null) {
-      throw new IllegalArgumentException("Seed type cannot be null");
+  public static AutomataResult generate(
+      Rule rule, int size, int states, SeedType seedType, Random random) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null.");
     }
-
-    var seed =
-        switch (seedType.toLowerCase(java.util.Locale.ROOT)) {
-          case "uniform" -> Generator.generateSeed(size, states);
-          case "sparse" -> Generator.generateSparseSeed(size, states);
-          case "alternating" -> Generator.generateAlternatingSeed(size, states);
-          default -> throw new IllegalArgumentException("Unsupported seed type: " + seedType);
-        };
-
+    if (seedType == null) {
+      throw new IllegalArgumentException("Seed type cannot be null.");
+    }
+    if (random == null) {
+      throw new IllegalArgumentException("Random cannot be null.");
+    }
+    if (seedType == SeedType.DENSITY) {
+      throw new IllegalArgumentException("Density seed type is not supported for 1D automata.");
+    }
+    Vector seed = Generator.generate1DSeed(seedType, size, states, random);
     Map<Integer, Vector> map = Automaton.initializeVectorMap(rule, seed);
     return new AutomataResult(map, seed);
   }
 
   /**
-   * Creates a Life-like 2D cellular automaton simulation with the specified rule, grid size, seed
-   * type, and alive cell density percentage.
+   * Generates a 1D automaton result using default randomness.
+   *
+   * @param rule the rule to apply
+   * @param size the size of the vector
+   * @param states the number of states to generate the seed for
+   * @param seedType the seed type
+   * @return the generated AutomataResult
+   * @throws IllegalArgumentException if rule or seedType is null, or if seedType is DENSITY
+   */
+  public static AutomataResult generate(Rule rule, int size, int states, SeedType seedType) {
+    return generate(rule, size, states, seedType, new Random());
+  }
+
+  /**
+   * Generates a 1D automaton result using a string seed identifier and default randomness.
+   *
+   * @param rule the rule to apply
+   * @param size the size of the vector
+   * @param states the number of states to generate the seed for
+   * @param seedType string identifier for the seed ("uniform", "sparse", "alternating")
+   * @return the generated AutomataResult
+   * @throws IllegalArgumentException if rule or seedType is null/unrecognized, or DENSITY
+   */
+  public static AutomataResult generate(Rule rule, int size, int states, String seedType) {
+    if (seedType == null) {
+      throw new IllegalArgumentException("Seed type cannot be null.");
+    }
+    return generate(rule, size, states, SeedType.fromIdentifier(seedType));
+  }
+
+  /**
+   * Generates a 1D automaton result based on rule, size, states, string seed, and Random instance.
+   *
+   * @param rule the rule to apply
+   * @param size the size of the vector
+   * @param states the number of states to generate the seed for
+   * @param seedType the string identifier for the seed
+   * @param random the random number generator
+   * @return the generated AutomataResult
+   * @throws IllegalArgumentException if rule, seedType, or random is null or unrecognized
+   */
+  public static AutomataResult generate(
+      Rule rule, int size, int states, String seedType, Random random) {
+    if (seedType == null) {
+      throw new IllegalArgumentException("Seed type cannot be null.");
+    }
+    return generate(rule, size, states, SeedType.fromIdentifier(seedType), random);
+  }
+
+  /**
+   * Creates a Life-like 2D cellular automaton simulation with the specified parameters.
    *
    * @param rule the Life-like rule
    * @param size side length of the square grid
-   * @param seedType seed type string ("density", "uniform", "sparse", "alternating")
+   * @param seedType the seed type
    * @param densityPercentage live cell density percentage (0 to 100)
+   * @param random random number generator
    * @return initialized LifeLikeSimulation
-   * @throws IllegalArgumentException if rule or seedType is null or invalid
+   * @throws IllegalArgumentException if rule, seedType, or random is null, or size &lt; 1
    */
   public static LifeLikeSimulation createLifeLikeSimulation(
-      LifeLikeRule rule, int size, String seedType, double densityPercentage) {
+      LifeLikeRule rule, int size, SeedType seedType, double densityPercentage, Random random) {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null.");
     }
-    Grid2D grid = Generator.generateGrid(size, seedType, densityPercentage);
+    if (seedType == null) {
+      throw new IllegalArgumentException("Seed type cannot be null.");
+    }
+    if (random == null) {
+      throw new IllegalArgumentException("Random cannot be null.");
+    }
+    if (size < 1) {
+      throw new IllegalArgumentException("Grid size must be at least 1: %d".formatted(size));
+    }
+    Grid2D grid = Generator.generateGrid(size, seedType, densityPercentage, random);
     return new LifeLikeSimulation(rule, grid);
   }
 
   /**
-   * Creates a Life-like 2D cellular automaton simulation with the specified rule, grid size, seed
-   * type, alive cell density percentage, and Random instance.
+   * Creates a Life-like 2D cellular automaton simulation using default randomness.
+   *
+   * @param rule the Life-like rule
+   * @param size side length of the square grid
+   * @param seedType the seed type
+   * @param densityPercentage live cell density percentage (0 to 100)
+   * @return initialized LifeLikeSimulation
+   * @throws IllegalArgumentException if rule or seedType is null, or size &lt; 1
+   */
+  public static LifeLikeSimulation createLifeLikeSimulation(
+      LifeLikeRule rule, int size, SeedType seedType, double densityPercentage) {
+    return createLifeLikeSimulation(rule, size, seedType, densityPercentage, new Random());
+  }
+
+  /**
+   * Creates a Life-like 2D cellular automaton simulation with string seed type and Random instance.
    *
    * @param rule the Life-like rule
    * @param size side length of the square grid
@@ -76,10 +153,25 @@ public final class AutomataEngine {
    */
   public static LifeLikeSimulation createLifeLikeSimulation(
       LifeLikeRule rule, int size, String seedType, double densityPercentage, Random random) {
-    if (rule == null) {
-      throw new IllegalArgumentException("Rule cannot be null.");
+    if (seedType == null) {
+      throw new IllegalArgumentException("Seed type cannot be null.");
     }
-    Grid2D grid = Generator.generateGrid(size, seedType, densityPercentage, random);
-    return new LifeLikeSimulation(rule, grid);
+    return createLifeLikeSimulation(
+        rule, size, SeedType.fromIdentifier(seedType), densityPercentage, random);
+  }
+
+  /**
+   * Creates a Life-like 2D cellular automaton simulation with string seed type.
+   *
+   * @param rule the Life-like rule
+   * @param size side length of the square grid
+   * @param seedType seed type string ("density", "uniform", "sparse", "alternating")
+   * @param densityPercentage live cell density percentage (0 to 100)
+   * @return initialized LifeLikeSimulation
+   * @throws IllegalArgumentException if rule or seedType is null or invalid
+   */
+  public static LifeLikeSimulation createLifeLikeSimulation(
+      LifeLikeRule rule, int size, String seedType, double densityPercentage) {
+    return createLifeLikeSimulation(rule, size, seedType, densityPercentage, new Random());
   }
 }
