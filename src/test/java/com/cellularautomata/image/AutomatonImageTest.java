@@ -1,39 +1,17 @@
 package com.cellularautomata.image;
 
-import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.Vector;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.time.LocalDateTime;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
+import javax.imageio.ImageIO;
 import org.junit.Assert;
 import org.junit.Test;
 
 /** Tests for {@link AutomatonImage}. */
 public class AutomatonImageTest {
-
-  @Test
-  public void testGenerateFileNameElementary() {
-    LocalDateTime time = LocalDateTime.of(2026, 7, 13, 15, 30, 45);
-    String fileName = AutomatonImage.generateFileName(WorkspaceConfig.ELEMENTARY, 110, 64, 2, time);
-
-    Assert.assertEquals("elementary_rule110_size64_2026-07-13T15-30-45.png", fileName);
-  }
-
-  @Test
-  public void testGenerateFileNameTotalistic() {
-    LocalDateTime time = LocalDateTime.of(2026, 7, 13, 15, 30, 45);
-    String fileName =
-        AutomatonImage.generateFileName(WorkspaceConfig.TOTALISTIC, 777, 128, 3, time);
-
-    Assert.assertEquals("totalistic_states3_rule777_size128_2026-07-13T15-30-45.png", fileName);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testGenerateFileNameLifeLikeThrows() {
-    LocalDateTime time = LocalDateTime.of(2026, 7, 13, 15, 30, 45);
-    AutomatonImage.generateFileName(WorkspaceConfig.LIFE_LIKE, 0, 64, 2, time);
-  }
 
   @Test
   public void testGetImageFromMapAndResizeImage() {
@@ -56,11 +34,21 @@ public class AutomatonImageTest {
   }
 
   @Test
-  public void testResolveInitialSaveDirectory() {
-    File dir = AutomatonImage.resolveInitialSaveDirectory();
-    if (dir != null) {
-      Assert.assertTrue(dir.exists());
-      Assert.assertTrue(dir.isDirectory());
+  public void testSaveImageWritesReadablePngFile() throws IOException {
+    Map<Integer, Vector> map =
+        Map.of(
+            0, new Vector("01"),
+            1, new Vector("10"));
+    BufferedImage image = AutomatonImage.getImageFromMap(map, 2);
+    Path tempFile = Files.createTempFile("automaton-test-", ".png");
+    try {
+      AutomatonImage.saveImage(image, tempFile.toFile());
+      BufferedImage reloaded = ImageIO.read(tempFile.toFile());
+      Assert.assertNotNull(reloaded);
+      Assert.assertEquals(2, reloaded.getWidth());
+      Assert.assertEquals(2, reloaded.getHeight());
+    } finally {
+      Files.deleteIfExists(tempFile);
     }
   }
 }

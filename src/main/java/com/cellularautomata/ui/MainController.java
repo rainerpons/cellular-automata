@@ -8,6 +8,7 @@ import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.Rule;
 import com.cellularautomata.engine.rules.TotalisticRule;
 import com.cellularautomata.image.AutomatonImage;
+import com.cellularautomata.image.AutomatonImageExport;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.NumericRuleParametersPanel;
@@ -99,7 +100,7 @@ class MainController {
 
   private void saveAutomatonImage() {
     String initialFileName =
-        AutomatonImage.generateFileName(
+        AutomatonImageExport.generateFileName(
             config,
             rule.getRuleNumber(),
             parametersPanel.getSizeValue(),
@@ -108,7 +109,7 @@ class MainController {
     Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
     File file =
         dialogService.showSaveFileDialog(
-            window, AutomatonImage.resolveInitialSaveDirectory(), initialFileName);
+            window, AutomatonImageExport.resolveInitialSaveDirectory(), initialFileName);
     if (file == null) {
       return;
     }
