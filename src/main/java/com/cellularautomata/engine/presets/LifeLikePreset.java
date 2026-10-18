@@ -1,6 +1,7 @@
 package com.cellularautomata.engine.presets;
 
 import com.cellularautomata.engine.rules.LifeLikeRule;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,6 +19,8 @@ public enum LifeLikePreset {
 
   /** Seeds (B2/S). */
   SEEDS("Seeds", Set.of(2), Set.of());
+
+  private static final List<LifeLikePreset> PRESETS = List.of(values());
 
   private final String displayName;
   private final Set<Integer> birthCounts;
@@ -63,7 +66,7 @@ public enum LifeLikePreset {
       Set<Integer> birthCounts, Set<Integer> survivalCounts) {
     LifeLikeRule.validateNeighborCounts(birthCounts);
     LifeLikeRule.validateNeighborCounts(survivalCounts);
-    for (LifeLikePreset preset : values()) {
+    for (LifeLikePreset preset : PRESETS) {
       if (preset.birthCounts.equals(birthCounts) && preset.survivalCounts.equals(survivalCounts)) {
         return Optional.of(preset);
       }
