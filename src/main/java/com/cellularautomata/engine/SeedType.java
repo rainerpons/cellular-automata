@@ -1,7 +1,5 @@
 package com.cellularautomata.engine;
 
-import java.util.List;
-
 /** Initial cell pattern types selectable across cellular automata workspaces. */
 public enum SeedType {
   /** Random pattern populated according to a selected alive-cell percentage. */
@@ -57,41 +55,5 @@ public enum SeedType {
       }
     }
     throw new IllegalArgumentException("Unsupported seed type: %s".formatted(value));
-  }
-
-  /**
-   * Returns the seed types supported by one-dimensional (Elementary and Totalistic) workspaces.
-   *
-   * @return an unmodifiable list of 1D seed types
-   */
-  public static List<SeedType> oneDimensionalValues() {
-    return List.of(UNIFORM, SPARSE, ALTERNATING);
-  }
-
-  /**
-   * Returns the seed types supported by two-dimensional workspaces.
-   *
-   * @return an unmodifiable list of all seed types
-   */
-  public static List<SeedType> twoDimensionalValues() {
-    return List.of(values());
-  }
-
-  /**
-   * Indicates whether this seed type is supported by one-dimensional cellular automata.
-   *
-   * @return true if supported in 1D, false otherwise
-   */
-  public boolean isSupported1D() {
-    return this != DENSITY;
-  }
-
-  /**
-   * Indicates whether this seed type is supported by two-dimensional cellular automata.
-   *
-   * @return true if supported in 2D
-   */
-  public boolean isSupported2D() {
-    return true;
   }
 }

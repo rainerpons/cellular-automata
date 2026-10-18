@@ -1,6 +1,5 @@
 package com.cellularautomata.engine;
 
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -57,43 +56,5 @@ public class SeedTypeTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFromIdentifierRejectsUnknown() {
     SeedType.fromIdentifier("random");
-  }
-
-  @Test
-  public void testDimensionSupport() {
-    Assert.assertFalse(SeedType.DENSITY.isSupported1D());
-    Assert.assertTrue(SeedType.DENSITY.isSupported2D());
-
-    Assert.assertTrue(SeedType.UNIFORM.isSupported1D());
-    Assert.assertTrue(SeedType.UNIFORM.isSupported2D());
-
-    Assert.assertTrue(SeedType.SPARSE.isSupported1D());
-    Assert.assertTrue(SeedType.SPARSE.isSupported2D());
-
-    Assert.assertTrue(SeedType.ALTERNATING.isSupported1D());
-    Assert.assertTrue(SeedType.ALTERNATING.isSupported2D());
-  }
-
-  @Test
-  public void testOneDimensionalValues() {
-    List<SeedType> values = SeedType.oneDimensionalValues();
-    Assert.assertEquals(List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING), values);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testOneDimensionalValuesUnmodifiable() {
-    SeedType.oneDimensionalValues().add(SeedType.DENSITY);
-  }
-
-  @Test
-  public void testTwoDimensionalValues() {
-    List<SeedType> values = SeedType.twoDimensionalValues();
-    Assert.assertEquals(
-        List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING), values);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testTwoDimensionalValuesUnmodifiable() {
-    SeedType.twoDimensionalValues().remove(0);
   }
 }
