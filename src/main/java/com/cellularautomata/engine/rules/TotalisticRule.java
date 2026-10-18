@@ -26,7 +26,7 @@ public final class TotalisticRule implements Rule {
    * @throws IllegalArgumentException if the rule is invalid
    */
   public TotalisticRule(int ruleNumber, int states) {
-    if (states < MIN_STATES || states > MAX_STATES) {
+    if (!isValidStateCount(states)) {
       throw new IllegalArgumentException(
           "States must be between " + MIN_STATES + " and " + MAX_STATES);
     }
@@ -37,6 +37,17 @@ public final class TotalisticRule implements Rule {
     this.ruleNumber = ruleNumber;
     this.states = states;
     this.ruleRepresentation = toBaseRepresentation(ruleNumber, states);
+  }
+
+  /**
+   * Indicates if a state count is valid for a totalistic cellular automaton.
+   *
+   * @param states the number of states
+   * @return true if the state count is between {@link #MIN_STATES} and {@link #MAX_STATES}
+   *     (inclusive)
+   */
+  public static boolean isValidStateCount(int states) {
+    return states >= MIN_STATES && states <= MAX_STATES;
   }
 
   /**

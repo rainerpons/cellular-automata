@@ -7,6 +7,15 @@ import org.junit.Test;
 public class TotalisticRuleTest {
 
   @Test
+  public void testIsValidStateCount() {
+    Assert.assertFalse(TotalisticRule.isValidStateCount(1));
+    for (int states = TotalisticRule.MIN_STATES; states <= TotalisticRule.MAX_STATES; states++) {
+      Assert.assertTrue(TotalisticRule.isValidStateCount(states));
+    }
+    Assert.assertFalse(TotalisticRule.isValidStateCount(6));
+  }
+
+  @Test
   public void testCalculateMaxRule() {
     Assert.assertEquals(15, TotalisticRule.calculateMaxRule(2));
     Assert.assertEquals(2186, TotalisticRule.calculateMaxRule(3));
