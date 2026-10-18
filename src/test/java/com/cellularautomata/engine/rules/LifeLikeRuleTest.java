@@ -167,6 +167,12 @@ public class LifeLikeRuleTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void testConstructorRejectsSurvivalCountWithNull() {
+    Set<Integer> withNull = new HashSet<>(Arrays.asList(2, null));
+    new LifeLikeRule(Set.of(3), withNull);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testConstructorRejectsNegativeCount() {
     new LifeLikeRule(Set.of(-1), Set.of(2, 3));
   }

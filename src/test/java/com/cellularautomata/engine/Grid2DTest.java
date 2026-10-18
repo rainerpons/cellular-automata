@@ -307,6 +307,56 @@ public class Grid2DTest {
     }
   }
 
+  @Test
+  public void testB0RuleEvolution1x1Grid() {
+    // Rule B0/S: 1x1 grid with dead cell has 0 neighbors and is born in gen 1
+    LifeLikeRule b0Rule = new LifeLikeRule(Set.of(0), Set.of());
+    Grid2D dead1x1 = Grid2D.empty(1);
+    Assert.assertEquals(1, dead1x1.getSize());
+    Assert.assertEquals(0, dead1x1.countLiveCells());
+    Assert.assertEquals(0, dead1x1.countLiveNeighbors(0, 0));
+
+    // Generation 1: dead cell with 0 neighbors is born
+    Grid2D gen1 = dead1x1.nextGeneration(b0Rule);
+    Assert.assertEquals(1, gen1.countLiveCells());
+    Assert.assertTrue(gen1.isAlive(0, 0));
+    Assert.assertEquals(0, gen1.countLiveNeighbors(0, 0));
+
+    // Generation 2: live cell with 0 neighbors dies because survival set S is empty
+    Grid2D gen2 = gen1.nextGeneration(b0Rule);
+    Assert.assertEquals(0, gen2.countLiveCells());
+    Assert.assertFalse(gen2.isAlive(0, 0));
+
+    // Generation 3: cell is born again (oscillates)
+    Grid2D gen3 = gen2.nextGeneration(b0Rule);
+    Assert.assertEquals(1, gen3.countLiveCells());
+    Assert.assertTrue(gen3.isAlive(0, 0));
+  }
+
+  @Test
+  public void testHighLifeB6BirthEvolutionOnGrid() {
+    // 3x3 grid where center (1, 1) is dead and surrounded by exactly 6 live neighbors
+    boolean[][] matrix = {
+      {true, true, true},
+      {true, false, true},
+      {true, false, false}
+    };
+    Grid2D gen0 = new Grid2D(3, matrix);
+    Assert.assertFalse(gen0.isAlive(1, 1));
+    Assert.assertEquals(6, gen0.countLiveNeighbors(1, 1));
+
+    LifeLikeRule conway = LifeLikePreset.CONWAYS_GAME_OF_LIFE.toRule();
+    LifeLikeRule highLife = LifeLikePreset.HIGH_LIFE.toRule();
+
+    // In Conway (B3/S23), dead cell with 6 neighbors stays dead
+    Grid2D conwayGen1 = gen0.nextGeneration(conway);
+    Assert.assertFalse(conwayGen1.isAlive(1, 1));
+
+    // In HighLife (B36/S23), dead cell with 6 neighbors is born
+    Grid2D highLifeGen1 = gen0.nextGeneration(highLife);
+    Assert.assertTrue(highLifeGen1.isAlive(1, 1));
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testNextGenerationRejectsNullRule() {
     Grid2D.empty(3).nextGeneration(null);
