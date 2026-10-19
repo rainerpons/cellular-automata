@@ -96,7 +96,7 @@ class MainController {
 
   private void saveAutomatonImage() {
     String initialFileName =
-        AutomatonImageExport.generateFileName(
+        AutomatonFileNameFormatter.formatFileName(
             config,
             rule.getRuleNumber(),
             parametersPanel.getSizeValue(),
