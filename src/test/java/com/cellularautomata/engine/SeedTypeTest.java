@@ -1,5 +1,6 @@
 package com.cellularautomata.engine;
 
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -56,5 +57,30 @@ public class SeedTypeTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFromIdentifierRejectsUnknown() {
     SeedType.fromIdentifier("random");
+  }
+
+  @Test
+  public void testOneDimensionalValues() {
+    List<SeedType> values = SeedType.oneDimensionalValues();
+    Assert.assertEquals(List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING), values);
+    try {
+      values.add(SeedType.DENSITY);
+      Assert.fail("Expected UnsupportedOperationException on add");
+    } catch (UnsupportedOperationException expected) {
+      // Expected unmodifiable list
+    }
+  }
+
+  @Test
+  public void testTwoDimensionalValues() {
+    List<SeedType> values = SeedType.twoDimensionalValues();
+    Assert.assertEquals(
+        List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING), values);
+    try {
+      values.remove(0);
+      Assert.fail("Expected UnsupportedOperationException on remove");
+    } catch (UnsupportedOperationException expected) {
+      // Expected unmodifiable list
+    }
   }
 }

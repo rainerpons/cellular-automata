@@ -1,7 +1,7 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.config.SeedType;
-import com.cellularautomata.engine.rules.LifeLikePreset;
+import com.cellularautomata.engine.SeedType;
+import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.ui.shared.LabeledSlider;
 import com.cellularautomata.ui.shared.UiStyles;
@@ -53,7 +53,7 @@ public final class LifeLikeParametersPanel {
   public LifeLikeParametersPanel() {
     sizeSlider = panel.addSizeSliderRow();
     presetComboBox = addPresetRow();
-    seedComboBox = panel.addSeedTypeRow(List.of(SeedType.values()), SeedType.DENSITY, true);
+    seedComboBox = panel.addSeedTypeRow(SeedType.twoDimensionalValues(), SeedType.DENSITY, true);
     densitySlider = addDensityRow();
     panel.addControlRow("Birth", BIRTH_TOOLTIP, createNeighborToggleRow(birthToggles, true), true);
     panel.addControlRow(

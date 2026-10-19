@@ -1,7 +1,7 @@
 package com.cellularautomata.ui;
 
-import com.cellularautomata.config.SeedType;
 import com.cellularautomata.config.WorkspaceConfig;
+import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.Rule;
 import com.cellularautomata.engine.rules.TotalisticRule;

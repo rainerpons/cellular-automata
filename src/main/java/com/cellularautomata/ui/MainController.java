@@ -84,10 +84,7 @@ class MainController {
     rule = instantiateRule(parsedRuleInt, states);
     AutomataResult result =
         AutomataEngine.generate(
-            rule,
-            parametersPanel.getSizeValue(),
-            states,
-            parametersPanel.getSeedType().getDisplayName());
+            rule, parametersPanel.getSizeValue(), states, parametersPanel.getSeedType());
 
     BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap(), states);
     resizedAutomatonImage =
