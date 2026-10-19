@@ -273,22 +273,32 @@ public class Grid2DTest {
   @Test
   public void testSeedsRuleEvolution() {
     // Seeds rule (B2/S): live cells always die; dead cells with exactly 2 live neighbors are born
-    boolean[][] matrix = new boolean[4][4];
-    matrix[1][1] = true;
-    matrix[1][2] = true;
-    Grid2D gen0 = new Grid2D(4, matrix);
+    boolean[][] initialMatrix = new boolean[4][4];
+    initialMatrix[1][1] = true;
+    initialMatrix[1][2] = true;
+    Grid2D gen0 = new Grid2D(4, initialMatrix);
 
     Grid2D gen1 = gen0.nextGeneration(LifeLikePreset.SEEDS.toRule());
-    // (1, 1) and (1, 2) had 1 neighbor each, and S is empty, so they die
+
+    // Explicit 4x4 expected grid:
+    // (1, 1) and (1, 2) had 1 neighbor each, so they die.
+    // Dead cells with 2 neighbors: (0, 1), (0, 2), (2, 1), (2, 2).
+    boolean[][] expectedMatrix = {
+      {false, true, true, false},
+      {false, false, false, false},
+      {false, true, true, false},
+      {false, false, false, false}
+    };
+    Grid2D expectedGrid = new Grid2D(4, expectedMatrix);
+
+    Assert.assertEquals(expectedGrid, gen1);
+    Assert.assertEquals(4, gen1.countLiveCells());
     Assert.assertFalse(gen1.isAlive(1, 1));
     Assert.assertFalse(gen1.isAlive(1, 2));
-
-    // Dead cells with 2 neighbors: (0, 1), (0, 2), (2, 1), (2, 2)
     Assert.assertTrue(gen1.isAlive(0, 1));
     Assert.assertTrue(gen1.isAlive(0, 2));
     Assert.assertTrue(gen1.isAlive(2, 1));
     Assert.assertTrue(gen1.isAlive(2, 2));
-    Assert.assertEquals(4, gen1.countLiveCells());
   }
 
   @Test

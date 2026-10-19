@@ -25,6 +25,11 @@ public final class ParametersPanel extends GridPane {
   public static final String SEED_TYPE_TOOLTIP =
       "Determines how cells are initially populated when generating a new automaton.";
 
+  public static final List<SeedType> ONE_DIMENSIONAL_SEEDS =
+      List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING);
+  public static final List<SeedType> TWO_DIMENSIONAL_SEEDS =
+      List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING);
+
   private int currentRow = 1;
 
   /** Constructs a parameters panel with the section heading and two-column constraints. */

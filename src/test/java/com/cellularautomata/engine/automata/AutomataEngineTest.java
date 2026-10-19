@@ -43,7 +43,8 @@ public class AutomataEngineTest {
 
   @Test
   public void testGenerate1DWithStringSeedType() {
-    AutomataResult uniform = AutomataEngine.generate(RULE_30, 8, 2, "uniform");
+    AutomataResult uniform =
+        AutomataEngine.generate(RULE_30, 8, 2, SeedType.UNIFORM.getIdentifier());
     Assert.assertNotNull(uniform);
     Assert.assertEquals(8, uniform.getOriginalSeed().getSize());
 
@@ -60,8 +61,10 @@ public class AutomataEngineTest {
   public void testGenerate1DWithStringSeedTypeAndRandom() {
     Random r1 = new Random(99);
     Random r2 = new Random(99);
-    AutomataResult res1 = AutomataEngine.generate(RULE_30, 10, 2, "uniform", r1);
-    AutomataResult res2 = AutomataEngine.generate(RULE_30, 10, 2, "uniform", r2);
+    AutomataResult res1 =
+        AutomataEngine.generate(RULE_30, 10, 2, SeedType.UNIFORM.getIdentifier(), r1);
+    AutomataResult res2 =
+        AutomataEngine.generate(RULE_30, 10, 2, SeedType.UNIFORM.getIdentifier(), r2);
     Assert.assertEquals(res1.getOriginalSeed().getState(), res2.getOriginalSeed().getState());
   }
 
@@ -77,12 +80,12 @@ public class AutomataEngineTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGenerate1DRejectsDensityString() {
-    AutomataEngine.generate(RULE_30, 8, 2, "density");
+    AutomataEngine.generate(RULE_30, 8, 2, SeedType.DENSITY.getIdentifier());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGenerate1DRejectsDensityStringWithRandom() {
-    AutomataEngine.generate(RULE_30, 8, 2, "density", new Random());
+    AutomataEngine.generate(RULE_30, 8, 2, SeedType.DENSITY.getIdentifier(), new Random());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -161,9 +164,11 @@ public class AutomataEngineTest {
     Random r1 = new Random(55);
     Random r2 = new Random(55);
     LifeLikeSimulation sim1 =
-        AutomataEngine.createLifeLikeSimulation(CONWAY, 8, "uniform", 0.0, r1);
+        AutomataEngine.createLifeLikeSimulation(
+            CONWAY, 8, SeedType.UNIFORM.getIdentifier(), 0.0, r1);
     LifeLikeSimulation sim2 =
-        AutomataEngine.createLifeLikeSimulation(CONWAY, 8, "uniform", 0.0, r2);
+        AutomataEngine.createLifeLikeSimulation(
+            CONWAY, 8, SeedType.UNIFORM.getIdentifier(), 0.0, r2);
     Assert.assertEquals(sim1.getInitialGrid(), sim2.getInitialGrid());
   }
 

@@ -35,32 +35,11 @@ public final class Grid2D {
    *     or dimensions do not match size
    */
   public Grid2D(int size, boolean[][] matrix) {
-    if (matrix == null) {
-      throw new IllegalArgumentException("Matrix cannot be null.");
-    }
-    if (matrix.length != size) {
-      throw new IllegalArgumentException(
-          "Matrix row count %d does not match size %d".formatted(matrix.length, size));
-    }
     int totalCells = validateSize(size);
+    validateMatrix(matrix, size);
     this.size = size;
     this.cells = new boolean[totalCells];
-    int count = 0;
-    for (int r = 0; r < size; r++) {
-      if (matrix[r] == null || matrix[r].length != size) {
-        throw new IllegalArgumentException(
-            "Matrix column count at row %d does not match size %d".formatted(r, size));
-      }
-      int rowOffset = r * size;
-      for (int c = 0; c < size; c++) {
-        boolean val = matrix[r][c];
-        this.cells[rowOffset + c] = val;
-        if (val) {
-          count++;
-        }
-      }
-    }
-    this.liveCellCount = count;
+    this.liveCellCount = copyCellsFromMatrix(matrix, this.cells, size);
   }
 
   /**
@@ -78,24 +57,60 @@ public final class Grid2D {
     }
     this.size = size;
     this.cells = new boolean[totalCells];
-    int count = 0;
-    for (int r = 0; r < size; r++) {
-      int rowOffset = r * size;
-      for (int c = 0; c < size; c++) {
-        boolean val = cellInitializer.test(r, c);
-        this.cells[rowOffset + c] = val;
-        if (val) {
-          count++;
-        }
-      }
-    }
-    this.liveCellCount = count;
+    this.liveCellCount = initializeCells(cellInitializer, this.cells, size);
   }
 
   private Grid2D(int size, boolean[] cells, int liveCellCount) {
     this.size = size;
     this.cells = cells;
     this.liveCellCount = liveCellCount;
+  }
+
+  private static void validateMatrix(boolean[][] matrix, int size) {
+    if (matrix == null) {
+      throw new IllegalArgumentException("Matrix cannot be null.");
+    }
+    if (matrix.length != size) {
+      throw new IllegalArgumentException(
+          "Matrix row count %d does not match size %d".formatted(matrix.length, size));
+    }
+    for (int r = 0; r < size; r++) {
+      if (matrix[r] == null || matrix[r].length != size) {
+        throw new IllegalArgumentException(
+            "Matrix column count at row %d does not match size %d".formatted(r, size));
+      }
+    }
+  }
+
+  private static int copyCellsFromMatrix(boolean[][] matrix, boolean[] targetCells, int size) {
+    int count = 0;
+    for (int r = 0; r < size; r++) {
+      int rowOffset = r * size;
+      for (int c = 0; c < size; c++) {
+        boolean val = matrix[r][c];
+        targetCells[rowOffset + c] = val;
+        if (val) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  private static int initializeCells(
+      BiPredicate<Integer, Integer> cellInitializer, boolean[] targetCells, int size) {
+    int count = 0;
+    for (int r = 0; r < size; r++) {
+      int rowOffset = r * size;
+      for (int c = 0; c < size; c++) {
+        boolean val = cellInitializer.test(r, c);
+        targetCells[rowOffset + c] = val;
+        if (val) {
+          count++;
+        }
+      }
+    }
+    return count;
   }
 
   private static int validateSize(int size) {
@@ -141,8 +156,7 @@ public final class Grid2D {
   }
 
   public int getCell(int row, int col) {
-    validateCoordinates(row, col);
-    return cells[row * size + col] ? 1 : 0;
+    return isAlive(row, col) ? 1 : 0;
   }
 
   /**
@@ -248,6 +262,6 @@ public final class Grid2D {
 
   @Override
   public String toString() {
-    return "Grid2D[size=" + size + ", liveCells=" + liveCellCount + "]";
+    return "Grid2D[size=%d, liveCells=%d]".formatted(size, liveCellCount);
   }
 }

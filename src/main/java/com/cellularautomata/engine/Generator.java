@@ -36,16 +36,13 @@ public final class Generator {
     if (random == null) {
       throw new IllegalArgumentException("Random cannot be null.");
     }
-    if (seedType == SeedType.DENSITY) {
-      throw new IllegalArgumentException(
-          "Unsupported seed type for 1D automata: " + seedType.getIdentifier());
-    }
     return switch (seedType) {
+      case DENSITY ->
+          throw new IllegalArgumentException(
+              "Unsupported seed type for 1D automata: %s".formatted(seedType.getIdentifier()));
       case UNIFORM -> generateSeed(size, states, random);
       case SPARSE -> generateSparseSeed(size, states, random);
       case ALTERNATING -> generateAlternatingSeed(size, states);
-      default ->
-          throw new IllegalArgumentException("Unsupported seed type: %s".formatted(seedType));
     };
   }
 
@@ -173,7 +170,7 @@ public final class Generator {
       throw new IllegalArgumentException("Vector cannot be null.");
     }
     StringBuilder successor = new StringBuilder(current.getSize());
-    var temp = "0".concat(current.getState()).concat("0");
+    var temp = "0%s0".formatted(current.getState());
     for (int i = 0; i < current.getSize(); i++) {
       var neighborhood = temp.substring(i, i + 3);
       successor.append(rule.evaluate(neighborhood));
@@ -193,6 +190,9 @@ public final class Generator {
    */
   public static Grid2D generateGrid(
       int size, SeedType seedType, double densityPercentage, Random random) {
+    if (size < 1) {
+      throw new IllegalArgumentException("Grid size must be at least 1: %d".formatted(size));
+    }
     if (seedType == null) {
       throw new IllegalArgumentException("Seed type cannot be null.");
     }
@@ -209,8 +209,8 @@ public final class Generator {
       }
       case UNIFORM -> new Grid2D(size, (r, c) -> random.nextBoolean());
       case SPARSE -> {
-        int targetRow = random.nextInt(Math.max(1, size));
-        int targetCol = random.nextInt(Math.max(1, size));
+        int targetRow = random.nextInt(size);
+        int targetCol = random.nextInt(size);
         yield new Grid2D(size, (r, c) -> r == targetRow && c == targetCol);
       }
       case ALTERNATING -> new Grid2D(size, (r, c) -> (r + c) % 2 == 0);

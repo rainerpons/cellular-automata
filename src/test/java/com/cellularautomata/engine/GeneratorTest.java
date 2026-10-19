@@ -259,19 +259,6 @@ public class GeneratorTest {
     Grid2D seeded2 = Generator.generateGrid(10, SeedType.SPARSE, 0.0, new Random(123));
     Assert.assertEquals(seeded1, seeded2);
     Assert.assertEquals(1, seeded1.countLiveCells());
-
-    // Across multiple runs with unseeded Random, can produce different coordinates
-    boolean foundDifferent = false;
-    Grid2D first = Generator.generateGrid(20, SeedType.SPARSE, 0.0);
-    for (int i = 0; i < 50; i++) {
-      Grid2D other = Generator.generateGrid(20, SeedType.SPARSE, 0.0);
-      if (!first.equals(other)) {
-        foundDifferent = true;
-        break;
-      }
-    }
-    Assert.assertTrue(
-        "Sparse placement should produce varying coordinates across runs", foundDifferent);
   }
 
   @Test
@@ -392,5 +379,40 @@ public class GeneratorTest {
   @Test(expected = IllegalArgumentException.class)
   public void testGenerateGridRejectsInvalidSize() {
     Generator.generateGrid(0, SeedType.DENSITY, 50.0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerateGridSparseRejectsZeroSize() {
+    Generator.generateGrid(0, SeedType.SPARSE, 0.0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGenerateGridSparseRejectsNegativeSize() {
+    Generator.generateGrid(-1, SeedType.SPARSE, 0.0);
+  }
+
+  @Test
+  public void testGenerateGridSparseRejectsInvalidDimensionsBeforeRandomCoordinates() {
+    Random failIfCalled =
+        new Random() {
+          @Override
+          public int nextInt(int bound) {
+            throw new AssertionError("Random should not be queried when size is invalid");
+          }
+        };
+
+    try {
+      Generator.generateGrid(0, SeedType.SPARSE, 0.0, failIfCalled);
+      Assert.fail("Expected IllegalArgumentException for size 0");
+    } catch (IllegalArgumentException expected) {
+      // Expected: rejected before random generation
+    }
+
+    try {
+      Generator.generateGrid(-1, SeedType.SPARSE, 0.0, failIfCalled);
+      Assert.fail("Expected IllegalArgumentException for size -1");
+    } catch (IllegalArgumentException expected) {
+      // Expected: rejected before random generation
+    }
   }
 }

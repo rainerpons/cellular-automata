@@ -33,7 +33,8 @@ public final class TotalisticParametersPanel implements NumericRuleParametersPan
             TotalisticRule.DEFAULT_RULE_NUMBER,
             () -> TotalisticRule.calculateMaxRule(getStatesValue()));
     panel.addControlRow("Rule number", null, ruleSpinner, true);
-    seedComboBox = panel.addSeedTypeRow(SeedType.oneDimensionalValues(), SeedType.UNIFORM, false);
+    seedComboBox =
+        panel.addSeedTypeRow(ParametersPanel.ONE_DIMENSIONAL_SEEDS, SeedType.UNIFORM, false);
   }
 
   @Override
