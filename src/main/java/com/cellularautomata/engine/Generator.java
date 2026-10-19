@@ -37,7 +37,8 @@ public final class Generator {
       throw new IllegalArgumentException("Random cannot be null.");
     }
     if (seedType == SeedType.DENSITY) {
-      throw new IllegalArgumentException("Density seed type is not supported for 1D automata.");
+      throw new IllegalArgumentException(
+          "Unsupported seed type for 1D automata: " + seedType.getIdentifier());
     }
     return switch (seedType) {
       case UNIFORM -> generateSeed(size, states, random);
@@ -192,9 +193,6 @@ public final class Generator {
    */
   public static Grid2D generateGrid(
       int size, SeedType seedType, double densityPercentage, Random random) {
-    if (size < 1) {
-      throw new IllegalArgumentException("Grid size must be at least 1: %d".formatted(size));
-    }
     if (seedType == null) {
       throw new IllegalArgumentException("Seed type cannot be null.");
     }
@@ -211,8 +209,8 @@ public final class Generator {
       }
       case UNIFORM -> new Grid2D(size, (r, c) -> random.nextBoolean());
       case SPARSE -> {
-        int targetRow = random.nextInt(size);
-        int targetCol = random.nextInt(size);
+        int targetRow = random.nextInt(Math.max(1, size));
+        int targetCol = random.nextInt(Math.max(1, size));
         yield new Grid2D(size, (r, c) -> r == targetRow && c == targetCol);
       }
       case ALTERNATING -> new Grid2D(size, (r, c) -> (r + c) % 2 == 0);
