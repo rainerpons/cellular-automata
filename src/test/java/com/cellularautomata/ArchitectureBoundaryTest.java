@@ -6,8 +6,6 @@ import com.cellularautomata.engine.EngineArchViolationFixture;
 import com.cellularautomata.engine.rules.RulesArchViolationFixture;
 import com.cellularautomata.image.ImageArchViolationFixture;
 import com.cellularautomata.ui.SelectionModelArchViolationFixture;
-import com.tngtech.archunit.base.DescribedPredicate;
-import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
@@ -21,8 +19,7 @@ import org.junit.Test;
  * docs/ARCHITECTURE.md}.
  *
  * <p>These tests intentionally enforce high-level package ownership boundaries ({@code UI ->
- * Engine}, {@code Image -> Engine}, {@code Image -> WorkspaceConfig}) without constraining internal
- * class structure.
+ * Engine}, {@code Image -> Engine}) without constraining internal class structure.
  */
 public class ArchitectureBoundaryTest {
   private static JavaClasses productionClasses;
@@ -107,32 +104,15 @@ public class ArchitectureBoundaryTest {
             "WorkspaceConfig owns workspace metadata and must remain headless without JavaFX dependencies");
   }
 
-  public static ArchRule imageDoesNotDependOnJavaFxRule() {
+  public static ArchRule imageDoesNotDependOnUiOrJavaFxRule() {
     return noClasses()
         .that()
         .resideInAPackage("com.cellularautomata.image..")
         .should()
         .dependOnClassesThat()
-        .resideInAnyPackage("javafx..")
+        .resideInAnyPackage("com.cellularautomata.ui..", "javafx..")
         .because(
-            "Image package owns image rendering and PNG file I/O and must remain headless without"
-                + " JavaFX dependencies");
-  }
-
-  public static ArchRule imageDoesNotDependOnUiPresentationRule() {
-    return noClasses()
-        .that()
-        .resideInAPackage("com.cellularautomata.image..")
-        .should()
-        .dependOnClassesThat(
-            new DescribedPredicate<JavaClass>("reside in UI other than WorkspaceConfig") {
-              @Override
-              public boolean test(JavaClass input) {
-                return input.getPackageName().startsWith("com.cellularautomata.ui")
-                    && !input.getSimpleName().equals("WorkspaceConfig");
-              }
-            })
-        .because("Image utilities must not depend on UI presentation, panels, or controllers");
+            "Image utilities must remain headless and strictly independent of UI components and configurations");
   }
 
   // --- Production Verification Tests ---
@@ -168,13 +148,8 @@ public class ArchitectureBoundaryTest {
   }
 
   @Test
-  public void testImageDoesNotDependOnJavaFx() {
-    imageDoesNotDependOnJavaFxRule().check(productionClasses);
-  }
-
-  @Test
-  public void testImageDoesNotDependOnUiPresentation() {
-    imageDoesNotDependOnUiPresentationRule().check(productionClasses);
+  public void testImageDoesNotDependOnUiOrJavaFx() {
+    imageDoesNotDependOnUiOrJavaFxRule().check(productionClasses);
   }
 
   // --- Deliberate Violation Detection Tests ---
@@ -256,8 +231,8 @@ public class ArchitectureBoundaryTest {
   }
 
   @Test
-  public void testImageDoesNotDependOnJavaFxDetectsViolation() {
-    ArchRule rule = imageDoesNotDependOnJavaFxRule();
+  public void testImageDoesNotDependOnUiOrJavaFxDetectsJavaFxViolation() {
+    ArchRule rule = imageDoesNotDependOnUiOrJavaFxRule();
     JavaClasses violatingClasses =
         new ClassFileImporter()
             .importClasses(ImageArchViolationFixture.ViolatesImageToJavaFx.class);
@@ -267,8 +242,8 @@ public class ArchitectureBoundaryTest {
   }
 
   @Test
-  public void testImageDoesNotDependOnUiPresentationDetectsViolation() {
-    ArchRule rule = imageDoesNotDependOnUiPresentationRule();
+  public void testImageDoesNotDependOnUiOrJavaFxDetectsUiPresentationViolation() {
+    ArchRule rule = imageDoesNotDependOnUiOrJavaFxRule();
     JavaClasses violatingClasses =
         new ClassFileImporter()
             .importClasses(ImageArchViolationFixture.ViolatesImageToUiPresentation.class);
@@ -276,6 +251,17 @@ public class ArchitectureBoundaryTest {
     Assert.assertTrue(error.getMessage().contains("ViolatesImageToUiPresentation"));
     Assert.assertTrue(
         error.getMessage().contains("com.cellularautomata.ui.panels.ParametersPanel"));
+  }
+
+  @Test
+  public void testImageDoesNotDependOnUiOrJavaFxDetectsWorkspaceConfigViolation() {
+    ArchRule rule = imageDoesNotDependOnUiOrJavaFxRule();
+    JavaClasses violatingClasses =
+        new ClassFileImporter()
+            .importClasses(ImageArchViolationFixture.ViolatesImageToWorkspaceConfig.class);
+    AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
+    Assert.assertTrue(error.getMessage().contains("ViolatesImageToWorkspaceConfig"));
+    Assert.assertTrue(error.getMessage().contains("com.cellularautomata.ui.WorkspaceConfig"));
   }
 
   private static <T extends Throwable> T assertThrows(Class<T> expectedType, Runnable executable) {

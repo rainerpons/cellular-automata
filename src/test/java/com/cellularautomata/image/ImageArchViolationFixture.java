@@ -11,4 +11,8 @@ public final class ImageArchViolationFixture {
   public static class ViolatesImageToUiPresentation {
     com.cellularautomata.ui.panels.ParametersPanel panel;
   }
+
+  public static class ViolatesImageToWorkspaceConfig {
+    com.cellularautomata.ui.WorkspaceConfig config;
+  }
 }
