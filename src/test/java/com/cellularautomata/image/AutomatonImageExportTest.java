@@ -1,6 +1,6 @@
 package com.cellularautomata.image;
 
-import com.cellularautomata.config.WorkspaceConfig;
+import com.cellularautomata.ui.WorkspaceConfig;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

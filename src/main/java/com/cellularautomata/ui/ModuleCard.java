@@ -1,6 +1,5 @@
 package com.cellularautomata.ui;
 
-import com.cellularautomata.config.WorkspaceConfig;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;

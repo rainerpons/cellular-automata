@@ -13,5 +13,4 @@ module com.cellularautomata {
   exports com.cellularautomata.engine.automata;
   exports com.cellularautomata.engine.presets;
   exports com.cellularautomata.engine.rules;
-  exports com.cellularautomata.config;
 }

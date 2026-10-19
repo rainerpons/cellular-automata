@@ -1,6 +1,5 @@
 package com.cellularautomata.ui;
 
-import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.automata.AutomataEngine;
 import com.cellularautomata.engine.automata.AutomataResult;

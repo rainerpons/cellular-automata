@@ -1,4 +1,4 @@
-package com.cellularautomata.config;
+package com.cellularautomata.ui;
 
 import org.junit.Assert;
 import org.junit.Test;

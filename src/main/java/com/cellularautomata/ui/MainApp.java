@@ -1,11 +1,9 @@
 package com.cellularautomata.ui;
 
-import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ElementaryParametersPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
-import com.cellularautomata.ui.panels.LifeLikeToolbar;
 import com.cellularautomata.ui.panels.SidebarPanel;
 import com.cellularautomata.ui.panels.TotalisticParametersPanel;
 import com.cellularautomata.ui.shared.UiStyles;

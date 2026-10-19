@@ -1,6 +1,5 @@
-package com.cellularautomata.ui.panels;
+package com.cellularautomata.ui;
 
-import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.scene.control.Button;

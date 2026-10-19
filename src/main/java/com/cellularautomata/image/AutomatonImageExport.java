@@ -1,6 +1,6 @@
 package com.cellularautomata.image;
 
-import com.cellularautomata.config.WorkspaceConfig;
+import com.cellularautomata.ui.WorkspaceConfig;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,11 +34,10 @@ public final class AutomatonImageExport {
     String baseName = config.name().toLowerCase(Locale.ROOT);
 
     return switch (config) {
-      case ELEMENTARY ->
-          String.format("%s_rule%d_size%d_%s.png", baseName, ruleNumber, size, timestamp);
+      case ELEMENTARY -> "%s_rule%d_size%d_%s.png".formatted(baseName, ruleNumber, size, timestamp);
       case TOTALISTIC ->
-          String.format(
-              "%s_states%d_rule%d_size%d_%s.png", baseName, states, ruleNumber, size, timestamp);
+          "%s_states%d_rule%d_size%d_%s.png"
+              .formatted(baseName, states, ruleNumber, size, timestamp);
       case LIFE_LIKE ->
           throw new UnsupportedOperationException("Life-like image saving is not yet supported");
     };

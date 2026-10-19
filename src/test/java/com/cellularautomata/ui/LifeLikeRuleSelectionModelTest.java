@@ -1,4 +1,4 @@
-package com.cellularautomata.ui.panels;
+package com.cellularautomata.ui;
 
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
