@@ -4,7 +4,11 @@ package com.cellularautomata.image;
 public final class ImageArchViolationFixture {
   private ImageArchViolationFixture() {}
 
-  public static class ViolatesImageToUi {
+  public static class ViolatesImageToJavaFx {
     javafx.scene.Node node;
+  }
+
+  public static class ViolatesImageToUiPresentation {
+    com.cellularautomata.ui.panels.ParametersPanel panel;
   }
 }

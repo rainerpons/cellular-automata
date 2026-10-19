@@ -8,10 +8,6 @@ public final class EngineArchViolationFixture {
     com.cellularautomata.ui.DialogService dialogService;
   }
 
-  public static class ViolatesEngineToConfig {
-    com.cellularautomata.config.WorkspaceConfig config;
-  }
-
   public static class ViolatesEngineToImage {
     com.cellularautomata.image.AutomatonImage image;
   }
