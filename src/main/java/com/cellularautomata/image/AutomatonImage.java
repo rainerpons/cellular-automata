@@ -1,5 +1,6 @@
 package com.cellularautomata.image;
 
+import com.cellularautomata.engine.Grid2D;
 import com.cellularautomata.engine.Vector;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -19,6 +20,9 @@ public final class AutomatonImage {
 
   /** Standard width and height in pixels for the rendered automaton display image. */
   public static final int DISPLAY_IMAGE_SIZE = 400;
+
+  private static final int BLACK_RGB = 0x000000;
+  private static final int WHITE_RGB = 0xFFFFFF;
 
   private AutomatonImage() {
     throw new IllegalStateException("Utility class");
@@ -50,6 +54,28 @@ public final class AutomatonImage {
         int gray = 255 - (stateValue * 255 / (states - 1));
         int rgb = (gray << 16) | (gray << 8) | gray;
         image.setRGB(i, j, rgb);
+      }
+    }
+    return image;
+  }
+
+  /**
+   * Generates a buffered image from a 2D automaton grid.
+   *
+   * @param grid the grid representing automaton cell states
+   * @return image generated from the grid
+   * @throws IllegalArgumentException if grid is null
+   */
+  public static BufferedImage getImageFromGrid(Grid2D grid) {
+    if (grid == null) {
+      throw new IllegalArgumentException("Grid cannot be null.");
+    }
+    int size = grid.getSize();
+    var image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+    for (int row = 0; row < size; row++) {
+      for (int col = 0; col < size; col++) {
+        int rgb = grid.isAlive(row, col) ? BLACK_RGB : WHITE_RGB;
+        image.setRGB(col, row, rgb);
       }
     }
     return image;
