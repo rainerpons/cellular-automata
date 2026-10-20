@@ -114,6 +114,7 @@ public class MainApp extends Application {
 
     LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel);
+    new LifeLikeController(displayPanel, parametersPanel, toolbar);
     return createWorkspaceRoot(displayContainer, sidebarPanel);
   }
 
