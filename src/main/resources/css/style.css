@@ -333,3 +333,14 @@
 .navigation-link:hover {
     -fx-text-fill: -fx-accent-green-hover;
 }
+
+/* Error Display */
+.error-icon {
+    -fx-icon-color: #ef4444;
+    -fx-fill: #ef4444;
+}
+
+.error-label {
+    -fx-text-fill: #ef4444;
+}
+
