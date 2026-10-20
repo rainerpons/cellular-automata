@@ -104,6 +104,18 @@ public class ArchitectureBoundaryTest {
             "WorkspaceConfig owns workspace metadata and must remain headless without JavaFX dependencies");
   }
 
+  public static ArchRule lifeLikeConfigurationDoesNotDependOnJavaFxRule() {
+    return noClasses()
+        .that()
+        .haveSimpleName("LifeLikeConfiguration")
+        .should()
+        .dependOnClassesThat()
+        .resideInAnyPackage("javafx..")
+        .because(
+            "LifeLikeConfiguration is an immutable configuration model and must remain headless"
+                + " without JavaFX dependencies");
+  }
+
   public static ArchRule imageDoesNotDependOnUiOrJavaFxRule() {
     return noClasses()
         .that()
@@ -145,6 +157,11 @@ public class ArchitectureBoundaryTest {
   @Test
   public void testWorkspaceConfigDoesNotDependOnJavaFx() {
     workspaceConfigDoesNotDependOnJavaFxRule().check(productionClasses);
+  }
+
+  @Test
+  public void testLifeLikeConfigurationDoesNotDependOnJavaFx() {
+    lifeLikeConfigurationDoesNotDependOnJavaFxRule().check(productionClasses);
   }
 
   @Test
@@ -227,6 +244,17 @@ public class ArchitectureBoundaryTest {
             .importClasses(SelectionModelArchViolationFixture.WorkspaceConfig.class);
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("WorkspaceConfig"));
+    Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
+  }
+
+  @Test
+  public void testLifeLikeConfigurationDoesNotDependOnJavaFxDetectsViolation() {
+    ArchRule rule = lifeLikeConfigurationDoesNotDependOnJavaFxRule();
+    JavaClasses violatingClasses =
+        new ClassFileImporter()
+            .importClasses(SelectionModelArchViolationFixture.LifeLikeConfiguration.class);
+    AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
+    Assert.assertTrue(error.getMessage().contains("LifeLikeConfiguration"));
     Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
   }
 
