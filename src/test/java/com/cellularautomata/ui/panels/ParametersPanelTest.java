@@ -1,6 +1,6 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.config.SeedType;
+import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.TotalisticRule;
 import com.cellularautomata.ui.JavaFxTestHelper;
@@ -94,5 +94,29 @@ public class ParametersPanelTest {
           panel.getRuleSpinner().getValueFactory().increment(20);
           Assert.assertEquals(Integer.valueOf(15), panel.getRuleSpinner().getValue());
         });
+  }
+
+  @Test
+  public void testSeedTypeConstants() {
+    Assert.assertEquals(
+        List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
+        ParametersPanel.ONE_DIMENSIONAL_SEEDS);
+    Assert.assertEquals(
+        List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
+        ParametersPanel.TWO_DIMENSIONAL_SEEDS);
+
+    try {
+      ParametersPanel.ONE_DIMENSIONAL_SEEDS.add(SeedType.DENSITY);
+      Assert.fail("Expected UnsupportedOperationException on ONE_DIMENSIONAL_SEEDS mutation");
+    } catch (UnsupportedOperationException expected) {
+      // Expected unmodifiable list
+    }
+
+    try {
+      ParametersPanel.TWO_DIMENSIONAL_SEEDS.add(SeedType.DENSITY);
+      Assert.fail("Expected UnsupportedOperationException on TWO_DIMENSIONAL_SEEDS mutation");
+    } catch (UnsupportedOperationException expected) {
+      // Expected unmodifiable list
+    }
   }
 }

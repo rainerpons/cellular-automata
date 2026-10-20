@@ -1,6 +1,5 @@
 package com.cellularautomata.ui;
 
-import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.function.Consumer;
 import javafx.geometry.Pos;

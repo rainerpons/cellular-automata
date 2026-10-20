@@ -1,6 +1,6 @@
-package com.cellularautomata.ui.panels;
+package com.cellularautomata.ui;
 
-import com.cellularautomata.engine.rules.LifeLikePreset;
+import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import java.util.Set;
 import org.junit.Assert;
@@ -55,13 +55,16 @@ public class LifeLikeRuleSelectionModelTest {
   }
 
   @Test
-  public void testSelectingCustomPresetPreservesCurrentCounts() {
+  public void testCustomStateWhenPresetIsNull() {
     LifeLikeRuleSelectionModel model = new LifeLikeRuleSelectionModel();
     model.selectPreset(LifeLikePreset.HIGH_LIFE);
+    Assert.assertFalse(model.isCustom());
 
-    model.selectPreset(LifeLikePreset.CUSTOM);
-    Assert.assertEquals(LifeLikePreset.CUSTOM, model.getPreset());
-    Assert.assertEquals(Set.of(3, 6), model.getBirthCounts());
+    model.toggleBirth(6);
+    model.toggleBirth(3);
+    Assert.assertNull(model.getPreset());
+    Assert.assertTrue(model.isCustom());
+    Assert.assertEquals(Set.of(), model.getBirthCounts());
     Assert.assertEquals(Set.of(2, 3), model.getSurvivalCounts());
   }
 
@@ -82,7 +85,8 @@ public class LifeLikeRuleSelectionModelTest {
     // Deselect Birth 6 and 3 -> B/S23 (Custom)
     Assert.assertTrue(model.toggleBirth(6));
     Assert.assertTrue(model.toggleBirth(3));
-    Assert.assertEquals(LifeLikePreset.CUSTOM, model.getPreset());
+    Assert.assertNull(model.getPreset());
+    Assert.assertTrue(model.isCustom());
     Assert.assertEquals(Set.of(), model.getBirthCounts());
 
     // Select Birth 2 and deselect Survival 2 and 3 -> B2/S (Seeds)

@@ -1,4 +1,4 @@
-package com.cellularautomata.config;
+package com.cellularautomata.ui;
 
 /** Defines the metadata and capabilities for a cellular automata workspace. */
 public enum WorkspaceConfig {

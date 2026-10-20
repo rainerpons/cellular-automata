@@ -1,6 +1,6 @@
-package com.cellularautomata.ui.panels;
+package com.cellularautomata.ui;
 
-import com.cellularautomata.engine.rules.LifeLikePreset;
+import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import java.util.Set;
 import java.util.TreeSet;
@@ -10,79 +10,98 @@ import java.util.TreeSet;
  * for the Life-like workspace. Enforces the UI-level two-selection cap per set separately from the
  * domain neighbor count range ({@code 0..8}) defined in {@link LifeLikeRule}.
  */
-final class LifeLikeRuleSelectionModel {
+public final class LifeLikeRuleSelectionModel {
   /**
    * Intentional UI cap limiting selection to at most two birth counts and two survival counts for
    * the current workspace scope. Kept in the UI layer rather than {@link LifeLikeRule} or {@link
    * LifeLikePreset} because general Life-like cellular automata permit any subset of 0..8.
    */
-  static final int MAX_SELECTED_COUNTS_PER_SET = 2;
+  public static final int MAX_SELECTED_COUNTS_PER_SET = 2;
 
   private final Set<Integer> birthCounts = new TreeSet<>();
   private final Set<Integer> survivalCounts = new TreeSet<>();
-  private LifeLikePreset preset;
 
-  LifeLikeRuleSelectionModel() {
+  /** Constructs the selection model initialized with Conway's Game of Life. */
+  public LifeLikeRuleSelectionModel() {
     selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
   }
 
-  LifeLikePreset getPreset() {
-    return preset;
+  public LifeLikePreset getPreset() {
+    return LifeLikePreset.fromCounts(birthCounts, survivalCounts).orElse(null);
   }
 
-  Set<Integer> getBirthCounts() {
+  public boolean isCustom() {
+    return getPreset() == null;
+  }
+
+  public Set<Integer> getBirthCounts() {
     return Set.copyOf(birthCounts);
   }
 
-  Set<Integer> getSurvivalCounts() {
+  public Set<Integer> getSurvivalCounts() {
     return Set.copyOf(survivalCounts);
   }
 
-  boolean isBirthSelected(int neighborCount) {
+  public boolean isBirthSelected(int neighborCount) {
     validateNeighborCount(neighborCount);
     return birthCounts.contains(neighborCount);
   }
 
-  boolean isSurvivalSelected(int neighborCount) {
+  public boolean isSurvivalSelected(int neighborCount) {
     validateNeighborCount(neighborCount);
     return survivalCounts.contains(neighborCount);
   }
 
-  boolean isBirthToggleDisabled(int neighborCount) {
+  public boolean isBirthToggleDisabled(int neighborCount) {
     return !isBirthSelected(neighborCount) && birthCounts.size() >= MAX_SELECTED_COUNTS_PER_SET;
   }
 
-  boolean isSurvivalToggleDisabled(int neighborCount) {
+  public boolean isSurvivalToggleDisabled(int neighborCount) {
     return !isSurvivalSelected(neighborCount)
         && survivalCounts.size() >= MAX_SELECTED_COUNTS_PER_SET;
   }
 
-  void selectPreset(LifeLikePreset preset) {
+  /**
+   * Applies the birth and survival neighbor counts of the specified preset.
+   *
+   * @param preset the preset to apply
+   * @throws IllegalArgumentException if preset is null
+   */
+  public void selectPreset(LifeLikePreset preset) {
     if (preset == null) {
       throw new IllegalArgumentException("Preset cannot be null.");
     }
-    this.preset = preset;
-    if (!preset.isCustom()) {
-      birthCounts.clear();
-      birthCounts.addAll(preset.getBirthCounts());
-      survivalCounts.clear();
-      survivalCounts.addAll(preset.getSurvivalCounts());
-    }
+    birthCounts.clear();
+    birthCounts.addAll(preset.getBirthCounts());
+    survivalCounts.clear();
+    survivalCounts.addAll(preset.getSurvivalCounts());
   }
 
-  boolean setBirthSelected(int neighborCount, boolean selected) {
+  public boolean setBirthSelected(int neighborCount, boolean selected) {
     return updateSelection(birthCounts, neighborCount, selected);
   }
 
-  boolean setSurvivalSelected(int neighborCount, boolean selected) {
+  public boolean setSurvivalSelected(int neighborCount, boolean selected) {
     return updateSelection(survivalCounts, neighborCount, selected);
   }
 
-  boolean toggleBirth(int neighborCount) {
+  /**
+   * Toggles the selection state of the specified birth neighbor count.
+   *
+   * @param neighborCount the neighbor count (0 to 8)
+   * @return true if the toggle change was accepted, false if blocked by the selection cap
+   */
+  public boolean toggleBirth(int neighborCount) {
     return setBirthSelected(neighborCount, !isBirthSelected(neighborCount));
   }
 
-  boolean toggleSurvival(int neighborCount) {
+  /**
+   * Toggles the selection state of the specified survival neighbor count.
+   *
+   * @param neighborCount the neighbor count (0 to 8)
+   * @return true if the toggle change was accepted, false if blocked by the selection cap
+   */
+  public boolean toggleSurvival(int neighborCount) {
     return setSurvivalSelected(neighborCount, !isSurvivalSelected(neighborCount));
   }
 
@@ -98,7 +117,6 @@ final class LifeLikeRuleSelectionModel {
     } else {
       targetCounts.remove(neighborCount);
     }
-    preset = LifeLikePreset.fromCounts(birthCounts, survivalCounts);
     return true;
   }
 

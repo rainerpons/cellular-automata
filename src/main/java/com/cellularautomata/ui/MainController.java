@@ -1,6 +1,5 @@
 package com.cellularautomata.ui;
 
-import com.cellularautomata.config.WorkspaceConfig;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.automata.AutomataEngine;
 import com.cellularautomata.engine.automata.AutomataResult;
@@ -84,10 +83,7 @@ class MainController {
     rule = instantiateRule(parsedRuleInt, states);
     AutomataResult result =
         AutomataEngine.generate(
-            rule,
-            parametersPanel.getSizeValue(),
-            states,
-            parametersPanel.getSeedType().getDisplayName());
+            rule, parametersPanel.getSizeValue(), states, parametersPanel.getSeedType());
 
     BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap(), states);
     resizedAutomatonImage =
@@ -100,7 +96,7 @@ class MainController {
 
   private void saveAutomatonImage() {
     String initialFileName =
-        AutomatonImageExport.generateFileName(
+        AutomatonFileNameFormatter.formatFileName(
             config,
             rule.getRuleNumber(),
             parametersPanel.getSizeValue(),

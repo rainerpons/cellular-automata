@@ -1,6 +1,6 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.config.SeedType;
+import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.ui.shared.LabeledSlider;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.List;
@@ -24,6 +24,11 @@ public final class ParametersPanel extends GridPane {
 
   public static final String SEED_TYPE_TOOLTIP =
       "Determines how cells are initially populated when generating a new automaton.";
+
+  public static final List<SeedType> ONE_DIMENSIONAL_SEEDS =
+      List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING);
+  public static final List<SeedType> TWO_DIMENSIONAL_SEEDS =
+      List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING);
 
   private int currentRow = 1;
 
