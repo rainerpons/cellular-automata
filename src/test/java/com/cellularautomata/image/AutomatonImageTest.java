@@ -137,4 +137,28 @@ public class AutomatonImageTest {
     Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized128.getWidth());
     Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized128.getHeight());
   }
+
+  @Test
+  public void testGetRgbForStateComputesEvenlySpacedGrayscale() {
+    // 2 states: 0 -> white, 1 -> black
+    Assert.assertEquals(0xFFFFFF, AutomatonImage.getRgbForState(0, 2));
+    Assert.assertEquals(0x000000, AutomatonImage.getRgbForState(1, 2));
+
+    // 3 states: 0 -> 255, 1 -> 128 (255 - 255/2 = 128), 2 -> 0
+    int gray1 = 255 - (1 * 255 / 2);
+    int expectedRgb1 = (gray1 << 16) | (gray1 << 8) | gray1;
+    Assert.assertEquals(0xFFFFFF, AutomatonImage.getRgbForState(0, 3));
+    Assert.assertEquals(expectedRgb1, AutomatonImage.getRgbForState(1, 3));
+    Assert.assertEquals(0x000000, AutomatonImage.getRgbForState(2, 3));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetRgbForStateRejectsSingleState() {
+    AutomatonImage.getRgbForState(0, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetRgbForStateRejectsZeroStates() {
+    AutomatonImage.getRgbForState(0, 0);
+  }
 }
