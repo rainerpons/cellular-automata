@@ -15,4 +15,8 @@ public final class SelectionModelArchViolationFixture {
   public static class LifeLikeConfiguration {
     javafx.scene.control.Button button;
   }
+
+  public static class LifeLikeStateMachine {
+    javafx.scene.control.Button button;
+  }
 }
