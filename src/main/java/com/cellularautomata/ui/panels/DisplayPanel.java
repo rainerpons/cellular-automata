@@ -8,7 +8,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
@@ -29,7 +28,6 @@ public final class DisplayPanel extends VBox {
 
   private static final int ERROR_ICON_SIZE = 40;
   private static final int ERROR_SPACING = 8;
-  private static final Color ERROR_COLOR = Color.web("#ef4444");
 
   private final Label placeholderLabel;
   private final ImageView automatonImageView;
@@ -68,24 +66,21 @@ public final class DisplayPanel extends VBox {
 
     FontIcon errorIcon = new FontIcon(MaterialDesignA.ALERT_CIRCLE_OUTLINE);
     errorIcon.setIconSize(ERROR_ICON_SIZE);
-    errorIcon.setIconColor(ERROR_COLOR);
     errorIcon.getStyleClass().add("error-icon");
 
     primaryErrorLabel = new Label();
     primaryErrorLabel.setTextAlignment(TextAlignment.CENTER);
     primaryErrorLabel.setAlignment(Pos.CENTER);
-    primaryErrorLabel.setTextFill(ERROR_COLOR);
     primaryErrorLabel.getStyleClass().add("error-label");
 
     secondaryErrorLabel = new Label();
     secondaryErrorLabel.setTextAlignment(TextAlignment.CENTER);
     secondaryErrorLabel.setAlignment(Pos.CENTER);
-    secondaryErrorLabel.setTextFill(ERROR_COLOR);
     secondaryErrorLabel.getStyleClass().add("error-label");
 
     errorContainer = new VBox(ERROR_SPACING);
     errorContainer.setAlignment(Pos.CENTER);
-    errorContainer.getStyleClass().add("placeholder");
+    errorContainer.getStyleClass().addAll("placeholder", "error-container");
     errorContainer.setMinSize(400, 400);
     errorContainer.setPrefSize(400, 400);
     errorContainer.setMaxSize(400, 400);

@@ -344,3 +344,8 @@
     -fx-text-fill: #ef4444;
 }
 
+.error-container {
+    -fx-spacing: 8px;
+    -fx-alignment: center;
+}
+

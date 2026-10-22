@@ -6,7 +6,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -80,6 +79,7 @@ public class DisplayPanelTest {
           VBox errorContainer = (VBox) imageContainer.getChildren().get(0);
           Assert.assertEquals(Pos.CENTER, errorContainer.getAlignment());
           Assert.assertTrue(errorContainer.getStyleClass().contains("placeholder"));
+          Assert.assertTrue(errorContainer.getStyleClass().contains("error-container"));
           Assert.assertEquals(400.0, errorContainer.getMinWidth(), 0.001);
           Assert.assertEquals(400.0, errorContainer.getPrefWidth(), 0.001);
           Assert.assertEquals(400.0, errorContainer.getMaxWidth(), 0.001);
@@ -92,18 +92,15 @@ public class DisplayPanelTest {
           FontIcon icon = (FontIcon) errorContainer.getChildren().get(0);
           Assert.assertEquals(MaterialDesignA.ALERT_CIRCLE_OUTLINE, icon.getIconCode());
           Assert.assertEquals(40, icon.getIconSize());
-          Assert.assertEquals(Color.web("#ef4444"), icon.getIconColor());
           Assert.assertTrue(icon.getStyleClass().contains("error-icon"));
 
           // Verify primary and secondary labels
           Label primary = (Label) errorContainer.getChildren().get(1);
           Assert.assertEquals(DisplayPanel.GENERATION_ERROR_PRIMARY, primary.getText());
-          Assert.assertEquals(Color.web("#ef4444"), primary.getTextFill());
           Assert.assertTrue(primary.getStyleClass().contains("error-label"));
 
           Label secondary = (Label) errorContainer.getChildren().get(2);
           Assert.assertEquals(DisplayPanel.ERROR_SECONDARY, secondary.getText());
-          Assert.assertEquals(Color.web("#ef4444"), secondary.getTextFill());
           Assert.assertTrue(secondary.getStyleClass().contains("error-label"));
         });
   }
