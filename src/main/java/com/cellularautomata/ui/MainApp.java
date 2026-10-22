@@ -41,11 +41,10 @@ public class MainApp extends Application {
   }
 
   HBox createWorkspace(WorkspaceConfig config, Runnable onNavigateBack) {
-    Label backLink = createBackLink(onNavigateBack);
     return switch (config) {
-      case ELEMENTARY -> createElementaryWorkspace(backLink);
-      case TOTALISTIC -> createTotalisticWorkspace(backLink);
-      case LIFE_LIKE -> createLifeLikeWorkspace(backLink);
+      case ELEMENTARY -> createElementaryWorkspace(createBackLink(onNavigateBack));
+      case TOTALISTIC -> createTotalisticWorkspace(createBackLink(onNavigateBack));
+      case LIFE_LIKE -> createLifeLikeWorkspace(onNavigateBack);
     };
   }
 
@@ -100,8 +99,18 @@ public class MainApp extends Application {
         createOneDimensionalDisplayContainer(displayPanel, backLink), sidebarPanel);
   }
 
-  private HBox createLifeLikeWorkspace(Label backLink) {
+  private HBox createLifeLikeWorkspace(Runnable onNavigateBack) {
     LifeLikeToolbar toolbar = new LifeLikeToolbar();
+    DisplayPanel displayPanel = new DisplayPanel(DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT);
+    LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
+    LifeLikeController controller = new LifeLikeController(displayPanel, parametersPanel, toolbar);
+
+    Label backLink =
+        createBackLink(
+            () -> {
+              controller.dispose();
+              onNavigateBack.run();
+            });
 
     Region footerSpacer = new Region();
     HBox.setHgrow(footerSpacer, Priority.ALWAYS);
@@ -109,12 +118,8 @@ public class MainApp extends Application {
     footerRow.setAlignment(Pos.CENTER_LEFT);
     VBox.setMargin(footerRow, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
 
-    DisplayPanel displayPanel = new DisplayPanel(DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT);
     VBox displayContainer = new VBox(displayPanel, footerRow);
-
-    LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel);
-    new LifeLikeController(displayPanel, parametersPanel, toolbar);
     return createWorkspaceRoot(displayContainer, sidebarPanel);
   }
 

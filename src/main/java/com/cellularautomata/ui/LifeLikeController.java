@@ -14,8 +14,8 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
 /**
- * Controller coordinating Life-like cellular automata parameter capture, simulation initialization,
- * image rendering, and display error state.
+ * Controller coordinating Life-like cellular automata parameter capture, simulation lifecycle,
+ * image rendering, and toolbar/display state.
  */
 public final class LifeLikeController {
 
@@ -52,17 +52,17 @@ public final class LifeLikeController {
   private final DisplayPanel displayPanel;
   private final LifeLikeParametersPanel parametersPanel;
   private final LifeLikeToolbar toolbar;
-
-  private SimulationFactory simulationFactory;
-  private GridRenderer gridRenderer;
+  private final LifeLikeStateMachine stateMachine;
+  private final SimulationFactory simulationFactory;
+  private final GridRenderer gridRenderer;
+  private final SimulationScheduler scheduler;
 
   private LifeLikeConfiguration activeConfiguration;
   private LifeLikeSimulation activeSimulation;
   private Image activeImage;
 
   /**
-   * Constructs the Life-like controller with default engine simulation creation and image
-   * rendering.
+   * Constructs the Life-like controller with default collaborators.
    *
    * @param displayPanel the display panel
    * @param parametersPanel the parameters panel
@@ -74,26 +74,34 @@ public final class LifeLikeController {
         displayPanel,
         parametersPanel,
         toolbar,
+        new LifeLikeStateMachine(),
         AutomataEngine::createLifeLikeSimulation,
-        LifeLikeController::defaultRenderGrid);
+        LifeLikeController::defaultRenderGrid,
+        new TimelineScheduler());
   }
 
   /**
-   * Package-private constructor providing injection seams for simulation creation and image
-   * rendering.
+   * Constructs the Life-like controller with fully injected collaborators.
    *
    * @param displayPanel the display panel
    * @param parametersPanel the parameters panel
    * @param toolbar the simulation toolbar
+   * @param stateMachine simulation lifecycle state machine
    * @param simulationFactory factory creating {@link LifeLikeSimulation} instances
    * @param gridRenderer renderer converting {@link Grid2D} to JavaFX {@link Image}
+   * @param scheduler periodic tick scheduler
    */
-  LifeLikeController(
+  @SuppressFBWarnings(
+      value = "EI_EXPOSE_REP2",
+      justification = "Collaborators are injected UI and engine components held for coordination")
+  public LifeLikeController(
       DisplayPanel displayPanel,
       LifeLikeParametersPanel parametersPanel,
       LifeLikeToolbar toolbar,
+      LifeLikeStateMachine stateMachine,
       SimulationFactory simulationFactory,
-      GridRenderer gridRenderer) {
+      GridRenderer gridRenderer,
+      SimulationScheduler scheduler) {
     if (displayPanel == null) {
       throw new IllegalArgumentException("DisplayPanel cannot be null.");
     }
@@ -103,12 +111,31 @@ public final class LifeLikeController {
     if (toolbar == null) {
       throw new IllegalArgumentException("Toolbar cannot be null.");
     }
+    if (stateMachine == null) {
+      throw new IllegalArgumentException("StateMachine cannot be null.");
+    }
+    if (simulationFactory == null) {
+      throw new IllegalArgumentException("SimulationFactory cannot be null.");
+    }
+    if (gridRenderer == null) {
+      throw new IllegalArgumentException("GridRenderer cannot be null.");
+    }
+    if (scheduler == null) {
+      throw new IllegalArgumentException("Scheduler cannot be null.");
+    }
     this.displayPanel = displayPanel;
     this.parametersPanel = parametersPanel;
     this.toolbar = toolbar;
-    this.simulationFactory =
-        simulationFactory != null ? simulationFactory : AutomataEngine::createLifeLikeSimulation;
-    this.gridRenderer = gridRenderer != null ? gridRenderer : LifeLikeController::defaultRenderGrid;
+    this.stateMachine = stateMachine;
+    this.simulationFactory = simulationFactory;
+    this.gridRenderer = gridRenderer;
+    this.scheduler = scheduler;
+
+    toolbar.addPlayPauseListener(event -> togglePlayPause());
+    toolbar.addStepListener(event -> step());
+    toolbar.addResetListener(event -> reset());
+
+    updateToolbar();
     this.displayPanel.getProperties().put(LifeLikeController.class, this);
   }
 
@@ -130,115 +157,281 @@ public final class LifeLikeController {
         parametersPanel.getDensityValue());
   }
 
-  /** Initializes the simulation, retaining any existing simulation if parameters are unchanged. */
-  public void initializeSimulation() {
-    initializeSimulation(false);
-  }
-
   /**
-   * Initializes the simulation, optionally forcing reinitialization with a fresh seed even if
-   * parameters have not changed.
-   *
-   * @param forceReinitialize true to force a fresh seed initialization
+   * Toggles simulation between running and paused. Initializes simulation from current settings if
+   * uninitialized or if settings have changed.
    */
-  public void initializeSimulation(boolean forceReinitialize) {
-    LifeLikeConfiguration currentConfig = captureConfiguration();
-    if (!forceReinitialize
-        && activeSimulation != null
-        && currentConfig.equals(activeConfiguration)) {
+  public void togglePlayPause() {
+    if (stateMachine.isRunning()) {
+      scheduler.stop();
+      stateMachine.onPause();
+      updateToolbar();
       return;
     }
 
-    LifeLikeRule rule;
-    LifeLikeSimulation simulation;
-    try {
-      rule = new LifeLikeRule(currentConfig.birthCounts(), currentConfig.survivalCounts());
-      simulation =
-          simulationFactory.create(
-              rule, currentConfig.size(), currentConfig.seedType(), currentConfig.density());
-      if (simulation == null) {
-        throw new IllegalStateException("Simulation factory returned null");
+    LifeLikeConfiguration currentConfig = captureConfiguration();
+    boolean needsInit =
+        stateMachine.isUninitialized()
+            || activeSimulation == null
+            || !currentConfig.equals(activeConfiguration);
+
+    if (needsInit) {
+      LifeLikeSimulation simulation;
+      try {
+        LifeLikeRule rule =
+            new LifeLikeRule(currentConfig.birthCounts(), currentConfig.survivalCounts());
+        simulation =
+            simulationFactory.create(
+                rule, currentConfig.size(), currentConfig.seedType(), currentConfig.density());
+        if (simulation == null) {
+          throw new IllegalStateException("Simulation factory returned null");
+        }
+      } catch (Exception e) {
+        handleGenerationFailure(e);
+        return;
       }
+
+      Image renderedImage;
+      try {
+        renderedImage = gridRenderer.render(simulation.getCurrentGrid());
+        if (renderedImage == null) {
+          throw new IllegalStateException("Grid renderer returned null");
+        }
+      } catch (Exception e) {
+        handleRenderingFailure(e);
+        return;
+      }
+
+      activeSimulation = simulation;
+      activeConfiguration = currentConfig;
+      activeImage = renderedImage;
+      displayPanel.setAutomatonImage(renderedImage);
+    }
+
+    stateMachine.onPlay();
+    updateToolbar();
+    scheduler.start(this::tick);
+  }
+
+  /**
+   * Advances the simulation by exactly one generation. When uninitialized or if settings have
+   * changed, initializes generation 0 first before advancing. Ignored while running.
+   */
+  public void step() {
+    if (stateMachine.isRunning()) {
+      return;
+    }
+
+    LifeLikeConfiguration currentConfig = captureConfiguration();
+    boolean needsInit =
+        stateMachine.isUninitialized()
+            || activeSimulation == null
+            || !currentConfig.equals(activeConfiguration);
+
+    if (needsInit) {
+      LifeLikeSimulation simulation;
+      try {
+        LifeLikeRule rule =
+            new LifeLikeRule(currentConfig.birthCounts(), currentConfig.survivalCounts());
+        simulation =
+            simulationFactory.create(
+                rule, currentConfig.size(), currentConfig.seedType(), currentConfig.density());
+        if (simulation == null) {
+          throw new IllegalStateException("Simulation factory returned null");
+        }
+      } catch (Exception e) {
+        handleGenerationFailure(e);
+        return;
+      }
+
+      try {
+        simulation.step();
+      } catch (Exception e) {
+        handleGenerationFailure(e);
+        return;
+      }
+
+      Image renderedImage;
+      try {
+        renderedImage = gridRenderer.render(simulation.getCurrentGrid());
+        if (renderedImage == null) {
+          throw new IllegalStateException("Grid renderer returned null");
+        }
+      } catch (Exception e) {
+        handleRenderingFailure(e);
+        return;
+      }
+
+      activeSimulation = simulation;
+      activeConfiguration = currentConfig;
+      activeImage = renderedImage;
+      displayPanel.setAutomatonImage(renderedImage);
+      stateMachine.onStep();
+      updateToolbar();
+      return;
+    }
+
+    try {
+      activeSimulation.step();
     } catch (Exception e) {
-      handleGenerationFailure();
+      handleGenerationFailure(e);
       return;
     }
 
     Image renderedImage;
     try {
-      renderedImage = gridRenderer.render(simulation.getCurrentGrid());
+      renderedImage = gridRenderer.render(activeSimulation.getCurrentGrid());
       if (renderedImage == null) {
         throw new IllegalStateException("Grid renderer returned null");
       }
     } catch (Exception e) {
-      handleRenderingFailure();
+      handleRenderingFailure(e);
       return;
     }
 
-    activeSimulation = simulation;
-    activeConfiguration = currentConfig;
     activeImage = renderedImage;
-
     displayPanel.setAutomatonImage(renderedImage);
-    toolbar.setSaveEnabled(true);
-    toolbar.setResetEnabled(true);
+    stateMachine.onStep();
+    updateToolbar();
   }
 
-  /** Generates the initial simulation state. */
-  public void generateInitial() {
-    initializeSimulation();
-  }
-
-  /** Reinitializes the simulation with a fresh seed. */
-  public void reinitializeSimulation() {
-    initializeSimulation(true);
-  }
-
-  /** Resets the active simulation to generation 0 and re-renders the initial grid. */
-  public void resetSimulation() {
-    if (activeSimulation == null) {
+  /**
+   * Resets the active simulation to generation 0 and re-renders the initial grid. Ignored when
+   * uninitialized.
+   */
+  public void reset() {
+    if (stateMachine.isUninitialized() || activeSimulation == null) {
       return;
     }
+    scheduler.stop();
     activeSimulation.reset();
+
+    Image renderedImage;
     try {
-      Image rendered = gridRenderer.render(activeSimulation.getCurrentGrid());
-      if (rendered == null) {
+      renderedImage = gridRenderer.render(activeSimulation.getCurrentGrid());
+      if (renderedImage == null) {
         throw new IllegalStateException("Grid renderer returned null");
       }
-      activeImage = rendered;
-      displayPanel.setAutomatonImage(rendered);
-      toolbar.setSaveEnabled(true);
-      toolbar.setResetEnabled(true);
     } catch (Exception e) {
-      handleRenderingFailure();
+      handleRenderingFailure(e);
+      return;
     }
+
+    activeImage = renderedImage;
+    displayPanel.setAutomatonImage(renderedImage);
+    stateMachine.onReset();
+    updateToolbar();
   }
 
-  private void handleGenerationFailure() {
+  /** Resets the active simulation to generation 0. */
+  public void resetSimulation() {
+    reset();
+  }
+
+  void tick() {
+    if (!stateMachine.isRunning() || activeSimulation == null) {
+      return;
+    }
+
+    try {
+      activeSimulation.step();
+    } catch (Exception e) {
+      handleGenerationFailure(e);
+      return;
+    }
+
+    Image renderedImage;
+    try {
+      renderedImage = gridRenderer.render(activeSimulation.getCurrentGrid());
+      if (renderedImage == null) {
+        throw new IllegalStateException("Grid renderer returned null");
+      }
+    } catch (Exception e) {
+      handleRenderingFailure(e);
+      return;
+    }
+
+    activeImage = renderedImage;
+    displayPanel.setAutomatonImage(renderedImage);
+  }
+
+  private void handleGenerationFailure(Exception e) {
+    scheduler.stop();
     activeSimulation = null;
     activeConfiguration = null;
     activeImage = null;
-    toolbar.setSaveEnabled(false);
-    toolbar.setResetEnabled(false);
+    if (!stateMachine.isUninitialized()) {
+      stateMachine.onError();
+    }
+    updateToolbar();
+    System.err.printf("Automaton generation failure: %s%n", e.getMessage());
+    e.printStackTrace(System.err);
     displayPanel.showGenerationError();
   }
 
-  private void handleRenderingFailure() {
+  private void handleRenderingFailure(Exception e) {
+    scheduler.stop();
     activeSimulation = null;
     activeConfiguration = null;
     activeImage = null;
-    toolbar.setSaveEnabled(false);
-    toolbar.setResetEnabled(false);
+    if (!stateMachine.isUninitialized()) {
+      stateMachine.onError();
+    }
+    updateToolbar();
+    System.err.printf("Automaton rendering failure: %s%n", e.getMessage());
+    e.printStackTrace(System.err);
     displayPanel.showRenderingError();
   }
 
-  void setSimulationFactory(SimulationFactory simulationFactory) {
-    this.simulationFactory =
-        simulationFactory != null ? simulationFactory : AutomataEngine::createLifeLikeSimulation;
+  private void updateToolbar() {
+    switch (stateMachine.getState()) {
+      case UNINITIALIZED -> {
+        toolbar.setPlaying(false);
+        toolbar.setPlayPauseEnabled(true);
+        toolbar.setStepEnabled(true);
+        toolbar.setResetEnabled(false);
+        toolbar.setSaveEnabled(false);
+      }
+      case RUNNING -> {
+        toolbar.setPlaying(true);
+        toolbar.setPlayPauseEnabled(true);
+        toolbar.setStepEnabled(false);
+        toolbar.setResetEnabled(true);
+        toolbar.setSaveEnabled(false);
+      }
+      case PAUSED -> {
+        toolbar.setPlaying(false);
+        toolbar.setPlayPauseEnabled(true);
+        toolbar.setStepEnabled(true);
+        toolbar.setResetEnabled(true);
+        toolbar.setSaveEnabled(false);
+      }
+      default ->
+          throw new IllegalStateException(
+              "Unhandled simulation state: %s".formatted(stateMachine.getState()));
+    }
   }
 
-  void setGridRenderer(GridRenderer gridRenderer) {
-    this.gridRenderer = gridRenderer != null ? gridRenderer : LifeLikeController::defaultRenderGrid;
+  /**
+   * Releases resources by stopping the scheduler, transitioning the state machine to stopped, and
+   * clearing active simulation references.
+   */
+  public void dispose() {
+    scheduler.stop();
+    if (!stateMachine.isUninitialized()) {
+      stateMachine.onStop();
+    }
+    activeSimulation = null;
+    activeConfiguration = null;
+    activeImage = null;
+  }
+
+  public LifeLikeStateMachine getStateMachine() {
+    return stateMachine;
+  }
+
+  public SimulationScheduler getScheduler() {
+    return scheduler;
   }
 
   public LifeLikeSimulation getActiveSimulation() {

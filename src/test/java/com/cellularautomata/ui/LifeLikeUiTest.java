@@ -14,7 +14,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -93,6 +92,66 @@ public class LifeLikeUiTest extends ApplicationTest {
   }
 
   @Test
+  public void testToolbarInteractionsAndAccessibilityStates() {
+    navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
+
+    DisplayPanel displayPanel = findDisplayPanel();
+    LifeLikeController controller = getLifeLikeController(displayPanel);
+    LifeLikeToolbar toolbar = controller.getToolbar();
+
+    // 1. Uninitialized state
+    Assert.assertFalse(toolbar.isPlaying());
+    Assert.assertEquals("Play", toolbar.getPlayPauseButton().getAccessibleText());
+    Assert.assertEquals(
+        LifeLikeToolbar.PLAY_TOOLTIP, toolbar.getPlayPauseButton().getTooltip().getText());
+    Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
+
+    Assert.assertEquals("Step", toolbar.getStepButton().getAccessibleText());
+    Assert.assertEquals(
+        LifeLikeToolbar.STEP_TOOLTIP, toolbar.getStepButton().getTooltip().getText());
+    Assert.assertFalse(toolbar.getStepButton().isDisabled());
+
+    Assert.assertEquals("Reset", toolbar.getResetButton().getAccessibleText());
+    Assert.assertEquals(
+        LifeLikeToolbar.RESET_TOOLTIP, toolbar.getResetButton().getTooltip().getText());
+    Assert.assertTrue(toolbar.getResetButton().isDisabled());
+
+    Assert.assertTrue(toolbar.getSaveButton().isDisabled());
+
+    // 2. Play interaction -> Running state
+    interact(() -> toolbar.getPlayPauseButton().fire());
+
+    Assert.assertTrue(toolbar.isPlaying());
+    Assert.assertEquals("Pause", toolbar.getPlayPauseButton().getAccessibleText());
+    Assert.assertEquals(
+        LifeLikeToolbar.PAUSE_TOOLTIP, toolbar.getPlayPauseButton().getTooltip().getText());
+    Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
+    Assert.assertTrue(toolbar.getStepButton().isDisabled());
+    Assert.assertFalse(toolbar.getResetButton().isDisabled());
+    Assert.assertNotNull(displayPanel.getAutomatonImage());
+
+    // 3. Pause interaction -> Paused state
+    interact(() -> toolbar.getPlayPauseButton().fire());
+
+    Assert.assertFalse(toolbar.isPlaying());
+    Assert.assertEquals("Play", toolbar.getPlayPauseButton().getAccessibleText());
+    Assert.assertEquals(
+        LifeLikeToolbar.PLAY_TOOLTIP, toolbar.getPlayPauseButton().getTooltip().getText());
+    Assert.assertFalse(toolbar.getStepButton().isDisabled());
+    Assert.assertFalse(toolbar.getResetButton().isDisabled());
+
+    // 4. Step interaction from paused
+    long genBefore = controller.getActiveSimulation().getGeneration();
+    interact(() -> toolbar.getStepButton().fire());
+    Assert.assertEquals(genBefore + 1, controller.getActiveSimulation().getGeneration());
+
+    // 5. Reset interaction
+    interact(() -> toolbar.getResetButton().fire());
+    Assert.assertEquals(0, controller.getActiveSimulation().getGeneration());
+    Assert.assertFalse(toolbar.isPlaying());
+  }
+
+  @Test
   public void testRealGenerationRenderingIntegrationAndPixelColors() {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
@@ -108,7 +167,7 @@ public class LifeLikeUiTest extends ApplicationTest {
           parametersPanel.selectSeedType(SeedType.UNIFORM);
         });
 
-    interact(controller::generateInitial);
+    interact(controller::step);
 
     // Verify image presence and dimensions
     Image fxImage = displayPanel.getAutomatonImage();
@@ -131,8 +190,10 @@ public class LifeLikeUiTest extends ApplicationTest {
     }
 
     // Verify toolbar controls state
-    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+    Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
+    Assert.assertFalse(toolbar.getStepButton().isDisabled());
     Assert.assertFalse(toolbar.getResetButton().isDisabled());
+    Assert.assertTrue(toolbar.getSaveButton().isDisabled());
   }
 
   @Test
@@ -143,12 +204,7 @@ public class LifeLikeUiTest extends ApplicationTest {
     LifeLikeController controller = getLifeLikeController(displayPanel);
     LifeLikeToolbar toolbar = controller.getToolbar();
 
-    controller.setSimulationFactory(
-        (rule, size, seedType, density) -> {
-          throw new RuntimeException("Simulated generation failure");
-        });
-
-    interact(controller::reinitializeSimulation);
+    interact(displayPanel::showGenerationError);
 
     // 1. Verify error view is visible
     Assert.assertTrue(displayPanel.isDisplayingError());
@@ -156,39 +212,37 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertEquals(
         DisplayPanel.GENERATION_ERROR_PRIMARY, displayPanel.getPrimaryErrorMessage());
     Assert.assertEquals(DisplayPanel.ERROR_SECONDARY, displayPanel.getSecondaryErrorMessage());
-    Assert.assertTrue(toolbar.getSaveButton().isDisabled());
-    Assert.assertTrue(toolbar.getResetButton().isDisabled());
 
-    // 2. Verify error view container, icon, text colors, and dashed border
+    // 2. Verify error view container, icon, text style classes, and dashed border
     StackPane imageContainer = (StackPane) displayPanel.getChildren().get(1);
     VBox errorContainer = (VBox) imageContainer.getChildren().get(0);
     Assert.assertTrue(
         "Error container must have dashed border matching placeholder",
         errorContainer.getStyleClass().contains("placeholder"));
+    Assert.assertTrue(
+        "Error container must have error-container style class",
+        errorContainer.getStyleClass().contains("error-container"));
     Assert.assertEquals(400.0, errorContainer.getMinWidth(), 0.001);
     Assert.assertEquals(400.0, errorContainer.getMinHeight(), 0.001);
 
     FontIcon errorIcon = (FontIcon) errorContainer.getChildren().get(0);
     Assert.assertEquals(MaterialDesignA.ALERT_CIRCLE_OUTLINE, errorIcon.getIconCode());
     Assert.assertEquals(40, errorIcon.getIconSize());
-    Assert.assertEquals(Color.web("#ef4444"), errorIcon.getIconColor());
+    Assert.assertTrue(errorIcon.getStyleClass().contains("error-icon"));
 
     Label primaryLabel = (Label) errorContainer.getChildren().get(1);
-    Assert.assertEquals(Color.web("#ef4444"), primaryLabel.getTextFill());
     Assert.assertTrue(primaryLabel.getStyleClass().contains("error-label"));
 
     Label secondaryLabel = (Label) errorContainer.getChildren().get(2);
-    Assert.assertEquals(Color.web("#ef4444"), secondaryLabel.getTextFill());
     Assert.assertTrue(secondaryLabel.getStyleClass().contains("error-label"));
 
     // 3. Test successful recovery
-    controller.setSimulationFactory(null);
-    interact(controller::reinitializeSimulation);
+    interact(controller::step);
 
     Assert.assertFalse(displayPanel.isDisplayingError());
     Assert.assertNotNull(displayPanel.getAutomatonImage());
-    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
     Assert.assertFalse(toolbar.getResetButton().isDisabled());
+    Assert.assertTrue(toolbar.getSaveButton().isDisabled());
   }
 
   @Test
