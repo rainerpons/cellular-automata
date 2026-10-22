@@ -104,6 +104,30 @@ public class ArchitectureBoundaryTest {
             "WorkspaceConfig owns workspace metadata and must remain headless without JavaFX dependencies");
   }
 
+  public static ArchRule lifeLikeConfigurationDoesNotDependOnJavaFxRule() {
+    return noClasses()
+        .that()
+        .haveSimpleName("LifeLikeConfiguration")
+        .should()
+        .dependOnClassesThat()
+        .resideInAnyPackage("javafx..")
+        .because(
+            "LifeLikeConfiguration is an immutable configuration model and must remain headless"
+                + " without JavaFX dependencies");
+  }
+
+  public static ArchRule lifeLikeStateMachineDoesNotDependOnJavaFxRule() {
+    return noClasses()
+        .that()
+        .haveSimpleName("LifeLikeStateMachine")
+        .should()
+        .dependOnClassesThat()
+        .resideInAnyPackage("javafx..")
+        .because(
+            "LifeLikeStateMachine manages lifecycle states without JavaFX dependencies so it is"
+                + " independently testable");
+  }
+
   public static ArchRule imageDoesNotDependOnUiOrJavaFxRule() {
     return noClasses()
         .that()
@@ -145,6 +169,16 @@ public class ArchitectureBoundaryTest {
   @Test
   public void testWorkspaceConfigDoesNotDependOnJavaFx() {
     workspaceConfigDoesNotDependOnJavaFxRule().check(productionClasses);
+  }
+
+  @Test
+  public void testLifeLikeConfigurationDoesNotDependOnJavaFx() {
+    lifeLikeConfigurationDoesNotDependOnJavaFxRule().check(productionClasses);
+  }
+
+  @Test
+  public void testLifeLikeStateMachineDoesNotDependOnJavaFx() {
+    lifeLikeStateMachineDoesNotDependOnJavaFxRule().check(productionClasses);
   }
 
   @Test
@@ -227,6 +261,28 @@ public class ArchitectureBoundaryTest {
             .importClasses(SelectionModelArchViolationFixture.WorkspaceConfig.class);
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("WorkspaceConfig"));
+    Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
+  }
+
+  @Test
+  public void testLifeLikeConfigurationDoesNotDependOnJavaFxDetectsViolation() {
+    ArchRule rule = lifeLikeConfigurationDoesNotDependOnJavaFxRule();
+    JavaClasses violatingClasses =
+        new ClassFileImporter()
+            .importClasses(SelectionModelArchViolationFixture.LifeLikeConfiguration.class);
+    AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
+    Assert.assertTrue(error.getMessage().contains("LifeLikeConfiguration"));
+    Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
+  }
+
+  @Test
+  public void testLifeLikeStateMachineDoesNotDependOnJavaFxDetectsViolation() {
+    ArchRule rule = lifeLikeStateMachineDoesNotDependOnJavaFxRule();
+    JavaClasses violatingClasses =
+        new ClassFileImporter()
+            .importClasses(SelectionModelArchViolationFixture.LifeLikeStateMachine.class);
+    AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
+    Assert.assertTrue(error.getMessage().contains("LifeLikeStateMachine"));
     Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
   }
 

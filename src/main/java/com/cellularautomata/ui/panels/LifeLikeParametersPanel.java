@@ -100,7 +100,12 @@ public final class LifeLikeParametersPanel {
     return selectionModel;
   }
 
-  void setSizeValue(int size) {
+  /**
+   * Sets the grid size value on the size slider.
+   *
+   * @param size grid side length
+   */
+  public void setSizeValue(int size) {
     sizeSlider.setValue(size);
   }
 
@@ -108,7 +113,12 @@ public final class LifeLikeParametersPanel {
     return sizeSlider.getLabelText();
   }
 
-  void selectPreset(LifeLikePreset preset) {
+  /**
+   * Selects a rule preset in the preset dropdown.
+   *
+   * @param preset the rule preset to select
+   */
+  public void selectPreset(LifeLikePreset preset) {
     presetComboBox.setValue(preset);
   }
 
@@ -116,14 +126,24 @@ public final class LifeLikeParametersPanel {
     return presetComboBox;
   }
 
-  void toggleBirth(int neighborCount) {
+  /**
+   * Toggles the selection state of a birth neighbor count toggle.
+   *
+   * @param neighborCount live neighbor count from 0 to 8
+   */
+  public void toggleBirth(int neighborCount) {
     ToggleButton toggle = birthToggles.get(neighborCount);
     if (!toggle.isDisabled()) {
       toggle.setSelected(!toggle.isSelected());
     }
   }
 
-  void toggleSurvival(int neighborCount) {
+  /**
+   * Toggles the selection state of a survival neighbor count toggle.
+   *
+   * @param neighborCount live neighbor count from 0 to 8
+   */
+  public void toggleSurvival(int neighborCount) {
     ToggleButton toggle = survivalToggles.get(neighborCount);
     if (!toggle.isDisabled()) {
       toggle.setSelected(!toggle.isSelected());
@@ -138,7 +158,12 @@ public final class LifeLikeParametersPanel {
     return survivalToggles.get(neighborCount);
   }
 
-  void selectSeedType(SeedType seedType) {
+  /**
+   * Selects an initial seed type in the seed type dropdown.
+   *
+   * @param seedType initial cell lattice seed type
+   */
+  public void selectSeedType(SeedType seedType) {
     seedComboBox.setValue(seedType);
   }
 
@@ -146,7 +171,12 @@ public final class LifeLikeParametersPanel {
     return seedComboBox;
   }
 
-  void setDensityValue(double density) {
+  /**
+   * Sets the alive-cell density percentage value on the density slider.
+   *
+   * @param density alive-cell density percentage (0 to 100)
+   */
+  public void setDensityValue(double density) {
     densitySlider.setValue(density);
   }
 
