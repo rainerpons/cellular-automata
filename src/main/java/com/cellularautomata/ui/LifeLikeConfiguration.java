@@ -38,43 +38,8 @@ public record LifeLikeConfiguration(
     }
     birthCounts = birthCounts != null ? Set.copyOf(birthCounts) : Set.of();
     survivalCounts = survivalCounts != null ? Set.copyOf(survivalCounts) : Set.of();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
+    if (seedType != SeedType.DENSITY) {
+      density = 0;
     }
-    if (!(obj instanceof LifeLikeConfiguration other)) {
-      return false;
-    }
-    if (size != other.size) {
-      return false;
-    }
-    if (seedType != other.seedType) {
-      return false;
-    }
-    if (!birthCounts.equals(other.birthCounts)) {
-      return false;
-    }
-    if (!survivalCounts.equals(other.survivalCounts)) {
-      return false;
-    }
-    if (seedType == SeedType.DENSITY && density != other.density) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = Integer.hashCode(size);
-    result = 31 * result + birthCounts.hashCode();
-    result = 31 * result + survivalCounts.hashCode();
-    result = 31 * result + seedType.hashCode();
-    if (seedType == SeedType.DENSITY) {
-      result = 31 * result + Integer.hashCode(density);
-    }
-    return result;
   }
 }

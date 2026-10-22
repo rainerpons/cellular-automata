@@ -57,6 +57,10 @@ public class LifeLikeConfigurationTest {
           config1,
           config2);
       Assert.assertEquals(config1.hashCode(), config2.hashCode());
+      Assert.assertEquals(0, config1.density());
+      Assert.assertEquals(0, config2.density());
+      Assert.assertEquals(0, config3.density());
+      Assert.assertEquals(0, config4.density());
 
       Assert.assertEquals(config1, config3);
       Assert.assertEquals(config1.hashCode(), config3.hashCode());
