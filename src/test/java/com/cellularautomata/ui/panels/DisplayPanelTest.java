@@ -1,10 +1,12 @@
 package com.cellularautomata.ui.panels;
 
 import com.cellularautomata.ui.JavaFxTestHelper;
+import java.util.List;
+import java.util.Set;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -43,19 +45,27 @@ public class DisplayPanelTest {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           DisplayPanel panel = new DisplayPanel();
+          Assert.assertNotNull(panel.lookup(".placeholder"));
+          Assert.assertNull(panel.lookup(".error-container"));
+
           panel.showGenerationError();
           Assert.assertTrue(panel.isDisplayingError());
+          Assert.assertNotNull(panel.lookup(".error-container"));
 
           WritableImage image = new WritableImage(400, 400);
           panel.setAutomatonImage(image);
 
           Assert.assertFalse(panel.isDisplayingError());
           Assert.assertSame(image, panel.getAutomatonImage());
+          Assert.assertNull(panel.lookup(".placeholder"));
+          Assert.assertNull(panel.lookup(".error-container"));
 
           // Setting null restores placeholder
           panel.setAutomatonImage(null);
           Assert.assertNull(panel.getAutomatonImage());
           Assert.assertFalse(panel.isDisplayingError());
+          Assert.assertNotNull(panel.lookup(".placeholder"));
+          Assert.assertNull(panel.lookup(".error-container"));
         });
   }
 
@@ -71,9 +81,9 @@ public class DisplayPanelTest {
               DisplayPanel.GENERATION_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
               panel.getErrorMessage());
 
-          // Verify error container structure and styling
-          StackPane imageContainer = (StackPane) panel.getChildren().get(1);
-          VBox errorContainer = (VBox) imageContainer.getChildren().get(0);
+          // Locate error container via semantic CSS selector
+          VBox errorContainer = (VBox) panel.lookup(".error-container");
+          Assert.assertNotNull(errorContainer);
           Assert.assertEquals(Pos.CENTER, errorContainer.getAlignment());
           Assert.assertTrue(errorContainer.getStyleClass().contains("placeholder"));
           Assert.assertTrue(errorContainer.getStyleClass().contains("error-container"));
@@ -84,21 +94,20 @@ public class DisplayPanelTest {
           Assert.assertEquals(400.0, errorContainer.getPrefHeight(), 0.001);
           Assert.assertEquals(400.0, errorContainer.getMaxHeight(), 0.001);
 
-          // Verify icon
-          Assert.assertTrue(errorContainer.getChildren().get(0) instanceof FontIcon);
-          FontIcon icon = (FontIcon) errorContainer.getChildren().get(0);
+          // Locate error icon via semantic CSS selector
+          FontIcon icon = (FontIcon) panel.lookup(".error-icon");
+          Assert.assertNotNull(icon);
           Assert.assertEquals(MaterialDesignA.ALERT_CIRCLE_OUTLINE, icon.getIconCode());
           Assert.assertEquals(40, icon.getIconSize());
           Assert.assertTrue(icon.getStyleClass().contains("error-icon"));
 
-          // Verify primary and secondary labels
-          Label primary = (Label) errorContainer.getChildren().get(1);
-          Assert.assertEquals(DisplayPanel.GENERATION_ERROR_PRIMARY, primary.getText());
-          Assert.assertTrue(primary.getStyleClass().contains("error-label"));
-
-          Label secondary = (Label) errorContainer.getChildren().get(2);
-          Assert.assertEquals(DisplayPanel.ERROR_SECONDARY, secondary.getText());
-          Assert.assertTrue(secondary.getStyleClass().contains("error-label"));
+          // Locate error labels via semantic CSS selector
+          Set<Node> errorLabels = panel.lookupAll(".error-label");
+          Assert.assertEquals(2, errorLabels.size());
+          List<String> labelTexts =
+              errorLabels.stream().map(node -> ((Label) node).getText()).toList();
+          Assert.assertTrue(labelTexts.contains(DisplayPanel.GENERATION_ERROR_PRIMARY));
+          Assert.assertTrue(labelTexts.contains(DisplayPanel.ERROR_SECONDARY));
         });
   }
 
@@ -113,6 +122,14 @@ public class DisplayPanelTest {
           Assert.assertEquals(
               DisplayPanel.RENDERING_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
               panel.getErrorMessage());
+
+          // Locate error labels via semantic CSS selector
+          Set<Node> errorLabels = panel.lookupAll(".error-label");
+          Assert.assertEquals(2, errorLabels.size());
+          List<String> labelTexts =
+              errorLabels.stream().map(node -> ((Label) node).getText()).toList();
+          Assert.assertTrue(labelTexts.contains(DisplayPanel.RENDERING_ERROR_PRIMARY));
+          Assert.assertTrue(labelTexts.contains(DisplayPanel.ERROR_SECONDARY));
         });
   }
 
@@ -125,18 +142,59 @@ public class DisplayPanelTest {
           // Case 1: No previous image -> restores placeholder
           panel.showGenerationError();
           Assert.assertTrue(panel.isDisplayingError());
+          Assert.assertNotNull(panel.lookup(".error-container"));
           panel.clearError();
           Assert.assertFalse(panel.isDisplayingError());
           Assert.assertNull(panel.getAutomatonImage());
+          Assert.assertNotNull(panel.lookup(".placeholder"));
+          Assert.assertNull(panel.lookup(".error-container"));
 
           // Case 2: Image present before error -> restores image
           WritableImage image = new WritableImage(400, 400);
           panel.setAutomatonImage(image);
+          Assert.assertNull(panel.lookup(".placeholder"));
           panel.showRenderingError();
           Assert.assertTrue(panel.isDisplayingError());
+          Assert.assertNotNull(panel.lookup(".error-container"));
           panel.clearError();
           Assert.assertFalse(panel.isDisplayingError());
           Assert.assertSame(image, panel.getAutomatonImage());
+          Assert.assertNull(panel.lookup(".placeholder"));
+          Assert.assertNull(panel.lookup(".error-container"));
+        });
+  }
+
+  @Test
+  public void testPresentationStateMutualExclusivity() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          DisplayPanel panel = new DisplayPanel();
+
+          // 1. Initial / Placeholder active state
+          Assert.assertFalse(panel.isDisplayingError());
+          Assert.assertNull(panel.getAutomatonImage());
+          Assert.assertNotNull(panel.lookup(".placeholder"));
+          Assert.assertNull(panel.lookup(".error-container"));
+
+          // 2. Image active state
+          WritableImage image = new WritableImage(400, 400);
+          panel.setAutomatonImage(image);
+          Assert.assertFalse(panel.isDisplayingError());
+          Assert.assertNotNull(panel.getAutomatonImage());
+          Assert.assertNull(panel.lookup(".placeholder"));
+          Assert.assertNull(panel.lookup(".error-container"));
+
+          // 3. Error active state
+          panel.showGenerationError();
+          Assert.assertTrue(panel.isDisplayingError());
+          Assert.assertNotNull(panel.lookup(".error-container"));
+
+          // 4. Return to placeholder state
+          panel.showPlaceholder();
+          Assert.assertFalse(panel.isDisplayingError());
+          Assert.assertNull(panel.getAutomatonImage());
+          Assert.assertNotNull(panel.lookup(".placeholder"));
+          Assert.assertNull(panel.lookup(".error-container"));
         });
   }
 }
