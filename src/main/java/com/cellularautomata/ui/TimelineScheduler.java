@@ -60,4 +60,8 @@ public final class TimelineScheduler implements SimulationScheduler {
   public boolean isRunning() {
     return timeline != null && timeline.getStatus() == Timeline.Status.RUNNING;
   }
+
+  Timeline getTimeline() {
+    return timeline;
+  }
 }
