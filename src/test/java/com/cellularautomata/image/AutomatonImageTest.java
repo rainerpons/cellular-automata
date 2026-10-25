@@ -139,6 +139,39 @@ public class AutomatonImageTest {
   }
 
   @Test
+  public void testLifeLikeBoundaryGridSizes5And155RenderAndResizeDeterministically() {
+    // Boundary size 5
+    Grid2D grid5 = new Grid2D(5, (r, c) -> (r == 0 && c == 0) || (r == 4 && c == 4));
+    BufferedImage img5 = AutomatonImage.getImageFromGrid(grid5);
+    Assert.assertEquals(5, img5.getWidth());
+    Assert.assertEquals(5, img5.getHeight());
+    Assert.assertEquals(BLACK_RGB, img5.getRGB(0, 0) & 0xFFFFFF);
+    Assert.assertEquals(WHITE_RGB, img5.getRGB(1, 1) & 0xFFFFFF);
+    Assert.assertEquals(BLACK_RGB, img5.getRGB(4, 4) & 0xFFFFFF);
+
+    BufferedImage resized5 =
+        AutomatonImage.resizeImage(
+            AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, img5);
+    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized5.getWidth());
+    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized5.getHeight());
+
+    // Boundary size 155
+    Grid2D grid155 = new Grid2D(155, (r, c) -> (r == 0 && c == 0) || (r == 154 && c == 154));
+    BufferedImage img155 = AutomatonImage.getImageFromGrid(grid155);
+    Assert.assertEquals(155, img155.getWidth());
+    Assert.assertEquals(155, img155.getHeight());
+    Assert.assertEquals(BLACK_RGB, img155.getRGB(0, 0) & 0xFFFFFF);
+    Assert.assertEquals(WHITE_RGB, img155.getRGB(1, 1) & 0xFFFFFF);
+    Assert.assertEquals(BLACK_RGB, img155.getRGB(154, 154) & 0xFFFFFF);
+
+    BufferedImage resized155 =
+        AutomatonImage.resizeImage(
+            AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, img155);
+    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized155.getWidth());
+    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized155.getHeight());
+  }
+
+  @Test
   public void testGetRgbForStateComputesEvenlySpacedGrayscale() {
     // 2 states: 0 -> white, 1 -> black
     Assert.assertEquals(0xFFFFFF, AutomatonImage.getRgbForState(0, 2));
