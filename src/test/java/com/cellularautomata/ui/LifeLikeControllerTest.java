@@ -79,7 +79,8 @@ public class LifeLikeControllerTest {
           LifeLikeToolbar toolbar = new LifeLikeToolbar();
 
           LifeLikeController controller =
-              new LifeLikeController(displayPanel, parametersPanel, toolbar);
+              new LifeLikeController(
+                  displayPanel, parametersPanel, toolbar, new ControlledScheduler());
 
           Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
           Assert.assertFalse(toolbar.isPlaying());
@@ -103,7 +104,8 @@ public class LifeLikeControllerTest {
           parametersPanel.selectSeedType(SeedType.SPARSE);
 
           LifeLikeController controller =
-              new LifeLikeController(displayPanel, parametersPanel, toolbar);
+              new LifeLikeController(
+                  displayPanel, parametersPanel, toolbar, new ControlledScheduler());
           controller.step();
 
           Assert.assertTrue(controller.hasActiveSimulation());
@@ -155,7 +157,8 @@ public class LifeLikeControllerTest {
           LifeLikeToolbar toolbar = new LifeLikeToolbar();
 
           LifeLikeController controller =
-              new LifeLikeController(displayPanel, parametersPanel, toolbar);
+              new LifeLikeController(
+                  displayPanel, parametersPanel, toolbar, new ControlledScheduler());
           controller.step();
 
           LifeLikeSimulation sim1 = controller.getActiveSimulation();
@@ -180,7 +183,8 @@ public class LifeLikeControllerTest {
           parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
 
           LifeLikeController controller =
-              new LifeLikeController(displayPanel, parametersPanel, toolbar);
+              new LifeLikeController(
+                  displayPanel, parametersPanel, toolbar, new ControlledScheduler());
           controller.step();
           Assert.assertEquals(8, controller.getActiveSimulation().getCurrentGrid().getSize());
           Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
@@ -471,7 +475,8 @@ public class LifeLikeControllerTest {
           parametersPanel.setDensityValue(50);
 
           LifeLikeController controller =
-              new LifeLikeController(displayPanel, parametersPanel, toolbar);
+              new LifeLikeController(
+                  displayPanel, parametersPanel, toolbar, new ControlledScheduler());
           controller.step();
 
           Grid2D gen1Grid = controller.getActiveSimulation().getCurrentGrid();
@@ -503,7 +508,8 @@ public class LifeLikeControllerTest {
           parametersPanel.setDensityValue(50);
 
           LifeLikeController controller =
-              new LifeLikeController(displayPanel, parametersPanel, toolbar);
+              new LifeLikeController(
+                  displayPanel, parametersPanel, toolbar, new ControlledScheduler());
           controller.step();
           controller.step();
           controller.step();
@@ -825,7 +831,8 @@ public class LifeLikeControllerTest {
           LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
           LifeLikeToolbar toolbar = new LifeLikeToolbar();
           LifeLikeController controller =
-              new LifeLikeController(displayPanel, parametersPanel, toolbar);
+              new LifeLikeController(
+                  displayPanel, parametersPanel, toolbar, new ControlledScheduler());
 
           // Test min size 5 with deterministic SPARSE seed
           parametersPanel.setSizeValue(5);
@@ -866,7 +873,8 @@ public class LifeLikeControllerTest {
           LifeLikeToolbar toolbar = new LifeLikeToolbar();
 
           LifeLikeController controller =
-              new LifeLikeController(displayPanel, parametersPanel, toolbar);
+              new LifeLikeController(
+                  displayPanel, parametersPanel, toolbar, new ControlledScheduler());
 
           // Test min size 5
           parametersPanel.setSizeValue(5);
@@ -922,7 +930,8 @@ public class LifeLikeControllerTest {
           LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
           LifeLikeToolbar toolbar = new LifeLikeToolbar();
 
-          LifeLikeController controller = new LifeLikeController(displayPanel, panel, toolbar);
+          LifeLikeController controller =
+              new LifeLikeController(displayPanel, panel, toolbar, new ControlledScheduler());
 
           // Make configuration custom: B3/S3
           panel.toggleSurvival(2);
