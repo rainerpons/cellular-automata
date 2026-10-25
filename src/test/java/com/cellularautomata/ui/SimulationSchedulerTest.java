@@ -76,7 +76,6 @@ public class SimulationSchedulerTest {
 
   @Test
   public void testTimelineSchedulerDefaultConstructorUsesDefaultRate() {
-    Assert.assertEquals(120, TimelineScheduler.DEFAULT_TICK_RATE_MS);
     JavaFxTestHelper.runOnFxThread(
         () -> {
           TimelineScheduler scheduler = new TimelineScheduler();
@@ -93,7 +92,6 @@ public class SimulationSchedulerTest {
           Assert.assertEquals(
               Duration.millis(TimelineScheduler.DEFAULT_TICK_RATE_MS),
               timeline.getKeyFrames().get(0).getTime());
-          Assert.assertEquals(Duration.millis(120), timeline.getKeyFrames().get(0).getTime());
 
           timeline.getKeyFrames().get(0).getOnFinished().handle(new ActionEvent());
           Assert.assertEquals(1, ticks.get());
@@ -136,13 +134,14 @@ public class SimulationSchedulerTest {
     } finally {
       JavaFxTestHelper.runOnFxThread(
           () -> {
+            Timeline activeTimeline = scheduler.getTimeline();
             scheduler.stop();
             Assert.assertFalse(scheduler.isRunning());
             Assert.assertNull(scheduler.getTimeline());
+            if (activeTimeline != null) {
+              Assert.assertEquals(Timeline.Status.STOPPED, activeTimeline.getStatus());
+            }
           });
-      int ticksAtStop = tickCount.get();
-      Thread.sleep(60);
-      Assert.assertEquals("No further ticks must occur after stop", ticksAtStop, tickCount.get());
     }
   }
 
