@@ -4,10 +4,16 @@ import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.shared.UiStyles;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.util.StringConverter;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,6 +56,9 @@ public class LifeLikeParametersPanelTest {
           Assert.assertTrue(panel.isDensityManaged());
           Assert.assertEquals(Set.of(3), panel.getBirthCounts());
           Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
+          Assert.assertEquals(
+              LifeLikeParametersPanel.DEFAULT_PLAYBACK_SPEED, panel.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals("1.00x", panel.getPlaybackSpeedDisplayText());
         });
   }
 
@@ -66,6 +75,7 @@ public class LifeLikeParametersPanelTest {
           Label densityLabel = grid.findLabelByPrefix("Density (");
           Label birthLabel = grid.findLabelByPrefix("Birth");
           Label survivalLabel = grid.findLabelByPrefix("Survival");
+          Label playbackSpeedLabel = grid.findLabelByPrefix("Playback speed");
           Label ruleLabel = grid.findLabelByPrefix("Rule");
 
           Assert.assertNotNull(sizeLabel);
@@ -74,6 +84,7 @@ public class LifeLikeParametersPanelTest {
           Assert.assertNotNull(densityLabel);
           Assert.assertNotNull(birthLabel);
           Assert.assertNotNull(survivalLabel);
+          Assert.assertNotNull(playbackSpeedLabel);
           Assert.assertNull(ruleLabel);
 
           Assert.assertEquals(Integer.valueOf(1), GridPane.getRowIndex(sizeLabel));
@@ -82,11 +93,23 @@ public class LifeLikeParametersPanelTest {
           Assert.assertEquals(Integer.valueOf(4), GridPane.getRowIndex(densityLabel));
           Assert.assertEquals(Integer.valueOf(5), GridPane.getRowIndex(birthLabel));
           Assert.assertEquals(Integer.valueOf(6), GridPane.getRowIndex(survivalLabel));
+          Assert.assertEquals(Integer.valueOf(7), GridPane.getRowIndex(playbackSpeedLabel));
 
           // Density slider is placed horizontally on the same row in column 1
           Assert.assertEquals(Integer.valueOf(4), GridPane.getRowIndex(panel.getDensitySlider()));
           Assert.assertEquals(
               Integer.valueOf(1), GridPane.getColumnIndex(panel.getDensitySlider()));
+
+          // Playback speed spinner is placed immediately below Survival on row 7 in column 1
+          Assert.assertEquals(
+              Integer.valueOf(7), GridPane.getRowIndex(panel.getPlaybackSpeedSpinner()));
+          Assert.assertEquals(
+              Integer.valueOf(1), GridPane.getColumnIndex(panel.getPlaybackSpeedSpinner()));
+          Assert.assertNotNull(GridPane.getMargin(survivalLabel));
+          Assert.assertEquals(
+              UiStyles.FORM_ROW_BOTTOM_GAP, GridPane.getMargin(survivalLabel).getBottom(), 0.001);
+          Assert.assertNull(GridPane.getMargin(playbackSpeedLabel));
+          Assert.assertNull(GridPane.getMargin(panel.getPlaybackSpeedSpinner()));
 
           // Slider labels have a fixed minimum width so digit changes do not shift the slider track
           Assert.assertEquals(UiStyles.FORM_LABEL_COLUMN_MIN_WIDTH, sizeLabel.getMinWidth(), 0.001);
@@ -108,9 +131,11 @@ public class LifeLikeParametersPanelTest {
           Label densityLabel = grid.findLabelByPrefix("Density (");
           Label birthLabel = grid.findLabelByPrefix("Birth");
           Label survivalLabel = grid.findLabelByPrefix("Survival");
+          Label playbackSpeedLabel = grid.findLabelByPrefix("Playback speed");
 
           Assert.assertNull(sizeLabel.getTooltip());
           Assert.assertNull(presetLabel.getTooltip());
+          Assert.assertNull(playbackSpeedLabel.getTooltip());
 
           Assert.assertNotNull(seedLabel.getTooltip());
           Assert.assertEquals(ParametersPanel.SEED_TYPE_TOOLTIP, seedLabel.getTooltip().getText());
@@ -425,5 +450,119 @@ public class LifeLikeParametersPanelTest {
             Assert.assertEquals("Size (%d)".formatted(size), panel.getSizeLabelText());
           }
         });
+  }
+
+  @Test
+  public void testPlaybackSpeedSpinnerDefaultBoundsStepsFormattingAndNoWrapAround() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+          Spinner<Double> spinner = panel.getPlaybackSpeedSpinner();
+
+          Assert.assertFalse(spinner.isEditable());
+          Assert.assertTrue(
+              spinner.getStyleClass().contains(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL));
+          Assert.assertEquals(Pos.CENTER, spinner.getEditor().getAlignment());
+          Assert.assertEquals(UiStyles.CONTROL_HEIGHT, spinner.getMinHeight(), 0.001);
+          Assert.assertEquals(UiStyles.CONTROL_HEIGHT, spinner.getPrefHeight(), 0.001);
+
+          SpinnerValueFactory.DoubleSpinnerValueFactory factory =
+              (SpinnerValueFactory.DoubleSpinnerValueFactory) spinner.getValueFactory();
+          Assert.assertFalse(factory.isWrapAround());
+          Assert.assertEquals(LifeLikeParametersPanel.MIN_PLAYBACK_SPEED, factory.getMin(), 0.001);
+          Assert.assertEquals(LifeLikeParametersPanel.MAX_PLAYBACK_SPEED, factory.getMax(), 0.001);
+          Assert.assertEquals(
+              LifeLikeParametersPanel.PLAYBACK_SPEED_STEP, factory.getAmountToStepBy(), 0.001);
+
+          // Default is 1.00x
+          Assert.assertEquals(1.00, panel.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals("1.00x", panel.getPlaybackSpeedDisplayText());
+
+          // Step down to 0.25x and verify no wraparound below minimum
+          panel.setPlaybackSpeed(LifeLikeParametersPanel.MIN_PLAYBACK_SPEED);
+          Assert.assertEquals(0.25, panel.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals("0.25x", panel.getPlaybackSpeedDisplayText());
+
+          spinner.decrement();
+          Assert.assertEquals(0.25, panel.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals("0.25x", panel.getPlaybackSpeedDisplayText());
+
+          // Step up through all 0.25x increments from 0.25x to 2.00x
+          double[] expectedSpeeds = {0.25, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00};
+          String[] expectedTexts = {
+            "0.25x", "0.50x", "0.75x", "1.00x", "1.25x", "1.50x", "1.75x", "2.00x"
+          };
+
+          for (int i = 0; i < expectedSpeeds.length; i++) {
+            Assert.assertEquals(expectedSpeeds[i], panel.getPlaybackSpeed(), 0.001);
+            Assert.assertEquals(expectedTexts[i], panel.getPlaybackSpeedDisplayText());
+            if (i < expectedSpeeds.length - 1) {
+              spinner.increment();
+            }
+          }
+
+          // Verify no wraparound above maximum
+          spinner.increment();
+          Assert.assertEquals(2.00, panel.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals("2.00x", panel.getPlaybackSpeedDisplayText());
+        });
+  }
+
+  @Test
+  public void testPlaybackSpeedClampingSnappingConverterAndListener() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+          List<Double> observedSpeeds = new ArrayList<>();
+          panel.addPlaybackSpeedListener(observedSpeeds::add);
+
+          // Clamping below min and above max
+          panel.setPlaybackSpeed(0.05);
+          Assert.assertEquals(0.25, panel.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals("0.25x", panel.getPlaybackSpeedDisplayText());
+
+          panel.setPlaybackSpeed(3.50);
+          Assert.assertEquals(2.00, panel.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals("2.00x", panel.getPlaybackSpeedDisplayText());
+
+          // Snapping to nearest 0.25 increment
+          panel.setPlaybackSpeed(1.10);
+          Assert.assertEquals(1.00, panel.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals("1.00x", panel.getPlaybackSpeedDisplayText());
+
+          panel.setPlaybackSpeed(1.15);
+          Assert.assertEquals(1.25, panel.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals("1.25x", panel.getPlaybackSpeedDisplayText());
+
+          Assert.assertEquals(List.of(0.25, 2.00, 1.00, 1.25), observedSpeeds);
+
+          // Converter formatting and parsing
+          StringConverter<Double> converter =
+              panel.getPlaybackSpeedSpinner().getValueFactory().getConverter();
+          Assert.assertEquals("", converter.toString(null));
+          Assert.assertEquals("1.50x", converter.toString(1.5));
+          Assert.assertEquals(Double.valueOf(1.75), converter.fromString("1.75x"));
+          Assert.assertEquals(Double.valueOf(0.50), converter.fromString(" 0.50X "));
+          Assert.assertEquals(Double.valueOf(1.25), converter.fromString("1.25"));
+          Assert.assertEquals(Double.valueOf(1.25), converter.fromString(null));
+          Assert.assertEquals(Double.valueOf(1.25), converter.fromString(""));
+          Assert.assertEquals(Double.valueOf(1.25), converter.fromString("x"));
+          Assert.assertEquals(Double.valueOf(1.25), converter.fromString("invalid"));
+
+          // Reject invalid non-finite speeds and null listeners
+          assertThrowsIllegalArgument(() -> panel.setPlaybackSpeed(Double.NaN));
+          assertThrowsIllegalArgument(() -> panel.setPlaybackSpeed(Double.POSITIVE_INFINITY));
+          assertThrowsIllegalArgument(() -> panel.setPlaybackSpeed(Double.NEGATIVE_INFINITY));
+          assertThrowsIllegalArgument(() -> panel.addPlaybackSpeedListener(null));
+        });
+  }
+
+  private static void assertThrowsIllegalArgument(Runnable runnable) {
+    try {
+      runnable.run();
+      Assert.fail("Expected IllegalArgumentException");
+    } catch (IllegalArgumentException expected) {
+      // Expected
+    }
   }
 }

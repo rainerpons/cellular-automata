@@ -100,7 +100,7 @@ The UI may reference authoritative domain constraints where necessary, but must 
 Application composition and coordination are responsible for connecting the UI, Image utilities, and Engine.
 
 - Application composition (`MainApp`) constructs and connects components.
-- Controllers (`MainController`) coordinate user actions and application operations.
+- Controllers (`MainController`, `LifeLikeController`) coordinate user actions and application operations.
 - Controllers should delegate domain logic, generation, and specialized operations to their appropriate owners.
 - Controllers should not accumulate unrelated responsibilities.
 - New services, interfaces, or abstractions should be introduced only when they provide meaningful separation or reuse.
@@ -129,12 +129,15 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
 - **`LifeLikeSimulation`**: Manages the simulation lifecycle, stepping, and reset state for 2D Life-like cellular automata in `engine.automata`.
 - **`MainApp`**: Application composition root and navigation layer. Assembles workspaces, initializes UI components, and connects controllers.
 - **`MainController`**: Coordinates UI actions for numeric-rule workspaces and delegates validation, rule construction, generation, and image export operations to their appropriate owners.
+- **`LifeLikeController`**: Coordinates UI actions for the Life-like workspace, managing parameter capture, simulation lifecycle, playback speed synchronization, image rendering, and image export.
+- **`LifeLikeStateMachine`**: Manages JavaFX-free simulation lifecycle state transitions (`UNINITIALIZED`, `RUNNING`, `PAUSED`) for the Life-like workspace in `ui`.
+- **`LifeLikeConfiguration`**: Captures an immutable, JavaFX-free snapshot of Life-like simulation parameters in `ui`.
 - **`LifeLikeRuleSelectionModel`**: Manages JavaFX-free preset and birth/survival selection state for the Life-like parameters panel and enforces the UI-level two-selection cap per set separately from `LifeLikeRule`'s `0..8` neighbor count domain bounds.
 - **`RuleValidator`**: Provides rule validation functionality without introducing presentation dependencies.
 - **`AutomataEngine`**: Responsible for cellular automata generation and simulation orchestration.
 - **`AutomatonImage`**: Handles automaton image rendering, resizing, and PNG file writing independently of UI controls and workspace naming policy.
 - **`AutomatonImageExport`**: Resolves initial save directories for saving automaton images.
-- **`AutomatonFileNameFormatter`**: Formats default export filenames based on workspace configuration, rule number, size, and states in `ui`.
+- **`AutomatonFileNameFormatter`**: Formats default export filenames based on workspace configuration, rule number or Life-like B/S notation, size, and states in `ui`.
 
 ## Architectural Principles
 

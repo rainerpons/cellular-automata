@@ -189,6 +189,15 @@
 .spinner .increment-arrow-button:hover, .spinner .decrement-arrow-button:hover {
     -fx-background-color: -fx-control-bg-hover;
 }
+.spinner.split-arrows-horizontal .text-field {
+    -fx-border-color: transparent -fx-control-border transparent -fx-control-border;
+    -fx-border-width: 0 1 0 1;
+    -fx-alignment: center;
+}
+.spinner.split-arrows-horizontal .increment-arrow-button,
+.spinner.split-arrows-horizontal .decrement-arrow-button {
+    -fx-padding: 0 10 0 10;
+}
 .combo-box .arrow, .spinner .increment-arrow, .spinner .decrement-arrow {
     -fx-background-color: -fx-icon-color;
 }

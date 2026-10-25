@@ -1,6 +1,9 @@
 package com.cellularautomata.ui.panels;
 
 import com.cellularautomata.ui.shared.UiStyles;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.function.IntSupplier;
 import javafx.geometry.Pos;
 import javafx.scene.control.Spinner;
@@ -11,9 +14,8 @@ import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
 
 /**
- * Package-private factory for editable numeric and dynamic-range rule spinners used by the
- * one-dimensional parameter panels ({@link ElementaryParametersPanel} and {@link
- * TotalisticParametersPanel}).
+ * Package-private factory for numeric, dynamic-range rule, and playback speed spinners used by the
+ * parameter panels.
  */
 final class NumericSpinnerFactory {
   private NumericSpinnerFactory() {}
@@ -79,6 +81,62 @@ final class NumericSpinnerFactory {
         });
 
     return createNumericSpinner(valueFactory);
+  }
+
+  /**
+   * Creates a non-editable horizontal split-arrow playback speed spinner formatted with two decimal
+   * places and an {@code x} suffix (for example, {@code 1.00x}).
+   *
+   * @param min the minimum playback speed multiplier
+   * @param max the maximum playback speed multiplier
+   * @param defaultValue the initial playback speed multiplier
+   * @param step the step increment between speeds
+   * @return the configured playback speed spinner
+   */
+  static Spinner<Double> createPlaybackSpeedSpinner(
+      double min, double max, double defaultValue, double step) {
+    SpinnerValueFactory.DoubleSpinnerValueFactory valueFactory =
+        new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, defaultValue, step);
+    valueFactory.setWrapAround(false);
+    valueFactory.setConverter(
+        new StringConverter<Double>() {
+          @Override
+          public String toString(Double value) {
+            if (value == null) {
+              return "";
+            }
+            return new DecimalFormat("0.00'x'", DecimalFormatSymbols.getInstance(Locale.ROOT))
+                .format(value);
+          }
+
+          @Override
+          public Double fromString(String string) {
+            if (string == null) {
+              return valueFactory.getValue();
+            }
+            String trimmed = string.trim();
+            if (trimmed.endsWith("x") || trimmed.endsWith("X")) {
+              trimmed = trimmed.substring(0, trimmed.length() - 1).trim();
+            }
+            if (trimmed.isEmpty()) {
+              return valueFactory.getValue();
+            }
+            try {
+              return Double.parseDouble(trimmed);
+            } catch (NumberFormatException e) {
+              return valueFactory.getValue();
+            }
+          }
+        });
+
+    Spinner<Double> spinner = new Spinner<>(valueFactory);
+    spinner.getStyleClass().add(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL);
+    spinner.setEditable(false);
+    spinner.getEditor().setAlignment(Pos.CENTER);
+    UiStyles.applyControlHeight(spinner);
+    spinner.setMaxWidth(Double.MAX_VALUE);
+    GridPane.setHgrow(spinner, Priority.ALWAYS);
+    return spinner;
   }
 
   private static <T> Spinner<T> createNumericSpinner(SpinnerValueFactory<T> factory) {

@@ -20,4 +20,14 @@ public interface SimulationScheduler {
    * @return true if actively executing periodic ticks
    */
   boolean isRunning();
+
+  /**
+   * Sets the playback speed multiplier applied to periodic simulation ticks.
+   *
+   * @param speed the playback speed multiplier (must be finite and strictly positive)
+   * @throws IllegalArgumentException if speed is NaN, infinite, or not strictly positive
+   */
+  void setPlaybackSpeed(double speed);
+
+  double getPlaybackSpeed();
 }

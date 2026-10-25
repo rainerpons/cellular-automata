@@ -8,6 +8,8 @@ public final class ControlledScheduler implements SimulationScheduler {
 
   private Runnable tickAction;
   private boolean running;
+  private double playbackSpeed = TimelineScheduler.DEFAULT_PLAYBACK_SPEED;
+  private int startCount;
 
   @Override
   public void start(Runnable tickAction) {
@@ -16,6 +18,7 @@ public final class ControlledScheduler implements SimulationScheduler {
     }
     this.tickAction = tickAction;
     this.running = true;
+    this.startCount++;
   }
 
   @Override
@@ -26,6 +29,23 @@ public final class ControlledScheduler implements SimulationScheduler {
   @Override
   public boolean isRunning() {
     return running;
+  }
+
+  @Override
+  public void setPlaybackSpeed(double speed) {
+    if (Double.isNaN(speed) || Double.isInfinite(speed) || speed <= 0.0) {
+      throw new IllegalArgumentException("Playback speed must be finite and strictly positive.");
+    }
+    this.playbackSpeed = speed;
+  }
+
+  @Override
+  public double getPlaybackSpeed() {
+    return playbackSpeed;
+  }
+
+  public int getStartCount() {
+    return startCount;
   }
 
   /**

@@ -2,20 +2,32 @@ package com.cellularautomata.ui;
 
 import com.cellularautomata.engine.Grid2D;
 import com.cellularautomata.engine.SeedType;
+import com.cellularautomata.engine.automata.LifeLikeSimulation;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
+import com.cellularautomata.ui.panels.ParametersPanel;
+import com.cellularautomata.ui.shared.UiStyles;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import javax.imageio.ImageIO;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,11 +45,13 @@ public class LifeLikeUiTest extends ApplicationTest {
 
   private Stage stage;
   private MainApp app;
+  private TestSaveDialogService dialogService;
 
   @Override
   public void start(Stage stage) {
     this.stage = stage;
-    this.app = new MainApp();
+    this.dialogService = new TestSaveDialogService();
+    this.app = new MainApp(dialogService);
     this.app.start(stage);
   }
 
@@ -99,7 +113,10 @@ public class LifeLikeUiTest extends ApplicationTest {
 
     DisplayPanel displayPanel = findDisplayPanel();
     LifeLikeController controller = app.getActiveLifeLikeController();
+    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     LifeLikeToolbar toolbar = findLifeLikeToolbar();
+
+    interact(() -> parametersPanel.selectSeedType(SeedType.ALTERNATING));
 
     // 1. Uninitialized state
     Assert.assertFalse(toolbar.isPlaying());
@@ -130,6 +147,7 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
     Assert.assertTrue(toolbar.getStepButton().isDisabled());
     Assert.assertFalse(toolbar.getResetButton().isDisabled());
+    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
     Assert.assertNotNull(displayPanel.getAutomatonImage());
 
     // 3. Pause interaction -> Paused state
@@ -141,6 +159,7 @@ public class LifeLikeUiTest extends ApplicationTest {
         LifeLikeToolbar.PLAY_TOOLTIP, toolbar.getPlayPauseButton().getTooltip().getText());
     Assert.assertFalse(toolbar.getStepButton().isDisabled());
     Assert.assertFalse(toolbar.getResetButton().isDisabled());
+    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
 
     // 4. Step interaction from paused
     long genBefore = controller.getActiveSimulation().getGeneration();
@@ -195,7 +214,7 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
     Assert.assertFalse(toolbar.getStepButton().isDisabled());
     Assert.assertFalse(toolbar.getResetButton().isDisabled());
-    Assert.assertTrue(toolbar.getSaveButton().isDisabled());
+    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
   }
 
   @Test
@@ -214,6 +233,7 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertEquals(
         DisplayPanel.GENERATION_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
         displayPanel.getErrorMessage());
+    Assert.assertTrue(toolbar.getSaveButton().isDisabled());
 
     // 2. Verify error view container and icon presentation
     VBox errorContainer = lookup(".error-container").queryAs(VBox.class);
@@ -235,7 +255,7 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertFalse(displayPanel.isDisplayingError());
     Assert.assertNotNull(displayPanel.getAutomatonImage());
     Assert.assertFalse(toolbar.getResetButton().isDisabled());
-    Assert.assertTrue(toolbar.getSaveButton().isDisabled());
+    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
   }
 
   @Test
@@ -342,6 +362,153 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertFalse(elementarySeedComboBox.getItems().contains(SeedType.DENSITY));
   }
 
+  @Test
+  public void testPlaybackSpeedSpinnerPresentationLiveSpeedChangeAndSaveExportInGui()
+      throws Exception {
+    navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
+
+    DisplayPanel displayPanel = findDisplayPanel();
+    LifeLikeController controller = app.getActiveLifeLikeController();
+    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
+    LifeLikeToolbar toolbar = findLifeLikeToolbar();
+    ParametersPanel grid = findNode(stage.getScene().getRoot(), ParametersPanel.class, null);
+    Spinner<Double> speedSpinner = findPlaybackSpeedSpinner();
+
+    Assert.assertNotNull(displayPanel);
+    Assert.assertNotNull(grid);
+    Assert.assertNotNull(speedSpinner);
+
+    // 1. Verify spinner presentation, split-arrow geometry, and row placement immediately below
+    // Survival (row 7)
+    Assert.assertTrue(
+        speedSpinner.getStyleClass().contains(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL));
+    Assert.assertFalse(speedSpinner.isEditable());
+    Assert.assertEquals(UiStyles.CONTROL_HEIGHT, speedSpinner.getMinHeight(), 0.001);
+    Assert.assertEquals(UiStyles.CONTROL_HEIGHT, speedSpinner.getPrefHeight(), 0.001);
+
+    Label survivalLabel = findNode(grid, Label.class, lbl -> "Survival".equals(lbl.getText()));
+    Label playbackSpeedLabel =
+        findNode(grid, Label.class, lbl -> "Playback speed".equals(lbl.getText()));
+    Assert.assertNotNull(survivalLabel);
+    Assert.assertNotNull(playbackSpeedLabel);
+    Assert.assertEquals(Integer.valueOf(6), GridPane.getRowIndex(survivalLabel));
+    Assert.assertEquals(Integer.valueOf(7), GridPane.getRowIndex(playbackSpeedLabel));
+    Assert.assertEquals(Integer.valueOf(7), GridPane.getRowIndex(speedSpinner));
+    Assert.assertEquals(Integer.valueOf(1), GridPane.getColumnIndex(speedSpinner));
+
+    Node decArrow = speedSpinner.lookup(".decrement-arrow-button");
+    Node editorField = speedSpinner.lookup(".text-field");
+    Node incArrow = speedSpinner.lookup(".increment-arrow-button");
+    Assert.assertNotNull(decArrow);
+    Assert.assertNotNull(editorField);
+    Assert.assertNotNull(incArrow);
+
+    Bounds decBounds = decArrow.localToScene(decArrow.getBoundsInLocal());
+    Bounds editorBounds = editorField.localToScene(editorField.getBoundsInLocal());
+    Bounds incBounds = incArrow.localToScene(incArrow.getBoundsInLocal());
+    Assert.assertTrue(
+        "Decrement button must be on the left of the text field",
+        decBounds.getMinX() < editorBounds.getMinX());
+    Assert.assertTrue(
+        "Increment button must be on the right of the text field",
+        editorBounds.getMinX() < incBounds.getMinX());
+
+    // Verify footer alignment: Back link aligned with left edge of DisplayPanel, transport toolbar
+    // flush with right edge of DisplayPanel
+    Label backLink = lookup(".navigation-link").queryAs(Label.class);
+    Assert.assertEquals("← Back to Modules", backLink.getText());
+    Assert.assertEquals(4, toolbar.getChildren().size());
+
+    Bounds displayBounds = displayPanel.localToScene(displayPanel.getBoundsInLocal());
+    Bounds backBounds = backLink.localToScene(backLink.getBoundsInLocal());
+    Bounds toolbarBounds = toolbar.localToScene(toolbar.getBoundsInLocal());
+    Assert.assertEquals(displayBounds.getMinX(), backBounds.getMinX(), 2.0);
+    Assert.assertEquals(displayBounds.getMaxX(), toolbarBounds.getMaxX(), 2.0);
+    Assert.assertTrue(toolbarBounds.getMaxX() < stage.getScene().getWidth() - 100.0);
+
+    // 2. Verify default 1.00x and value changes across bounds (0.25x to 2.00x)
+    Assert.assertEquals(1.00, parametersPanel.getPlaybackSpeed(), 0.001);
+    Assert.assertEquals("1.00x", parametersPanel.getPlaybackSpeedDisplayText());
+
+    interact(() -> parametersPanel.setPlaybackSpeed(0.25));
+    Assert.assertEquals("0.25x", speedSpinner.getEditor().getText());
+    interact(() -> speedSpinner.decrement());
+    Assert.assertEquals("0.25x", speedSpinner.getEditor().getText());
+
+    interact(() -> parametersPanel.setPlaybackSpeed(2.00));
+    Assert.assertEquals("2.00x", speedSpinner.getEditor().getText());
+    interact(() -> speedSpinner.increment());
+    Assert.assertEquals("2.00x", speedSpinner.getEditor().getText());
+
+    // 3. Configure deterministic simulation, start playback, and change speed during playback
+    // without losing generation state
+    interact(
+        () -> {
+          parametersPanel.setSizeValue(8);
+          parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+          parametersPanel.selectSeedType(SeedType.ALTERNATING);
+          parametersPanel.setPlaybackSpeed(1.00);
+          toolbar.getPlayPauseButton().fire();
+        });
+
+    LifeLikeSimulation activeSim = controller.getActiveSimulation();
+    Assert.assertNotNull(activeSim);
+    Assert.assertTrue(controller.isRunning());
+
+    interact(
+        () -> {
+          speedSpinner.increment(); // 1.25x
+          speedSpinner.increment(); // 1.50x
+        });
+
+    Assert.assertEquals(1.50, parametersPanel.getPlaybackSpeed(), 0.001);
+    Assert.assertEquals("1.50x", speedSpinner.getEditor().getText());
+    Assert.assertTrue(controller.isRunning());
+    Assert.assertSame(activeSim, controller.getActiveSimulation());
+
+    // 4. Pause, step, and click the real GUI Save button to export and verify pixels
+    interact(
+        () -> {
+          toolbar.getPlayPauseButton().fire();
+          toolbar.getStepButton().fire();
+        });
+
+    Assert.assertFalse(controller.isRunning());
+    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+    Grid2D displayedGrid = controller.getActiveSimulation().getCurrentGrid();
+
+    Path tempDir = Files.createTempDirectory("lifelike_ui_save_test");
+    File exportedFile = tempDir.resolve("exported_from_gui.png").toFile();
+    exportedFile.deleteOnExit();
+    tempDir.toFile().deleteOnExit();
+
+    dialogService.targetSaveFile = exportedFile;
+    interact(() -> toolbar.getSaveButton().fire());
+
+    Assert.assertNotNull(dialogService.lastSuggestedFileName);
+    Assert.assertTrue(
+        dialogService.lastSuggestedFileName.startsWith("life_like_ruleB3-S23_size8_"));
+    Assert.assertTrue(dialogService.lastSuggestedFileName.endsWith(".png"));
+    Assert.assertTrue(exportedFile.exists());
+
+    BufferedImage diskImage = ImageIO.read(exportedFile);
+    Assert.assertNotNull(diskImage);
+    Assert.assertEquals(400, diskImage.getWidth());
+    Assert.assertEquals(400, diskImage.getHeight());
+
+    int size = displayedGrid.getSize();
+    for (int r = 0; r < size; r++) {
+      for (int c = 0; c < size; c++) {
+        int x = (int) ((c + 0.5) * 400.0 / size);
+        int y = (int) ((r + 0.5) * 400.0 / size);
+        int actualRgb = diskImage.getRGB(x, y) & 0xFFFFFF;
+        int expectedRgb = displayedGrid.isAlive(r, c) ? 0x000000 : 0xFFFFFF;
+        Assert.assertEquals(
+            "Exported pixel mismatch at (" + r + ", " + c + ")", expectedRgb, actualRgb);
+      }
+    }
+  }
+
   private void navigateToWorkspace(WorkspaceConfig config) {
     interact(
         () -> {
@@ -397,6 +564,12 @@ public class LifeLikeUiTest extends ApplicationTest {
         cb -> !cb.getItems().isEmpty() && cb.getItems().get(0) instanceof SeedType);
   }
 
+  @SuppressWarnings("unchecked")
+  private Spinner<Double> findPlaybackSpeedSpinner() {
+    return findNode(
+        stage.getScene().getRoot(), Spinner.class, sp -> sp.getValue() instanceof Double);
+  }
+
   private static <T extends Node> T findNode(
       Node root, Class<T> clazz, java.util.function.Predicate<T> predicate) {
     if (clazz.isInstance(root)) {
@@ -423,5 +596,16 @@ public class LifeLikeUiTest extends ApplicationTest {
       }
     }
     throw new AssertionError("Button '" + text + "' not found in CommandsPanel");
+  }
+
+  private static final class TestSaveDialogService extends DialogService {
+    private String lastSuggestedFileName;
+    private File targetSaveFile;
+
+    @Override
+    public File showSaveFileDialog(Window owner, File initialDirectory, String initialFileName) {
+      this.lastSuggestedFileName = initialFileName;
+      return targetSaveFile;
+    }
   }
 }
