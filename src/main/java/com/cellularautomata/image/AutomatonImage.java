@@ -1,6 +1,8 @@
 package com.cellularautomata.image;
 
+import com.cellularautomata.engine.Grid2D;
 import com.cellularautomata.engine.Vector;
+import com.cellularautomata.engine.rules.LifeLikeRule;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +27,24 @@ public final class AutomatonImage {
   }
 
   /**
+   * Calculates the packed RGB integer for a given cell state value across the specified total
+   * states. State 0 maps to white (RGB 255, 255, 255), and the highest state (states - 1) maps to
+   * black (RGB 0, 0, 0), with evenly spaced grayscale values in between.
+   *
+   * @param stateValue cell state value (0 to states - 1)
+   * @param states total number of states (must be at least 2)
+   * @return packed 24-bit RGB value
+   * @throws IllegalArgumentException if states is less than 2
+   */
+  public static int getRgbForState(int stateValue, int states) {
+    if (states <= 1) {
+      throw new IllegalArgumentException("States must be at least 2: %d".formatted(states));
+    }
+    int gray = 255 - (stateValue * 255 / (states - 1));
+    return (gray << 16) | (gray << 8) | gray;
+  }
+
+  /**
    * Generates a (small) buffered image of an automaton.
    *
    * @param map associative array of generation count and neighborhood vectors
@@ -35,21 +55,37 @@ public final class AutomatonImage {
     final int size = map.get(0).getSize();
     var image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
 
-    // For states > 2, the image is rendered with an evenly spaced grayscale palette.
-    // The state '0' maps to white (RGB 255) and the highest state 'states - 1' maps to black (RGB
-    // 0).
     for (var entry : map.entrySet()) {
       var stateString = entry.getValue().getState();
       for (int i = 0; i < stateString.length(); i++) {
         int j = entry.getKey();
         int stateValue = stateString.charAt(i) - '0';
-
-        // grayscale value from 0 (black) to 255 (white).
-        // 0 -> 255
-        // states-1 -> 0
-        int gray = 255 - (stateValue * 255 / (states - 1));
-        int rgb = (gray << 16) | (gray << 8) | gray;
+        int rgb = getRgbForState(stateValue, states);
         image.setRGB(i, j, rgb);
+      }
+    }
+    return image;
+  }
+
+  /**
+   * Generates a buffered image from a 2D automaton grid.
+   *
+   * @param grid the grid representing automaton cell states
+   * @return image generated from the grid
+   * @throws IllegalArgumentException if grid is null
+   */
+  public static BufferedImage getImageFromGrid(Grid2D grid) {
+    if (grid == null) {
+      throw new IllegalArgumentException("Grid cannot be null.");
+    }
+    int size = grid.getSize();
+    var image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+    int deadRgb = getRgbForState(0, LifeLikeRule.STATE_COUNT);
+    int aliveRgb = getRgbForState(1, LifeLikeRule.STATE_COUNT);
+    for (int row = 0; row < size; row++) {
+      for (int col = 0; col < size; col++) {
+        int rgb = grid.isAlive(row, col) ? aliveRgb : deadRgb;
+        image.setRGB(col, row, rgb);
       }
     }
     return image;

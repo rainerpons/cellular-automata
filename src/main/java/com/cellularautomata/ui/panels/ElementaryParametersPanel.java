@@ -3,6 +3,7 @@ package com.cellularautomata.ui.panels;
 import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.ui.shared.LabeledSlider;
+import java.util.List;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
 
@@ -12,6 +13,9 @@ import javafx.scene.control.Spinner;
  * type.
  */
 public final class ElementaryParametersPanel implements NumericRuleParametersPanel {
+  public static final List<SeedType> SUPPORTED_SEEDS =
+      List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING);
+
   private final ParametersPanel panel = new ParametersPanel();
   private final LabeledSlider sizeSlider;
   private final Spinner<Integer> ruleSpinner;
@@ -26,8 +30,7 @@ public final class ElementaryParametersPanel implements NumericRuleParametersPan
             ElementaryRule.DEFAULT_RULE_NUMBER,
             () -> ElementaryRule.MAX_RULE_NUMBER);
     panel.addControlRow("Rule number", null, ruleSpinner, true);
-    seedComboBox =
-        panel.addSeedTypeRow(ParametersPanel.ONE_DIMENSIONAL_SEEDS, SeedType.UNIFORM, false);
+    seedComboBox = panel.addSeedTypeRow(SUPPORTED_SEEDS, SeedType.UNIFORM, false);
   }
 
   @Override

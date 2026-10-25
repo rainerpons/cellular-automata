@@ -6,6 +6,7 @@ import com.cellularautomata.engine.EngineArchViolationFixture;
 import com.cellularautomata.engine.rules.RulesArchViolationFixture;
 import com.cellularautomata.image.ImageArchViolationFixture;
 import com.cellularautomata.ui.SelectionModelArchViolationFixture;
+import com.cellularautomata.ui.panels.DisplayPanel;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
@@ -104,6 +105,30 @@ public class ArchitectureBoundaryTest {
             "WorkspaceConfig owns workspace metadata and must remain headless without JavaFX dependencies");
   }
 
+  public static ArchRule lifeLikeConfigurationDoesNotDependOnJavaFxRule() {
+    return noClasses()
+        .that()
+        .haveSimpleName("LifeLikeConfiguration")
+        .should()
+        .dependOnClassesThat()
+        .resideInAnyPackage("javafx..")
+        .because(
+            "LifeLikeConfiguration is an immutable configuration model and must remain headless"
+                + " without JavaFX dependencies");
+  }
+
+  public static ArchRule lifeLikeStateMachineDoesNotDependOnJavaFxRule() {
+    return noClasses()
+        .that()
+        .haveSimpleName("LifeLikeStateMachine")
+        .should()
+        .dependOnClassesThat()
+        .resideInAnyPackage("javafx..")
+        .because(
+            "LifeLikeStateMachine manages lifecycle states without JavaFX dependencies so it is"
+                + " independently testable");
+  }
+
   public static ArchRule imageDoesNotDependOnUiOrJavaFxRule() {
     return noClasses()
         .that()
@@ -113,6 +138,14 @@ public class ArchitectureBoundaryTest {
         .resideInAnyPackage("com.cellularautomata.ui..", "javafx..")
         .because(
             "Image utilities must remain headless and strictly independent of UI components and configurations");
+  }
+
+  public static ArchRule displayPanelPropertiesNeverUsedRule() {
+    return noClasses()
+        .should()
+        .callMethod(DisplayPanel.class, "getProperties")
+        .because(
+            "DisplayPanel.getProperties() must never be used to store or retrieve controllers");
   }
 
   // --- Production Verification Tests ---
@@ -148,8 +181,24 @@ public class ArchitectureBoundaryTest {
   }
 
   @Test
+  public void testLifeLikeConfigurationDoesNotDependOnJavaFx() {
+    lifeLikeConfigurationDoesNotDependOnJavaFxRule().check(productionClasses);
+  }
+
+  @Test
+  public void testLifeLikeStateMachineDoesNotDependOnJavaFx() {
+    lifeLikeStateMachineDoesNotDependOnJavaFxRule().check(productionClasses);
+  }
+
+  @Test
   public void testImageDoesNotDependOnUiOrJavaFx() {
     imageDoesNotDependOnUiOrJavaFxRule().check(productionClasses);
+  }
+
+  @Test
+  public void testDisplayPanelPropertiesNeverCalledInProductionOrTests() {
+    JavaClasses allClasses = new ClassFileImporter().importPackages("com.cellularautomata");
+    displayPanelPropertiesNeverUsedRule().check(allClasses);
   }
 
   // --- Deliberate Violation Detection Tests ---
@@ -227,6 +276,28 @@ public class ArchitectureBoundaryTest {
             .importClasses(SelectionModelArchViolationFixture.WorkspaceConfig.class);
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("WorkspaceConfig"));
+    Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
+  }
+
+  @Test
+  public void testLifeLikeConfigurationDoesNotDependOnJavaFxDetectsViolation() {
+    ArchRule rule = lifeLikeConfigurationDoesNotDependOnJavaFxRule();
+    JavaClasses violatingClasses =
+        new ClassFileImporter()
+            .importClasses(SelectionModelArchViolationFixture.LifeLikeConfiguration.class);
+    AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
+    Assert.assertTrue(error.getMessage().contains("LifeLikeConfiguration"));
+    Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
+  }
+
+  @Test
+  public void testLifeLikeStateMachineDoesNotDependOnJavaFxDetectsViolation() {
+    ArchRule rule = lifeLikeStateMachineDoesNotDependOnJavaFxRule();
+    JavaClasses violatingClasses =
+        new ClassFileImporter()
+            .importClasses(SelectionModelArchViolationFixture.LifeLikeStateMachine.class);
+    AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
+    Assert.assertTrue(error.getMessage().contains("LifeLikeStateMachine"));
     Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
   }
 

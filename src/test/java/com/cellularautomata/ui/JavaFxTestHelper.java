@@ -43,6 +43,12 @@ public final class JavaFxTestHelper {
       } else {
         initialized = true;
       }
+    } catch (IllegalStateException e) {
+      if ("Toolkit already initialized".equals(e.getMessage())) {
+        initialized = true;
+      } else {
+        initializationFailure = e;
+      }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       initializationFailure =

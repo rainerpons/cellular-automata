@@ -27,6 +27,12 @@
 - Avoid tests coupled to incidental implementation details, internal structure, or a particular algorithm when externally observable behavior is what matters.
 - Do not add tests solely to increase coverage metrics; focus on the confidence they provide.
 - Keep tests maintainable and update them when intended behavior changes.
+- Ensure tests actually exercise the behavior they claim to verify. Manually invoking a scheduled callback, for example, does not prove that the scheduler executes it.
+- Prefer deterministic tests with controlled inputs, dependencies, and execution. Do not use arbitrary sleeps, polling delays, or timing-dependent assertions to establish correctness.
+- For asynchronous integration tests, bounded timeouts are acceptable to prevent indefinite hangs, but should not substitute for meaningful synchronization.
+- Avoid redundant assertions, hardcoded duplicates of production constants, and tests that merely reproduce implementation logic.
+- Verify both successful behavior and meaningful failure paths, including relevant lifecycle transitions and edge cases.
+- Run relevant tests and verification checks before reporting completion. Clearly distinguish verified results from assumptions or unverified claims.
 
 ## Static Analysis
 

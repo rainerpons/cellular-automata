@@ -4,9 +4,9 @@ import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.shared.UiStyles;
-import java.util.List;
 import java.util.Set;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -25,13 +25,25 @@ public class LifeLikeParametersPanelTest {
         () -> {
           LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
 
-          Assert.assertEquals(8, panel.getSizeValue());
-          Assert.assertEquals("Size (8)", panel.getSizeLabelText());
+          Assert.assertEquals(
+              LifeLikeParametersPanel.MIN_SIZE, (int) panel.getSizeSlider().getMin());
+          Assert.assertEquals(
+              LifeLikeParametersPanel.MAX_SIZE, (int) panel.getSizeSlider().getMax());
+          Assert.assertEquals(
+              LifeLikeParametersPanel.SIZE_MAJOR_TICK,
+              panel.getSizeSlider().getMajorTickUnit(),
+              0.001);
+          Assert.assertTrue(panel.getSizeSlider().isShowTickMarks());
+          Assert.assertFalse(panel.getSizeSlider().isSnapToTicks());
+          Assert.assertEquals(LifeLikeParametersPanel.DEFAULT_SIZE, panel.getSizeValue());
+          Assert.assertEquals(
+              "Size (%d)".formatted(LifeLikeParametersPanel.DEFAULT_SIZE),
+              panel.getSizeLabelText());
           Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, panel.getPreset());
           Assert.assertEquals(SeedType.DENSITY, panel.getSeedType());
           Assert.assertEquals(
-              List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
-              panel.getSeedComboBox().getItems());
+              LifeLikeParametersPanel.SUPPORTED_SEEDS, panel.getSeedComboBox().getItems());
+          Assert.assertFalse(panel.getSeedComboBox().getItems().contains(SeedType.UNIFORM));
           Assert.assertEquals(50, panel.getDensityValue());
           Assert.assertEquals("Density (50%)", panel.getDensityLabelText());
           Assert.assertTrue(panel.isDensityVisible());
@@ -123,17 +135,17 @@ public class LifeLikeParametersPanelTest {
         () -> {
           LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
 
-          panel.setSizeValue(4);
-          Assert.assertEquals(4, panel.getSizeValue());
-          Assert.assertEquals("Size (4)", panel.getSizeLabelText());
+          panel.setSizeValue(5);
+          Assert.assertEquals(5, panel.getSizeValue());
+          Assert.assertEquals("Size (5)", panel.getSizeLabelText());
 
           panel.setSizeValue(64);
           Assert.assertEquals(64, panel.getSizeValue());
           Assert.assertEquals("Size (64)", panel.getSizeLabelText());
 
-          panel.setSizeValue(128);
-          Assert.assertEquals(128, panel.getSizeValue());
-          Assert.assertEquals("Size (128)", panel.getSizeLabelText());
+          panel.setSizeValue(155);
+          Assert.assertEquals(155, panel.getSizeValue());
+          Assert.assertEquals("Size (155)", panel.getSizeLabelText());
         });
   }
 
@@ -267,11 +279,7 @@ public class LifeLikeParametersPanelTest {
           Assert.assertEquals(100, panel.getDensityValue());
           Assert.assertEquals("Density (100%)", panel.getDensityLabelText());
 
-          // Hidden and unmanaged for Uniform, Sparse, Alternating
-          panel.selectSeedType(SeedType.UNIFORM);
-          Assert.assertFalse(panel.isDensityVisible());
-          Assert.assertFalse(panel.isDensityManaged());
-
+          // Hidden and unmanaged for Sparse and Alternating
           panel.selectSeedType(SeedType.SPARSE);
           Assert.assertFalse(panel.isDensityVisible());
           Assert.assertFalse(panel.isDensityManaged());
@@ -284,6 +292,138 @@ public class LifeLikeParametersPanelTest {
           panel.selectSeedType(SeedType.DENSITY);
           Assert.assertTrue(panel.isDensityVisible());
           Assert.assertTrue(panel.isDensityManaged());
+        });
+  }
+
+  @Test
+  public void testCustomPresetDropdownScenario1ConwaysGameOfLife() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+          panel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+
+          Assert.assertEquals("Conway's Game of Life", panel.getPresetDisplayText());
+          Assert.assertEquals(
+              "Conway's Game of Life", panel.getPresetComboBox().getButtonCell().getText());
+          Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, panel.getPreset());
+          Assert.assertEquals(Set.of(3), panel.getBirthCounts());
+          Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
+          Assert.assertTrue(panel.getBirthToggle(3).isSelected());
+          Assert.assertTrue(panel.getSurvivalToggle(2).isSelected());
+          Assert.assertTrue(panel.getSurvivalToggle(3).isSelected());
+        });
+  }
+
+  @Test
+  public void testCustomPresetDropdownScenario2NonPresetDisplaysCustom() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+          panel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+
+          // Change to non-preset B3/S3 by unchecking survival 2
+          panel.toggleSurvival(2);
+
+          Assert.assertEquals("Custom", panel.getPresetDisplayText());
+          Assert.assertEquals("Custom", panel.getPresetComboBox().getButtonCell().getText());
+          Assert.assertNull(panel.getPreset());
+          Assert.assertFalse(panel.getPresetComboBox().getButtonCell().getText().isEmpty());
+          Assert.assertEquals(Set.of(3), panel.getBirthCounts());
+          Assert.assertEquals(Set.of(3), panel.getSurvivalCounts());
+        });
+  }
+
+  @Test
+  public void testCustomPresetDropdownScenario3MatchingHighLifeDisplaysHighLife() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+          // Start from Conway B3/S23, toggle birth 6 on to get B36/S23 (HighLife)
+          panel.toggleBirth(6);
+
+          Assert.assertEquals("HighLife", panel.getPresetDisplayText());
+          Assert.assertEquals("HighLife", panel.getPresetComboBox().getButtonCell().getText());
+          Assert.assertEquals(LifeLikePreset.HIGH_LIFE, panel.getPreset());
+          Assert.assertEquals(Set.of(3, 6), panel.getBirthCounts());
+          Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
+          Assert.assertTrue(panel.getBirthToggle(3).isSelected());
+          Assert.assertTrue(panel.getBirthToggle(6).isSelected());
+          Assert.assertTrue(panel.getSurvivalToggle(2).isSelected());
+          Assert.assertTrue(panel.getSurvivalToggle(3).isSelected());
+        });
+  }
+
+  @Test
+  public void testCustomPresetDropdownScenario4RestoringConwayDisplaysConway() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+          // Switch to HighLife B36/S23
+          panel.toggleBirth(6);
+          Assert.assertEquals("HighLife", panel.getPresetDisplayText());
+
+          // Toggle birth 6 off -> restores B3/S23
+          panel.toggleBirth(6);
+
+          Assert.assertEquals("Conway's Game of Life", panel.getPresetDisplayText());
+          Assert.assertEquals(
+              "Conway's Game of Life", panel.getPresetComboBox().getButtonCell().getText());
+          Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, panel.getPreset());
+          Assert.assertEquals(Set.of(3), panel.getBirthCounts());
+          Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
+        });
+  }
+
+  @Test
+  public void testCustomPresetDropdownScenario5SelectingPresetWhileCustomDisplayed() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+          // Change to custom by toggling survival 2 off
+          panel.toggleSurvival(2);
+          Assert.assertEquals("Custom", panel.getPresetDisplayText());
+          Assert.assertEquals("Custom", panel.getPresetComboBox().getButtonCell().getText());
+
+          // Select named preset Seeds (B2/S)
+          panel.selectPreset(LifeLikePreset.SEEDS);
+
+          Assert.assertEquals("Seeds", panel.getPresetDisplayText());
+          Assert.assertEquals("Seeds", panel.getPresetComboBox().getButtonCell().getText());
+          Assert.assertEquals(LifeLikePreset.SEEDS, panel.getPreset());
+          Assert.assertEquals(Set.of(2), panel.getBirthCounts());
+          Assert.assertTrue(panel.getSurvivalCounts().isEmpty());
+          Assert.assertTrue(panel.getBirthToggle(2).isSelected());
+          Assert.assertFalse(panel.getBirthToggle(3).isSelected());
+          for (int count = 0; count <= 8; count++) {
+            Assert.assertFalse(panel.getSurvivalToggle(count).isSelected());
+          }
+        });
+  }
+
+  @Test
+  public void testLifeLikeSizeSliderPropertiesAndFullIntegerSelectionRange() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+          Slider slider = panel.getSizeSlider();
+
+          Assert.assertEquals(LifeLikeParametersPanel.MIN_SIZE, slider.getMin(), 0.001);
+          Assert.assertEquals(LifeLikeParametersPanel.MAX_SIZE, slider.getMax(), 0.001);
+          Assert.assertEquals(LifeLikeParametersPanel.DEFAULT_SIZE, slider.getValue(), 0.001);
+          Assert.assertEquals(
+              LifeLikeParametersPanel.SIZE_MAJOR_TICK, slider.getMajorTickUnit(), 0.001);
+          Assert.assertEquals(0, slider.getMinorTickCount());
+          Assert.assertFalse(slider.isSnapToTicks());
+          Assert.assertTrue(slider.isShowTickMarks());
+          Assert.assertTrue(slider.isShowTickLabels());
+
+          for (int size = LifeLikeParametersPanel.MIN_SIZE;
+              size <= LifeLikeParametersPanel.MAX_SIZE;
+              size++) {
+            panel.setSizeValue(size);
+            Assert.assertEquals(size, panel.getSizeValue());
+            Assert.assertEquals("Size (%d)".formatted(size), panel.getSizeLabelText());
+          }
         });
   }
 }

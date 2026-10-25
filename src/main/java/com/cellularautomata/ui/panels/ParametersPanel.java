@@ -18,17 +18,16 @@ import javafx.scene.layout.Priority;
  * labels, and shared parameter rows.
  */
 public final class ParametersPanel extends GridPane {
-  public static final int MIN_SIZE = 4;
-  public static final int MAX_SIZE = 128;
+  public static final int DEFAULT_MIN_SIZE = 4;
+  public static final int DEFAULT_MAX_SIZE = 128;
   public static final int DEFAULT_SIZE = 8;
+  public static final double DEFAULT_SIZE_MAJOR_TICK = 1.0;
+
+  public static final int MIN_SIZE = DEFAULT_MIN_SIZE;
+  public static final int MAX_SIZE = DEFAULT_MAX_SIZE;
 
   public static final String SEED_TYPE_TOOLTIP =
       "Determines how cells are initially populated when generating a new automaton.";
-
-  public static final List<SeedType> ONE_DIMENSIONAL_SEEDS =
-      List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING);
-  public static final List<SeedType> TWO_DIMENSIONAL_SEEDS =
-      List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING);
 
   private int currentRow = 1;
 
@@ -46,16 +45,44 @@ public final class ParametersPanel extends GridPane {
   }
 
   /**
+   * Adds a horizontal Size slider row with custom bounds and tick configurations.
+   *
+   * @param min minimum slider value
+   * @param max maximum slider value
+   * @param defaultValue initial slider value
+   * @param majorTickUnit unit distance between major tick marks
+   * @param showTicks whether tick marks and labels are visible
+   * @param snapToTicks whether slider snaps to tick units
+   * @return the created {@link LabeledSlider}
+   */
+  public LabeledSlider addSizeSliderRow(
+      int min,
+      int max,
+      int defaultValue,
+      double majorTickUnit,
+      boolean showTicks,
+      boolean snapToTicks) {
+    LabeledSlider sizeSlider =
+        new LabeledSlider(
+            min,
+            max,
+            defaultValue,
+            majorTickUnit,
+            showTicks,
+            snapToTicks,
+            size -> "Size (%d)".formatted(size));
+    addSliderRow(sizeSlider, null, true);
+    return sizeSlider;
+  }
+
+  /**
    * Adds the standard horizontal Size slider row (4 to 128, default 8) to the panel.
    *
    * @return the created {@link LabeledSlider}
    */
   public LabeledSlider addSizeSliderRow() {
-    LabeledSlider sizeSlider =
-        new LabeledSlider(
-            MIN_SIZE, MAX_SIZE, DEFAULT_SIZE, 1, false, true, size -> "Size (%d)".formatted(size));
-    addSliderRow(sizeSlider, null, true);
-    return sizeSlider;
+    return addSizeSliderRow(
+        DEFAULT_MIN_SIZE, DEFAULT_MAX_SIZE, DEFAULT_SIZE, DEFAULT_SIZE_MAJOR_TICK, false, true);
   }
 
   /**

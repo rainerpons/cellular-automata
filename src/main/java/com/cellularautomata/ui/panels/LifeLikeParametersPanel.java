@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
@@ -22,6 +23,13 @@ import javafx.scene.layout.Priority;
  * and birth and survival neighbor count toggles (0 to 8).
  */
 public final class LifeLikeParametersPanel {
+  public static final int MIN_SIZE = 5;
+  public static final int MAX_SIZE = 155;
+  public static final int DEFAULT_SIZE = 8;
+  public static final double SIZE_MAJOR_TICK = 25.0;
+  public static final List<SeedType> SUPPORTED_SEEDS =
+      List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING);
+
   static final int MIN_DENSITY = 0;
   static final int MAX_DENSITY = 100;
   static final int DEFAULT_DENSITY = 50;
@@ -52,10 +60,10 @@ public final class LifeLikeParametersPanel {
 
   /** Constructs the Life-like parameters panel with default Conway's Game of Life settings. */
   public LifeLikeParametersPanel() {
-    sizeSlider = panel.addSizeSliderRow();
+    sizeSlider =
+        panel.addSizeSliderRow(MIN_SIZE, MAX_SIZE, DEFAULT_SIZE, SIZE_MAJOR_TICK, true, false);
     presetComboBox = addPresetRow();
-    seedComboBox =
-        panel.addSeedTypeRow(ParametersPanel.TWO_DIMENSIONAL_SEEDS, SeedType.DENSITY, true);
+    seedComboBox = panel.addSeedTypeRow(SUPPORTED_SEEDS, SeedType.DENSITY, true);
     densitySlider = addDensityRow();
     panel.addControlRow("Birth", BIRTH_TOOLTIP, createNeighborToggleRow(birthToggles, true), true);
     panel.addControlRow(
@@ -74,6 +82,20 @@ public final class LifeLikeParametersPanel {
 
   public LifeLikePreset getPreset() {
     return selectionModel.getPreset();
+  }
+
+  /**
+   * Returns the display text for the active preset, or {@code "Custom"} when arbitrary birth and
+   * survival counts are selected.
+   *
+   * @return the preset display name or {@code "Custom"}
+   */
+  public String getPresetDisplayText() {
+    LifeLikePreset preset = selectionModel.getPreset();
+    if (preset == null) {
+      return "Custom";
+    }
+    return preset.getDisplayName();
   }
 
   public Set<Integer> getBirthCounts() {
@@ -100,7 +122,12 @@ public final class LifeLikeParametersPanel {
     return selectionModel;
   }
 
-  void setSizeValue(int size) {
+  /**
+   * Sets the grid size value on the size slider.
+   *
+   * @param size grid side length
+   */
+  public void setSizeValue(int size) {
     sizeSlider.setValue(size);
   }
 
@@ -108,7 +135,12 @@ public final class LifeLikeParametersPanel {
     return sizeSlider.getLabelText();
   }
 
-  void selectPreset(LifeLikePreset preset) {
+  /**
+   * Selects a rule preset in the preset dropdown.
+   *
+   * @param preset the rule preset to select
+   */
+  public void selectPreset(LifeLikePreset preset) {
     presetComboBox.setValue(preset);
   }
 
@@ -116,14 +148,24 @@ public final class LifeLikeParametersPanel {
     return presetComboBox;
   }
 
-  void toggleBirth(int neighborCount) {
+  /**
+   * Toggles the selection state of a birth neighbor count toggle.
+   *
+   * @param neighborCount live neighbor count from 0 to 8
+   */
+  public void toggleBirth(int neighborCount) {
     ToggleButton toggle = birthToggles.get(neighborCount);
     if (!toggle.isDisabled()) {
       toggle.setSelected(!toggle.isSelected());
     }
   }
 
-  void toggleSurvival(int neighborCount) {
+  /**
+   * Toggles the selection state of a survival neighbor count toggle.
+   *
+   * @param neighborCount live neighbor count from 0 to 8
+   */
+  public void toggleSurvival(int neighborCount) {
     ToggleButton toggle = survivalToggles.get(neighborCount);
     if (!toggle.isDisabled()) {
       toggle.setSelected(!toggle.isSelected());
@@ -138,7 +180,12 @@ public final class LifeLikeParametersPanel {
     return survivalToggles.get(neighborCount);
   }
 
-  void selectSeedType(SeedType seedType) {
+  /**
+   * Selects an initial seed type in the seed type dropdown.
+   *
+   * @param seedType initial cell lattice seed type
+   */
+  public void selectSeedType(SeedType seedType) {
     seedComboBox.setValue(seedType);
   }
 
@@ -146,7 +193,12 @@ public final class LifeLikeParametersPanel {
     return seedComboBox;
   }
 
-  void setDensityValue(double density) {
+  /**
+   * Sets the alive-cell density percentage value on the density slider.
+   *
+   * @param density alive-cell density percentage (0 to 100)
+   */
+  public void setDensityValue(double density) {
     densitySlider.setValue(density);
   }
 
@@ -166,14 +218,22 @@ public final class LifeLikeParametersPanel {
     return densitySlider.getSlider();
   }
 
+  Slider getSizeSlider() {
+    return sizeSlider.getSlider();
+  }
+
   private ComboBox<LifeLikePreset> addPresetRow() {
     ComboBox<LifeLikePreset> comboBox =
         UiStyles.createDropdown(
             List.of(LifeLikePreset.values()), LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+    comboBox.setPromptText("Custom");
+    PresetButtonCell buttonCell = new PresetButtonCell();
+    comboBox.setButtonCell(buttonCell);
     comboBox
         .valueProperty()
         .addListener(
             (obs, oldVal, newVal) -> {
+              buttonCell.update(newVal);
               if (updatingControls || newVal == null) {
                 return;
               }
@@ -182,6 +242,26 @@ public final class LifeLikeParametersPanel {
             });
     panel.addControlRow("Preset", null, comboBox, true);
     return comboBox;
+  }
+
+  private static final class PresetButtonCell extends ListCell<LifeLikePreset> {
+    PresetButtonCell() {
+      update(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+    }
+
+    void update(LifeLikePreset item) {
+      updateItem(item, item == null);
+    }
+
+    @Override
+    protected void updateItem(LifeLikePreset item, boolean empty) {
+      super.updateItem(item, empty);
+      if (empty || item == null) {
+        setText("Custom");
+      } else {
+        setText(item.getDisplayName());
+      }
+    }
   }
 
   private LabeledSlider addDensityRow() {
@@ -227,9 +307,10 @@ public final class LifeLikeParametersPanel {
     }
     if (isBirth) {
       selectionModel.setBirthSelected(neighborCount, selected);
-    } else {
-      selectionModel.setSurvivalSelected(neighborCount, selected);
+      syncControlsFromModel();
+      return;
     }
+    selectionModel.setSurvivalSelected(neighborCount, selected);
     syncControlsFromModel();
   }
 
@@ -237,6 +318,9 @@ public final class LifeLikeParametersPanel {
     updatingControls = true;
     try {
       presetComboBox.setValue(selectionModel.getPreset());
+      if (presetComboBox.getButtonCell() instanceof PresetButtonCell cell) {
+        cell.update(selectionModel.getPreset());
+      }
       for (int count = LifeLikeRule.MIN_NEIGHBOR_COUNT;
           count <= LifeLikeRule.MAX_NEIGHBOR_COUNT;
           count++) {

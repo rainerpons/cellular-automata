@@ -97,26 +97,19 @@ public class ParametersPanelTest {
   }
 
   @Test
-  public void testSeedTypeConstants() {
-    Assert.assertEquals(
-        List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
-        ParametersPanel.ONE_DIMENSIONAL_SEEDS);
-    Assert.assertEquals(
-        List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
-        ParametersPanel.TWO_DIMENSIONAL_SEEDS);
-
-    try {
-      ParametersPanel.ONE_DIMENSIONAL_SEEDS.add(SeedType.DENSITY);
-      Assert.fail("Expected UnsupportedOperationException on ONE_DIMENSIONAL_SEEDS mutation");
-    } catch (UnsupportedOperationException expected) {
-      // Expected unmodifiable list
-    }
-
-    try {
-      ParametersPanel.TWO_DIMENSIONAL_SEEDS.add(SeedType.DENSITY);
-      Assert.fail("Expected UnsupportedOperationException on TWO_DIMENSIONAL_SEEDS mutation");
-    } catch (UnsupportedOperationException expected) {
-      // Expected unmodifiable list
-    }
+  public void testOneDimensionalParametersPanelSeedTypesIncludeUniformSparseAlternating() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          ParametersPanel panel = new ParametersPanel();
+          javafx.scene.control.ComboBox<SeedType> comboBox =
+              panel.addSeedTypeRow(
+                  ElementaryParametersPanel.SUPPORTED_SEEDS, SeedType.UNIFORM, false);
+          Assert.assertEquals(
+              List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
+              comboBox.getItems());
+          Assert.assertTrue(comboBox.getItems().contains(SeedType.UNIFORM));
+          Assert.assertFalse(comboBox.getItems().contains(SeedType.DENSITY));
+          Assert.assertEquals(SeedType.UNIFORM, comboBox.getValue());
+        });
   }
 }
