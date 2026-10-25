@@ -67,8 +67,25 @@ public final class LifeLikeController {
    * @param parametersPanel the parameters panel
    * @param toolbar the simulation toolbar
    */
-  public LifeLikeController(
+  LifeLikeController(
       DisplayPanel displayPanel, LifeLikeParametersPanel parametersPanel, LifeLikeToolbar toolbar) {
+    this(displayPanel, parametersPanel, toolbar, new TimelineScheduler());
+  }
+
+  /**
+   * Constructs the Life-like controller with default simulation and rendering collaborators and an
+   * injected scheduler.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the parameters panel
+   * @param toolbar the simulation toolbar
+   * @param scheduler periodic tick scheduler
+   */
+  LifeLikeController(
+      DisplayPanel displayPanel,
+      LifeLikeParametersPanel parametersPanel,
+      LifeLikeToolbar toolbar,
+      SimulationScheduler scheduler) {
     this(
         displayPanel,
         parametersPanel,
@@ -76,7 +93,7 @@ public final class LifeLikeController {
         new LifeLikeStateMachine(),
         AutomataEngine::createLifeLikeSimulation,
         LifeLikeController::defaultRenderGrid,
-        new TimelineScheduler());
+        scheduler);
   }
 
   /**

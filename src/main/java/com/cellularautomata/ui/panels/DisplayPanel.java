@@ -1,11 +1,13 @@
 package com.cellularautomata.ui.panels;
 
+import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.ui.shared.UiStyles;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
@@ -53,13 +55,8 @@ public final class DisplayPanel extends VBox {
     getChildren().add(displayHeading);
 
     // Add placeholder label, replaced by the automaton image after generation.
-    placeholderLabel = new Label(placeholderText);
-    placeholderLabel.setTextAlignment(TextAlignment.CENTER);
-    placeholderLabel.setAlignment(Pos.CENTER);
-    placeholderLabel.getStyleClass().add("placeholder");
-    placeholderLabel.setMinSize(400, 400);
-    placeholderLabel.setPrefSize(400, 400);
-    placeholderLabel.setMaxSize(400, 400);
+    placeholderLabel = createCenteredLabel(placeholderText, "placeholder");
+    applyDisplayBounds(placeholderLabel);
 
     automatonImageView = new ImageView();
     automatonImageView.setPreserveRatio(true);
@@ -68,31 +65,36 @@ public final class DisplayPanel extends VBox {
     errorIcon.setIconSize(ERROR_ICON_SIZE);
     errorIcon.getStyleClass().add("error-icon");
 
-    primaryErrorLabel = new Label();
-    primaryErrorLabel.setTextAlignment(TextAlignment.CENTER);
-    primaryErrorLabel.setAlignment(Pos.CENTER);
-    primaryErrorLabel.getStyleClass().add("error-label");
-
-    secondaryErrorLabel = new Label();
-    secondaryErrorLabel.setTextAlignment(TextAlignment.CENTER);
-    secondaryErrorLabel.setAlignment(Pos.CENTER);
-    secondaryErrorLabel.getStyleClass().add("error-label");
+    primaryErrorLabel = createCenteredLabel(null, "error-label");
+    secondaryErrorLabel = createCenteredLabel(null, "error-label");
 
     errorContainer = new VBox(ERROR_SPACING);
     errorContainer.setAlignment(Pos.CENTER);
     errorContainer.getStyleClass().addAll("placeholder", "error-container");
-    errorContainer.setMinSize(400, 400);
-    errorContainer.setPrefSize(400, 400);
-    errorContainer.setMaxSize(400, 400);
+    applyDisplayBounds(errorContainer);
     errorContainer.getChildren().addAll(errorIcon, primaryErrorLabel, secondaryErrorLabel);
 
     imageContainer = new StackPane();
-    imageContainer.setMinSize(400, 400);
-    imageContainer.setPrefSize(400, 400);
-    imageContainer.setMaxSize(400, 400);
-    imageContainer.getChildren().add(placeholderLabel);
+    applyDisplayBounds(imageContainer);
+    imageContainer.getChildren().setAll(placeholderLabel);
 
     getChildren().add(imageContainer);
+  }
+
+  private static void applyDisplayBounds(Region region) {
+    region.setMinSize(AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE);
+    region.setPrefSize(AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE);
+    region.setMaxSize(AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE);
+  }
+
+  private static Label createCenteredLabel(String text, String... styleClasses) {
+    Label label = text == null ? new Label() : new Label(text);
+    label.setTextAlignment(TextAlignment.CENTER);
+    label.setAlignment(Pos.CENTER);
+    if (styleClasses != null && styleClasses.length > 0) {
+      label.getStyleClass().addAll(styleClasses);
+    }
+    return label;
   }
 
   /**
@@ -105,12 +107,8 @@ public final class DisplayPanel extends VBox {
       showPlaceholder();
       return;
     }
-    imageContainer.getChildren().remove(placeholderLabel);
-    imageContainer.getChildren().remove(errorContainer);
     automatonImageView.setImage(image);
-    if (!imageContainer.getChildren().contains(automatonImageView)) {
-      imageContainer.getChildren().add(automatonImageView);
-    }
+    imageContainer.getChildren().setAll(automatonImageView);
   }
 
   /**
@@ -122,11 +120,7 @@ public final class DisplayPanel extends VBox {
   public void showError(String primaryMessage, String secondaryMessage) {
     primaryErrorLabel.setText(primaryMessage);
     secondaryErrorLabel.setText(secondaryMessage);
-    imageContainer.getChildren().remove(placeholderLabel);
-    imageContainer.getChildren().remove(automatonImageView);
-    if (!imageContainer.getChildren().contains(errorContainer)) {
-      imageContainer.getChildren().add(errorContainer);
-    }
+    imageContainer.getChildren().setAll(errorContainer);
   }
 
   /** Displays the standard automaton generation failure error view. */
@@ -144,26 +138,17 @@ public final class DisplayPanel extends VBox {
     if (!isDisplayingError()) {
       return;
     }
-    imageContainer.getChildren().remove(errorContainer);
     if (automatonImageView.getImage() != null) {
-      if (!imageContainer.getChildren().contains(automatonImageView)) {
-        imageContainer.getChildren().add(automatonImageView);
-      }
+      imageContainer.getChildren().setAll(automatonImageView);
       return;
     }
-    if (!imageContainer.getChildren().contains(placeholderLabel)) {
-      imageContainer.getChildren().add(placeholderLabel);
-    }
+    imageContainer.getChildren().setAll(placeholderLabel);
   }
 
   /** Restores the placeholder view and clears any active image and error. */
   public void showPlaceholder() {
-    imageContainer.getChildren().remove(errorContainer);
-    imageContainer.getChildren().remove(automatonImageView);
     automatonImageView.setImage(null);
-    if (!imageContainer.getChildren().contains(placeholderLabel)) {
-      imageContainer.getChildren().add(placeholderLabel);
-    }
+    imageContainer.getChildren().setAll(placeholderLabel);
   }
 
   public boolean isDisplayingError() {
@@ -186,14 +171,6 @@ public final class DisplayPanel extends VBox {
       return primary;
     }
     return primary + "\n" + secondary;
-  }
-
-  public String getPrimaryErrorMessage() {
-    return isDisplayingError() ? primaryErrorLabel.getText() : null;
-  }
-
-  public String getSecondaryErrorMessage() {
-    return isDisplayingError() ? secondaryErrorLabel.getText() : null;
   }
 
   public Image getAutomatonImage() {

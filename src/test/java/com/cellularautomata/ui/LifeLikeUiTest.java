@@ -214,8 +214,8 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertTrue(displayPanel.isDisplayingError());
     Assert.assertNull(displayPanel.getAutomatonImage());
     Assert.assertEquals(
-        DisplayPanel.GENERATION_ERROR_PRIMARY, displayPanel.getPrimaryErrorMessage());
-    Assert.assertEquals(DisplayPanel.ERROR_SECONDARY, displayPanel.getSecondaryErrorMessage());
+        DisplayPanel.GENERATION_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
+        displayPanel.getErrorMessage());
 
     // 2. Verify error view container, icon, text style classes, and dashed border
     StackPane imageContainer = (StackPane) displayPanel.getChildren().get(1);

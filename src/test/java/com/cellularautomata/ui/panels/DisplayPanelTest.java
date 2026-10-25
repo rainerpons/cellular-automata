@@ -68,9 +68,6 @@ public class DisplayPanelTest {
 
           Assert.assertTrue(panel.isDisplayingError());
           Assert.assertEquals(
-              DisplayPanel.GENERATION_ERROR_PRIMARY, panel.getPrimaryErrorMessage());
-          Assert.assertEquals(DisplayPanel.ERROR_SECONDARY, panel.getSecondaryErrorMessage());
-          Assert.assertEquals(
               DisplayPanel.GENERATION_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
               panel.getErrorMessage());
 
@@ -113,8 +110,9 @@ public class DisplayPanelTest {
           panel.showRenderingError();
 
           Assert.assertTrue(panel.isDisplayingError());
-          Assert.assertEquals(DisplayPanel.RENDERING_ERROR_PRIMARY, panel.getPrimaryErrorMessage());
-          Assert.assertEquals(DisplayPanel.ERROR_SECONDARY, panel.getSecondaryErrorMessage());
+          Assert.assertEquals(
+              DisplayPanel.RENDERING_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
+              panel.getErrorMessage());
         });
   }
 

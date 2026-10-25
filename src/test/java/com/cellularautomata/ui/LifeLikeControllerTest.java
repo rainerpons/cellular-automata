@@ -39,6 +39,15 @@ public class LifeLikeControllerTest {
           assertThrowsIllegalArgument(() -> new LifeLikeController(display, params, null));
 
           assertThrowsIllegalArgument(
+              () -> new LifeLikeController(null, params, toolbar, scheduler));
+          assertThrowsIllegalArgument(
+              () -> new LifeLikeController(display, null, toolbar, scheduler));
+          assertThrowsIllegalArgument(
+              () -> new LifeLikeController(display, params, null, scheduler));
+          assertThrowsIllegalArgument(
+              () -> new LifeLikeController(display, params, toolbar, (SimulationScheduler) null));
+
+          assertThrowsIllegalArgument(
               () ->
                   new LifeLikeController(null, params, toolbar, sm, factory, renderer, scheduler));
           assertThrowsIllegalArgument(
@@ -324,9 +333,8 @@ public class LifeLikeControllerTest {
 
           Assert.assertTrue(displayPanel.isDisplayingError());
           Assert.assertEquals(
-              DisplayPanel.GENERATION_ERROR_PRIMARY, displayPanel.getPrimaryErrorMessage());
-          Assert.assertEquals(
-              DisplayPanel.ERROR_SECONDARY, displayPanel.getSecondaryErrorMessage());
+              DisplayPanel.GENERATION_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
+              displayPanel.getErrorMessage());
 
           Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
           Assert.assertFalse(toolbar.getStepButton().isDisabled());
@@ -369,9 +377,8 @@ public class LifeLikeControllerTest {
 
           Assert.assertTrue(displayPanel.isDisplayingError());
           Assert.assertEquals(
-              DisplayPanel.RENDERING_ERROR_PRIMARY, displayPanel.getPrimaryErrorMessage());
-          Assert.assertEquals(
-              DisplayPanel.ERROR_SECONDARY, displayPanel.getSecondaryErrorMessage());
+              DisplayPanel.RENDERING_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
+              displayPanel.getErrorMessage());
 
           Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
           Assert.assertFalse(toolbar.getStepButton().isDisabled());
@@ -874,6 +881,74 @@ public class LifeLikeControllerTest {
           Image image155 = controller.getActiveImage();
           Assert.assertEquals(400.0, image155.getWidth(), 0.001);
           Assert.assertEquals(400.0, image155.getHeight(), 0.001);
+        });
+  }
+
+  @Test
+  public void testFourArgumentConstructorUsesInjectedSchedulerAndDefaultCollaborators() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          DisplayPanel displayPanel = new DisplayPanel();
+          LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
+          LifeLikeToolbar toolbar = new LifeLikeToolbar();
+          ControlledScheduler scheduler = new ControlledScheduler();
+
+          LifeLikeController controller =
+              new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
+
+          controller.step();
+          Assert.assertTrue(controller.hasActiveSimulation());
+          Assert.assertNotNull(controller.getActiveImage());
+          Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
+
+          controller.play();
+          Assert.assertTrue(controller.isRunning());
+          Assert.assertTrue(scheduler.isRunning());
+
+          scheduler.tick();
+          Assert.assertEquals(2, controller.getActiveSimulation().getGeneration());
+
+          controller.pause();
+          Assert.assertFalse(controller.isRunning());
+          Assert.assertFalse(scheduler.isRunning());
+        });
+  }
+
+  @Test
+  public void testCustomPresetDropdownScenario6CustomRemainsDisplayedThroughPlayPauseStepReset() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          DisplayPanel displayPanel = new DisplayPanel();
+          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
+          LifeLikeToolbar toolbar = new LifeLikeToolbar();
+
+          LifeLikeController controller = new LifeLikeController(displayPanel, panel, toolbar);
+
+          // Make configuration custom: B3/S3
+          panel.toggleSurvival(2);
+          Assert.assertEquals("Custom", panel.getPresetDisplayText());
+
+          // 1. Step
+          controller.step();
+          Assert.assertEquals("Custom", panel.getPresetDisplayText());
+          Assert.assertNull(panel.getPreset());
+
+          // 2. Play
+          controller.play();
+          Assert.assertEquals("Custom", panel.getPresetDisplayText());
+          Assert.assertNull(panel.getPreset());
+
+          // 3. Pause
+          controller.pause();
+          Assert.assertEquals("Custom", panel.getPresetDisplayText());
+          Assert.assertNull(panel.getPreset());
+
+          // 4. Reset
+          controller.reset();
+          Assert.assertEquals("Custom", panel.getPresetDisplayText());
+          Assert.assertNull(panel.getPreset());
+
+          controller.dispose();
         });
   }
 
