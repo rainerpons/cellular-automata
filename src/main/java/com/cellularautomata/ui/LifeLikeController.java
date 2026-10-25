@@ -8,7 +8,6 @@ import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.image.BufferedImage;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -21,7 +20,7 @@ public final class LifeLikeController {
 
   /** Factory for creating {@link LifeLikeSimulation} instances. */
   @FunctionalInterface
-  public interface SimulationFactory {
+  interface SimulationFactory {
 
     /**
      * Creates a simulation instance.
@@ -38,7 +37,7 @@ public final class LifeLikeController {
 
   /** Renderer converting a {@link Grid2D} instance to a JavaFX {@link Image}. */
   @FunctionalInterface
-  public interface GridRenderer {
+  interface GridRenderer {
 
     /**
      * Renders a grid to an image.
@@ -91,10 +90,7 @@ public final class LifeLikeController {
    * @param gridRenderer renderer converting {@link Grid2D} to JavaFX {@link Image}
    * @param scheduler periodic tick scheduler
    */
-  @SuppressFBWarnings(
-      value = "EI_EXPOSE_REP2",
-      justification = "Collaborators are injected UI and engine components held for coordination")
-  public LifeLikeController(
+  LifeLikeController(
       DisplayPanel displayPanel,
       LifeLikeParametersPanel parametersPanel,
       LifeLikeToolbar toolbar,
@@ -136,7 +132,6 @@ public final class LifeLikeController {
     toolbar.addResetListener(event -> reset());
 
     updateToolbar();
-    this.displayPanel.getProperties().put(LifeLikeController.class, this);
   }
 
   private static Image defaultRenderGrid(Grid2D grid) {
@@ -147,7 +142,11 @@ public final class LifeLikeController {
     return SwingFXUtils.toFXImage(resized, null);
   }
 
-  /** Captures current form parameters as an immutable configuration model. */
+  /**
+   * Captures current form parameters as an immutable configuration model.
+   *
+   * @return the captured configuration snapshot
+   */
   public LifeLikeConfiguration captureConfiguration() {
     return new LifeLikeConfiguration(
         parametersPanel.getSizeValue(),
@@ -157,60 +156,83 @@ public final class LifeLikeController {
         parametersPanel.getDensityValue());
   }
 
-  /**
-   * Toggles simulation between running and paused. Initializes simulation from current settings if
-   * uninitialized or if settings have changed.
-   */
-  public void togglePlayPause() {
-    if (stateMachine.isRunning()) {
-      scheduler.stop();
-      stateMachine.onPause();
-      updateToolbar();
-      return;
-    }
-
+  private boolean prepareSimulation() {
     LifeLikeConfiguration currentConfig = captureConfiguration();
     boolean needsInit =
         stateMachine.isUninitialized()
             || activeSimulation == null
             || !currentConfig.equals(activeConfiguration);
 
-    if (needsInit) {
-      LifeLikeSimulation simulation;
-      try {
-        LifeLikeRule rule =
-            new LifeLikeRule(currentConfig.birthCounts(), currentConfig.survivalCounts());
-        simulation =
-            simulationFactory.create(
-                rule, currentConfig.size(), currentConfig.seedType(), currentConfig.density());
-        if (simulation == null) {
-          throw new IllegalStateException("Simulation factory returned null");
-        }
-      } catch (Exception e) {
-        handleGenerationFailure(e);
-        return;
-      }
-
-      Image renderedImage;
-      try {
-        renderedImage = gridRenderer.render(simulation.getCurrentGrid());
-        if (renderedImage == null) {
-          throw new IllegalStateException("Grid renderer returned null");
-        }
-      } catch (Exception e) {
-        handleRenderingFailure(e);
-        return;
-      }
-
-      activeSimulation = simulation;
-      activeConfiguration = currentConfig;
-      activeImage = renderedImage;
-      displayPanel.setAutomatonImage(renderedImage);
+    if (!needsInit) {
+      return true;
     }
 
+    LifeLikeSimulation simulation;
+    try {
+      LifeLikeRule rule =
+          new LifeLikeRule(currentConfig.birthCounts(), currentConfig.survivalCounts());
+      simulation =
+          simulationFactory.create(
+              rule, currentConfig.size(), currentConfig.seedType(), currentConfig.density());
+      if (simulation == null) {
+        throw new IllegalStateException("Simulation factory returned null");
+      }
+    } catch (Exception e) {
+      handleGenerationFailure(e);
+      return false;
+    }
+
+    Image renderedImage;
+    try {
+      renderedImage = gridRenderer.render(simulation.getCurrentGrid());
+      if (renderedImage == null) {
+        throw new IllegalStateException("Grid renderer returned null");
+      }
+    } catch (Exception e) {
+      handleRenderingFailure(e);
+      return false;
+    }
+
+    activeSimulation = simulation;
+    activeConfiguration = currentConfig;
+    activeImage = renderedImage;
+    displayPanel.setAutomatonImage(renderedImage);
+    return true;
+  }
+
+  /**
+   * Starts or resumes the simulation. Initializes generation 0 if uninitialized or if parameters
+   * have changed.
+   */
+  public void play() {
+    if (stateMachine.isRunning()) {
+      return;
+    }
+    if (!prepareSimulation()) {
+      return;
+    }
     stateMachine.onPlay();
     updateToolbar();
     scheduler.start(this::tick);
+  }
+
+  /** Pauses the simulation at the current generation. */
+  public void pause() {
+    if (!stateMachine.isRunning()) {
+      return;
+    }
+    scheduler.stop();
+    stateMachine.onPause();
+    updateToolbar();
+  }
+
+  /** Toggles simulation between running and paused. */
+  public void togglePlayPause() {
+    if (stateMachine.isRunning()) {
+      pause();
+    } else {
+      play();
+    }
   }
 
   /**
@@ -221,53 +243,7 @@ public final class LifeLikeController {
     if (stateMachine.isRunning()) {
       return;
     }
-
-    LifeLikeConfiguration currentConfig = captureConfiguration();
-    boolean needsInit =
-        stateMachine.isUninitialized()
-            || activeSimulation == null
-            || !currentConfig.equals(activeConfiguration);
-
-    if (needsInit) {
-      LifeLikeSimulation simulation;
-      try {
-        LifeLikeRule rule =
-            new LifeLikeRule(currentConfig.birthCounts(), currentConfig.survivalCounts());
-        simulation =
-            simulationFactory.create(
-                rule, currentConfig.size(), currentConfig.seedType(), currentConfig.density());
-        if (simulation == null) {
-          throw new IllegalStateException("Simulation factory returned null");
-        }
-      } catch (Exception e) {
-        handleGenerationFailure(e);
-        return;
-      }
-
-      try {
-        simulation.step();
-      } catch (Exception e) {
-        handleGenerationFailure(e);
-        return;
-      }
-
-      Image renderedImage;
-      try {
-        renderedImage = gridRenderer.render(simulation.getCurrentGrid());
-        if (renderedImage == null) {
-          throw new IllegalStateException("Grid renderer returned null");
-        }
-      } catch (Exception e) {
-        handleRenderingFailure(e);
-        return;
-      }
-
-      activeSimulation = simulation;
-      activeConfiguration = currentConfig;
-      activeImage = renderedImage;
-      displayPanel.setAutomatonImage(renderedImage);
-      stateMachine.onStep();
-      updateToolbar();
+    if (!prepareSimulation()) {
       return;
     }
 
@@ -321,11 +297,6 @@ public final class LifeLikeController {
     displayPanel.setAutomatonImage(renderedImage);
     stateMachine.onReset();
     updateToolbar();
-  }
-
-  /** Resets the active simulation to generation 0. */
-  public void resetSimulation() {
-    reset();
   }
 
   void tick() {
@@ -426,42 +397,27 @@ public final class LifeLikeController {
     activeImage = null;
   }
 
-  public LifeLikeStateMachine getStateMachine() {
-    return stateMachine;
+  LifeLikeStateMachine.State getState() {
+    return stateMachine.getState();
   }
 
-  public SimulationScheduler getScheduler() {
-    return scheduler;
+  boolean isRunning() {
+    return stateMachine.isRunning();
   }
 
-  public LifeLikeSimulation getActiveSimulation() {
+  LifeLikeSimulation getActiveSimulation() {
     return activeSimulation;
   }
 
-  public LifeLikeConfiguration getActiveConfiguration() {
+  LifeLikeConfiguration getActiveConfiguration() {
     return activeConfiguration;
   }
 
-  @SuppressFBWarnings(
-      value = "EI_EXPOSE_REP",
-      justification = "Rendered JavaFX image is intentionally exposed for view inspection")
-  public Image getActiveImage() {
+  Image getActiveImage() {
     return activeImage;
   }
 
-  public boolean hasActiveSimulation() {
+  boolean hasActiveSimulation() {
     return activeSimulation != null;
-  }
-
-  DisplayPanel getDisplayPanel() {
-    return displayPanel;
-  }
-
-  LifeLikeParametersPanel getParametersPanel() {
-    return parametersPanel;
-  }
-
-  LifeLikeToolbar getToolbar() {
-    return toolbar;
   }
 }

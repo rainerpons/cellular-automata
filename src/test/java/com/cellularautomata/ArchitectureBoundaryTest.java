@@ -6,6 +6,7 @@ import com.cellularautomata.engine.EngineArchViolationFixture;
 import com.cellularautomata.engine.rules.RulesArchViolationFixture;
 import com.cellularautomata.image.ImageArchViolationFixture;
 import com.cellularautomata.ui.SelectionModelArchViolationFixture;
+import com.cellularautomata.ui.panels.DisplayPanel;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
@@ -139,6 +140,14 @@ public class ArchitectureBoundaryTest {
             "Image utilities must remain headless and strictly independent of UI components and configurations");
   }
 
+  public static ArchRule displayPanelPropertiesNeverUsedRule() {
+    return noClasses()
+        .should()
+        .callMethod(DisplayPanel.class, "getProperties")
+        .because(
+            "DisplayPanel.getProperties() must never be used to store or retrieve controllers");
+  }
+
   // --- Production Verification Tests ---
 
   @Test
@@ -184,6 +193,12 @@ public class ArchitectureBoundaryTest {
   @Test
   public void testImageDoesNotDependOnUiOrJavaFx() {
     imageDoesNotDependOnUiOrJavaFxRule().check(productionClasses);
+  }
+
+  @Test
+  public void testDisplayPanelPropertiesNeverCalledInProductionOrTests() {
+    JavaClasses allClasses = new ClassFileImporter().importPackages("com.cellularautomata");
+    displayPanelPropertiesNeverUsedRule().check(allClasses);
   }
 
   // --- Deliberate Violation Detection Tests ---

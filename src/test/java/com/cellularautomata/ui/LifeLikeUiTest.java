@@ -6,9 +6,12 @@ import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
+import java.util.List;
+import java.util.Set;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -31,12 +34,13 @@ public class LifeLikeUiTest extends ApplicationTest {
   }
 
   private Stage stage;
+  private MainApp app;
 
   @Override
   public void start(Stage stage) {
     this.stage = stage;
-    MainApp app = new MainApp();
-    app.start(stage);
+    this.app = new MainApp();
+    this.app.start(stage);
   }
 
   @Test
@@ -67,9 +71,9 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertFalse(displayPanel.isDisplayingError());
 
     // 5. Verify parameter controls can be selected
-    LifeLikeController controller = getLifeLikeController(displayPanel);
+    LifeLikeController controller = app.getActiveLifeLikeController();
     Assert.assertNotNull(controller);
-    LifeLikeParametersPanel parametersPanel = controller.getParametersPanel();
+    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     Assert.assertNotNull(parametersPanel);
 
     interact(
@@ -96,8 +100,8 @@ public class LifeLikeUiTest extends ApplicationTest {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeController controller = getLifeLikeController(displayPanel);
-    LifeLikeToolbar toolbar = controller.getToolbar();
+    LifeLikeController controller = app.getActiveLifeLikeController();
+    LifeLikeToolbar toolbar = findLifeLikeToolbar();
 
     // 1. Uninitialized state
     Assert.assertFalse(toolbar.isPlaying());
@@ -156,15 +160,15 @@ public class LifeLikeUiTest extends ApplicationTest {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeController controller = getLifeLikeController(displayPanel);
-    LifeLikeParametersPanel parametersPanel = controller.getParametersPanel();
-    LifeLikeToolbar toolbar = controller.getToolbar();
+    LifeLikeController controller = app.getActiveLifeLikeController();
+    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
+    LifeLikeToolbar toolbar = findLifeLikeToolbar();
 
     interact(
         () -> {
           parametersPanel.setSizeValue(8);
           parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
-          parametersPanel.selectSeedType(SeedType.UNIFORM);
+          parametersPanel.selectSeedType(SeedType.SPARSE);
         });
 
     interact(controller::step);
@@ -201,8 +205,8 @@ public class LifeLikeUiTest extends ApplicationTest {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeController controller = getLifeLikeController(displayPanel);
-    LifeLikeToolbar toolbar = controller.getToolbar();
+    LifeLikeController controller = app.getActiveLifeLikeController();
+    LifeLikeToolbar toolbar = findLifeLikeToolbar();
 
     interact(displayPanel::showGenerationError);
 
@@ -287,6 +291,123 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertFalse(totalisticSave.isDisabled());
   }
 
+  @Test
+  public void testCustomPresetDropdownAllSixScenariosInGui() {
+    navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
+
+    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
+    LifeLikeToolbar toolbar = findLifeLikeToolbar();
+    ComboBox<LifeLikePreset> presetComboBox = findPresetComboBox();
+    Assert.assertNotNull(presetComboBox);
+
+    // Scenario 1: Selecting Conway's Game of Life displays its name ("Conway's Game of Life") and
+    // selects B3/S23.
+    Assert.assertEquals("Conway's Game of Life", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Conway's Game of Life", presetComboBox.getButtonCell().getText());
+    Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, parametersPanel.getPreset());
+    Assert.assertEquals(Set.of(3), parametersPanel.getBirthCounts());
+    Assert.assertEquals(Set.of(2, 3), parametersPanel.getSurvivalCounts());
+
+    // Scenario 2: Changing B/S to a non-preset combination displays "Custom", not an empty
+    // selection.
+    interact(() -> parametersPanel.toggleSurvival(2)); // B3/S3 is non-preset
+    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
+    Assert.assertFalse(presetComboBox.getButtonCell().getText().isEmpty());
+    Assert.assertNull(parametersPanel.getPreset());
+    Assert.assertEquals(Set.of(3), parametersPanel.getBirthCounts());
+    Assert.assertEquals(Set.of(3), parametersPanel.getSurvivalCounts());
+
+    // Scenario 3: Changing B/S to match HighLife automatically displays "HighLife".
+    // HighLife is B36/S23: restore S2 and add B6
+    interact(
+        () -> {
+          parametersPanel.toggleSurvival(2);
+          parametersPanel.toggleBirth(6);
+        });
+    Assert.assertEquals("HighLife", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("HighLife", presetComboBox.getButtonCell().getText());
+    Assert.assertEquals(LifeLikePreset.HIGH_LIFE, parametersPanel.getPreset());
+    Assert.assertEquals(Set.of(3, 6), parametersPanel.getBirthCounts());
+    Assert.assertEquals(Set.of(2, 3), parametersPanel.getSurvivalCounts());
+
+    // Scenario 4: Restoring B3/S23 automatically displays "Conway's Game of Life".
+    interact(() -> parametersPanel.toggleBirth(6)); // toggle off B6 -> B3/S23
+    Assert.assertEquals("Conway's Game of Life", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Conway's Game of Life", presetComboBox.getButtonCell().getText());
+    Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, parametersPanel.getPreset());
+    Assert.assertEquals(Set.of(3), parametersPanel.getBirthCounts());
+    Assert.assertEquals(Set.of(2, 3), parametersPanel.getSurvivalCounts());
+
+    // Scenario 5: Selecting a named preset while "Custom" is displayed correctly updates the B/S
+    // controls and dropdown.
+    interact(() -> parametersPanel.toggleSurvival(2)); // make Custom
+    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
+
+    interact(
+        () -> presetComboBox.setValue(LifeLikePreset.SEEDS)); // Select named preset Seeds (B2/S)
+    Assert.assertEquals("Seeds", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Seeds", presetComboBox.getButtonCell().getText());
+    Assert.assertEquals(LifeLikePreset.SEEDS, parametersPanel.getPreset());
+    Assert.assertEquals(Set.of(2), parametersPanel.getBirthCounts());
+    Assert.assertTrue(parametersPanel.getSurvivalCounts().isEmpty());
+
+    // Scenario 6: "Custom" remains displayed through Play, Pause, Step, and Reset unless the user
+    // changes the B/S configuration.
+    interact(() -> parametersPanel.toggleBirth(6)); // B26/S is non-preset -> Custom
+    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
+
+    // Step
+    interact(() -> toolbar.getStepButton().fire());
+    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
+
+    // Play
+    interact(() -> toolbar.getPlayPauseButton().fire());
+    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
+
+    // Pause
+    interact(() -> toolbar.getPlayPauseButton().fire());
+    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
+
+    // Reset
+    interact(() -> toolbar.getResetButton().fire());
+    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
+    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
+    Assert.assertEquals(Set.of(2, 6), parametersPanel.getBirthCounts());
+    Assert.assertTrue(parametersPanel.getSurvivalCounts().isEmpty());
+  }
+
+  @Test
+  public void testLifeLikeSeedTypesDropdownInGui() {
+    navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
+
+    ComboBox<SeedType> seedComboBox = findSeedComboBox();
+    Assert.assertNotNull(seedComboBox);
+
+    Assert.assertEquals(
+        List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING), seedComboBox.getItems());
+    Assert.assertEquals(SeedType.DENSITY, seedComboBox.getValue());
+    Assert.assertFalse(seedComboBox.getItems().contains(SeedType.UNIFORM));
+
+    // Return to modules and check Elementary workspace
+    Label backLink = lookup(".navigation-link").queryAs(Label.class);
+    interact(() -> backLink.getOnMouseClicked().handle(null));
+
+    navigateToWorkspace(WorkspaceConfig.ELEMENTARY);
+    ComboBox<SeedType> elementarySeedComboBox = findSeedComboBox();
+    Assert.assertNotNull(elementarySeedComboBox);
+    Assert.assertEquals(
+        List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
+        elementarySeedComboBox.getItems());
+    Assert.assertTrue(elementarySeedComboBox.getItems().contains(SeedType.UNIFORM));
+    Assert.assertFalse(elementarySeedComboBox.getItems().contains(SeedType.DENSITY));
+  }
+
   private void navigateToWorkspace(WorkspaceConfig config) {
     interact(
         () -> {
@@ -318,12 +439,28 @@ public class LifeLikeUiTest extends ApplicationTest {
     return findNode(stage.getScene().getRoot(), CommandsPanel.class, null);
   }
 
-  private static LifeLikeController getLifeLikeController(DisplayPanel displayPanel) {
-    Object controller = displayPanel.getProperties().get(LifeLikeController.class);
-    if (controller instanceof LifeLikeController llc) {
-      return llc;
-    }
-    throw new AssertionError("LifeLikeController property not found on DisplayPanel");
+  private LifeLikeToolbar findLifeLikeToolbar() {
+    return findNode(stage.getScene().getRoot(), LifeLikeToolbar.class, null);
+  }
+
+  private LifeLikeParametersPanel findLifeLikeParametersPanel() {
+    return app.getActiveLifeLikeParametersPanel();
+  }
+
+  @SuppressWarnings("unchecked")
+  private ComboBox<LifeLikePreset> findPresetComboBox() {
+    return findNode(
+        stage.getScene().getRoot(),
+        ComboBox.class,
+        cb -> !cb.getItems().isEmpty() && cb.getItems().get(0) instanceof LifeLikePreset);
+  }
+
+  @SuppressWarnings("unchecked")
+  private ComboBox<SeedType> findSeedComboBox() {
+    return findNode(
+        stage.getScene().getRoot(),
+        ComboBox.class,
+        cb -> !cb.getItems().isEmpty() && cb.getItems().get(0) instanceof SeedType);
   }
 
   private static <T extends Node> T findNode(

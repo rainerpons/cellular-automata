@@ -25,6 +25,8 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
 
   private final DialogService dialogService = new DialogService();
+  private LifeLikeController activeLifeLikeController;
+  private LifeLikeParametersPanel activeLifeLikeParametersPanel;
 
   /** Constructs the main application. */
   public MainApp() {}
@@ -104,11 +106,15 @@ public class MainApp extends Application {
     DisplayPanel displayPanel = new DisplayPanel(DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT);
     LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
     LifeLikeController controller = new LifeLikeController(displayPanel, parametersPanel, toolbar);
+    this.activeLifeLikeController = controller;
+    this.activeLifeLikeParametersPanel = parametersPanel;
 
     Label backLink =
         createBackLink(
             () -> {
               controller.dispose();
+              this.activeLifeLikeController = null;
+              this.activeLifeLikeParametersPanel = null;
               onNavigateBack.run();
             });
 
@@ -121,6 +127,14 @@ public class MainApp extends Application {
     VBox displayContainer = new VBox(displayPanel, footerRow);
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel);
     return createWorkspaceRoot(displayContainer, sidebarPanel);
+  }
+
+  LifeLikeController getActiveLifeLikeController() {
+    return activeLifeLikeController;
+  }
+
+  LifeLikeParametersPanel getActiveLifeLikeParametersPanel() {
+    return activeLifeLikeParametersPanel;
   }
 
   private static VBox createOneDimensionalDisplayContainer(
