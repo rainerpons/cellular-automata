@@ -1,8 +1,12 @@
 package com.cellularautomata.ui;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.util.Duration;
 import org.junit.Assert;
@@ -72,6 +76,7 @@ public class SimulationSchedulerTest {
 
   @Test
   public void testTimelineSchedulerDefaultConstructorUsesDefaultRate() {
+    Assert.assertEquals(120, TimelineScheduler.DEFAULT_TICK_RATE_MS);
     JavaFxTestHelper.runOnFxThread(
         () -> {
           TimelineScheduler scheduler = new TimelineScheduler();
@@ -88,6 +93,7 @@ public class SimulationSchedulerTest {
           Assert.assertEquals(
               Duration.millis(TimelineScheduler.DEFAULT_TICK_RATE_MS),
               timeline.getKeyFrames().get(0).getTime());
+          Assert.assertEquals(Duration.millis(120), timeline.getKeyFrames().get(0).getTime());
 
           timeline.getKeyFrames().get(0).getOnFinished().handle(new ActionEvent());
           Assert.assertEquals(1, ticks.get());
@@ -102,6 +108,42 @@ public class SimulationSchedulerTest {
           scheduler.stop();
           Assert.assertFalse(scheduler.isRunning());
         });
+  }
+
+  @Test
+  public void testTimelineSchedulerAsynchronousExecutionOnFxThread() throws InterruptedException {
+    TimelineScheduler scheduler = new TimelineScheduler(Duration.millis(20));
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicBoolean ranOnFxThread = new AtomicBoolean(false);
+    AtomicInteger tickCount = new AtomicInteger(0);
+
+    try {
+      JavaFxTestHelper.runOnFxThread(
+          () ->
+              scheduler.start(
+                  () -> {
+                    if (Platform.isFxApplicationThread()) {
+                      ranOnFxThread.set(true);
+                    }
+                    tickCount.incrementAndGet();
+                    latch.countDown();
+                  }));
+
+      boolean completed = latch.await(2, TimeUnit.SECONDS);
+      Assert.assertTrue("TimelineScheduler should fire ticks within timeout", completed);
+      Assert.assertTrue("Tick callback must execute on FX Application Thread", ranOnFxThread.get());
+      Assert.assertTrue("At least two ticks should have executed", tickCount.get() >= 2);
+    } finally {
+      JavaFxTestHelper.runOnFxThread(
+          () -> {
+            scheduler.stop();
+            Assert.assertFalse(scheduler.isRunning());
+            Assert.assertNull(scheduler.getTimeline());
+          });
+      int ticksAtStop = tickCount.get();
+      Thread.sleep(60);
+      Assert.assertEquals("No further ticks must occur after stop", ticksAtStop, tickCount.get());
+    }
   }
 
   @Test(expected = IllegalArgumentException.class)

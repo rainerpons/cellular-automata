@@ -7,17 +7,17 @@ import javafx.util.Duration;
 /**
  * JavaFX {@link Timeline}-backed implementation of {@link SimulationScheduler}.
  *
- * <p>Executes ticks at a fixed rate (default 150ms) on the JavaFX application thread.
+ * <p>Executes ticks at a fixed rate (default 120ms) on the JavaFX application thread.
  */
 public final class TimelineScheduler implements SimulationScheduler {
 
   /** Default interval between simulation generation ticks in milliseconds. */
-  public static final int DEFAULT_TICK_RATE_MS = 150;
+  public static final int DEFAULT_TICK_RATE_MS = 120;
 
   private final Duration tickInterval;
   private Timeline timeline;
 
-  /** Constructs a scheduler with the default 150ms tick interval. */
+  /** Constructs a scheduler with the default 120ms tick interval. */
   public TimelineScheduler() {
     this(Duration.millis(DEFAULT_TICK_RATE_MS));
   }
