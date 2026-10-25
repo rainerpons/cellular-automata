@@ -10,6 +10,7 @@ import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
 import java.util.Set;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -212,20 +213,18 @@ public class LifeLikeControllerTest {
           ControlledScheduler scheduler = new ControlledScheduler();
 
           LifeLikeController controller =
-              new LifeLikeController(
-                  displayPanel,
-                  parametersPanel,
-                  toolbar,
-                  new LifeLikeStateMachine(),
-                  com.cellularautomata.engine.automata.AutomataEngine::createLifeLikeSimulation,
-                  displayPanelImage -> controllerDefaultRender(displayPanelImage),
-                  scheduler);
+              new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
 
           controller.togglePlayPause();
 
           Assert.assertTrue(controller.isRunning());
           Assert.assertTrue(scheduler.isRunning());
           Assert.assertEquals(0, controller.getActiveSimulation().getGeneration());
+
+          // Redundant play is a safe no-op
+          controller.play();
+          Assert.assertTrue(controller.isRunning());
+          Assert.assertTrue(scheduler.isRunning());
 
           // Verify toolbar in RUNNING state
           Assert.assertTrue(toolbar.isPlaying());
@@ -250,6 +249,11 @@ public class LifeLikeControllerTest {
           Assert.assertFalse(toolbar.getResetButton().isDisabled());
           Assert.assertTrue(toolbar.getSaveButton().isDisabled());
 
+          // Redundant pause is a safe no-op
+          controller.pause();
+          Assert.assertFalse(controller.isRunning());
+          Assert.assertFalse(scheduler.isRunning());
+
           // Resume
           controller.togglePlayPause();
           Assert.assertTrue(controller.isRunning());
@@ -268,14 +272,7 @@ public class LifeLikeControllerTest {
           ControlledScheduler scheduler = new ControlledScheduler();
 
           LifeLikeController controller =
-              new LifeLikeController(
-                  displayPanel,
-                  parametersPanel,
-                  toolbar,
-                  new LifeLikeStateMachine(),
-                  com.cellularautomata.engine.automata.AutomataEngine::createLifeLikeSimulation,
-                  displayPanelImage -> controllerDefaultRender(displayPanelImage),
-                  scheduler);
+              new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
 
           // Reset when uninitialized is ignored
           controller.reset();
@@ -401,14 +398,7 @@ public class LifeLikeControllerTest {
           ControlledScheduler scheduler = new ControlledScheduler();
 
           LifeLikeController controller =
-              new LifeLikeController(
-                  displayPanel,
-                  parametersPanel,
-                  toolbar,
-                  new LifeLikeStateMachine(),
-                  com.cellularautomata.engine.automata.AutomataEngine::createLifeLikeSimulation,
-                  displayPanelImage -> controllerDefaultRender(displayPanelImage),
-                  scheduler);
+              new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
 
           controller.togglePlayPause();
           Assert.assertTrue(scheduler.isRunning());
@@ -433,14 +423,7 @@ public class LifeLikeControllerTest {
           ControlledScheduler scheduler = new ControlledScheduler();
 
           LifeLikeController controller =
-              new LifeLikeController(
-                  displayPanel,
-                  parametersPanel,
-                  toolbar,
-                  new LifeLikeStateMachine(),
-                  com.cellularautomata.engine.automata.AutomataEngine::createLifeLikeSimulation,
-                  displayPanelImage -> controllerDefaultRender(displayPanelImage),
-                  scheduler);
+              new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
 
           // Step via toolbar button
           toolbar.getStepButton().fire();
@@ -547,14 +530,7 @@ public class LifeLikeControllerTest {
           ControlledScheduler scheduler = new ControlledScheduler();
 
           LifeLikeController controller =
-              new LifeLikeController(
-                  displayPanel,
-                  parametersPanel,
-                  toolbar,
-                  new LifeLikeStateMachine(),
-                  com.cellularautomata.engine.automata.AutomataEngine::createLifeLikeSimulation,
-                  displayPanelImage -> controllerDefaultRender(displayPanelImage),
-                  scheduler);
+              new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
 
           parametersPanel.setSizeValue(8);
           parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
@@ -616,14 +592,7 @@ public class LifeLikeControllerTest {
           ControlledScheduler scheduler = new ControlledScheduler();
 
           LifeLikeController controller =
-              new LifeLikeController(
-                  displayPanel,
-                  parametersPanel,
-                  toolbar,
-                  new LifeLikeStateMachine(),
-                  com.cellularautomata.engine.automata.AutomataEngine::createLifeLikeSimulation,
-                  displayPanelImage -> controllerDefaultRender(displayPanelImage),
-                  scheduler);
+              new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
 
           controller.togglePlayPause();
           Assert.assertTrue(scheduler.isRunning());
@@ -686,7 +655,7 @@ public class LifeLikeControllerTest {
                   toolbar,
                   new LifeLikeStateMachine(),
                   factory,
-                  displayPanelImage -> controllerDefaultRender(displayPanelImage),
+                  grid -> new WritableImage(400, 400),
                   scheduler);
 
           controller.step();
@@ -708,7 +677,7 @@ public class LifeLikeControllerTest {
                 if (failRendering[0]) {
                   throw new RuntimeException("Simulated rendering failure");
                 }
-                return controllerDefaultRender(grid);
+                return new WritableImage(400, 400);
               };
 
           LifeLikeController controller2 =
@@ -735,96 +704,7 @@ public class LifeLikeControllerTest {
   }
 
   @Test
-  public void testControllerLifecycleAndOperations() {
-    JavaFxTestHelper.runOnFxThread(
-        () -> {
-          DisplayPanel displayPanel = new DisplayPanel();
-          LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
-          LifeLikeToolbar toolbar = new LifeLikeToolbar();
-          ControlledScheduler scheduler = new ControlledScheduler();
-
-          LifeLikeController controller =
-              new LifeLikeController(
-                  displayPanel,
-                  parametersPanel,
-                  toolbar,
-                  new LifeLikeStateMachine(),
-                  com.cellularautomata.engine.automata.AutomataEngine::createLifeLikeSimulation,
-                  LifeLikeControllerTest::controllerDefaultRender,
-                  scheduler);
-
-          // 1. Initial Uninitialized state
-          Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
-          Assert.assertFalse(controller.isRunning());
-          Assert.assertFalse(scheduler.isRunning());
-          Assert.assertFalse(controller.hasActiveSimulation());
-
-          // Calling reset while uninitialized is a safe no-op
-          controller.reset();
-          Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
-
-          // 2. Step from uninitialized initializes and advances to generation 1 in PAUSED state
-          controller.step();
-          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
-          Assert.assertFalse(controller.isRunning());
-          Assert.assertFalse(scheduler.isRunning());
-          Assert.assertTrue(controller.hasActiveSimulation());
-          Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
-          Assert.assertNotNull(controller.getActiveImage());
-
-          // 3. Step again advances to generation 2
-          controller.step();
-          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
-          Assert.assertEquals(2, controller.getActiveSimulation().getGeneration());
-
-          // 4. Play starts the scheduler and transitions to RUNNING
-          controller.play();
-          Assert.assertEquals(LifeLikeStateMachine.State.RUNNING, controller.getState());
-          Assert.assertTrue(controller.isRunning());
-          Assert.assertTrue(scheduler.isRunning());
-
-          // Redundant play is a safe no-op
-          controller.play();
-          Assert.assertEquals(LifeLikeStateMachine.State.RUNNING, controller.getState());
-          Assert.assertTrue(controller.isRunning());
-
-          // Scheduler tick advances generation to 3
-          scheduler.tick();
-          Assert.assertEquals(3, controller.getActiveSimulation().getGeneration());
-
-          // 5. Pause halts the scheduler and transitions to PAUSED
-          controller.pause();
-          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
-          Assert.assertFalse(controller.isRunning());
-          Assert.assertFalse(scheduler.isRunning());
-          Assert.assertEquals(3, controller.getActiveSimulation().getGeneration());
-
-          // Redundant pause is a safe no-op
-          controller.pause();
-          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
-          Assert.assertFalse(controller.isRunning());
-
-          // 6. Reset restores initial generation 0
-          controller.reset();
-          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
-          Assert.assertEquals(0, controller.getActiveSimulation().getGeneration());
-          Assert.assertFalse(scheduler.isRunning());
-
-          // 7. Dispose stops scheduler and cleans up all active state
-          controller.play();
-          Assert.assertTrue(scheduler.isRunning());
-          controller.dispose();
-          Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
-          Assert.assertFalse(controller.isRunning());
-          Assert.assertFalse(scheduler.isRunning());
-          Assert.assertNull(controller.getActiveSimulation());
-          Assert.assertNull(controller.getActiveConfiguration());
-          Assert.assertNull(controller.getActiveImage());
-        });
-  }
-
-  @Test
-  public void testBoundarySizes5And155DeterministicSimulationAndRendering() {
+  public void testBoundarySizesDeterministicSimulationAndRendering() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           DisplayPanel displayPanel = new DisplayPanel();
@@ -834,91 +714,35 @@ public class LifeLikeControllerTest {
               new LifeLikeController(
                   displayPanel, parametersPanel, toolbar, new ControlledScheduler());
 
-          // Test min size 5 with deterministic SPARSE seed
-          parametersPanel.setSizeValue(5);
+          // Test min size with deterministic SPARSE seed
+          parametersPanel.setSizeValue(LifeLikeParametersPanel.MIN_SIZE);
           parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
           parametersPanel.selectSeedType(SeedType.SPARSE);
           controller.step();
 
-          Assert.assertEquals(5, controller.getActiveSimulation().getSize());
+          Assert.assertEquals(
+              LifeLikeParametersPanel.MIN_SIZE, controller.getActiveSimulation().getSize());
           Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
-          Image image5 = controller.getActiveImage();
-          Assert.assertNotNull(image5);
-          Assert.assertEquals(400.0, image5.getWidth(), 0.001);
-          Assert.assertEquals(400.0, image5.getHeight(), 0.001);
+          Image minImage = controller.getActiveImage();
+          Assert.assertNotNull(minImage);
+          Assert.assertEquals(400.0, minImage.getWidth(), 0.001);
+          Assert.assertEquals(400.0, minImage.getHeight(), 0.001);
 
-          // Test max size 155 with deterministic ALTERNATING seed
-          parametersPanel.setSizeValue(155);
+          // Test max size with deterministic ALTERNATING seed
+          parametersPanel.setSizeValue(LifeLikeParametersPanel.MAX_SIZE);
           parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
           parametersPanel.selectSeedType(SeedType.ALTERNATING);
           controller.step();
 
-          Assert.assertEquals(155, controller.getActiveSimulation().getSize());
+          Assert.assertEquals(
+              LifeLikeParametersPanel.MAX_SIZE, controller.getActiveSimulation().getSize());
           Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
-          Image image155 = controller.getActiveImage();
-          Assert.assertNotNull(image155);
-          Assert.assertEquals(400.0, image155.getWidth(), 0.001);
-          Assert.assertEquals(400.0, image155.getHeight(), 0.001);
+          Image maxImage = controller.getActiveImage();
+          Assert.assertNotNull(maxImage);
+          Assert.assertEquals(400.0, maxImage.getWidth(), 0.001);
+          Assert.assertEquals(400.0, maxImage.getHeight(), 0.001);
 
           controller.dispose();
-        });
-  }
-
-  @Test
-  public void testDisplayPanelSizeRemains400x400RegardlessOfGridSize() {
-    JavaFxTestHelper.runOnFxThread(
-        () -> {
-          DisplayPanel displayPanel = new DisplayPanel();
-          LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
-          LifeLikeToolbar toolbar = new LifeLikeToolbar();
-
-          LifeLikeController controller =
-              new LifeLikeController(
-                  displayPanel, parametersPanel, toolbar, new ControlledScheduler());
-
-          // Test min size 5
-          parametersPanel.setSizeValue(5);
-          controller.step();
-          Image image5 = controller.getActiveImage();
-          Assert.assertEquals(400.0, image5.getWidth(), 0.001);
-          Assert.assertEquals(400.0, image5.getHeight(), 0.001);
-
-          // Test max size 155
-          parametersPanel.setSizeValue(155);
-          controller.step();
-          Image image155 = controller.getActiveImage();
-          Assert.assertEquals(400.0, image155.getWidth(), 0.001);
-          Assert.assertEquals(400.0, image155.getHeight(), 0.001);
-        });
-  }
-
-  @Test
-  public void testFourArgumentConstructorUsesInjectedSchedulerAndDefaultCollaborators() {
-    JavaFxTestHelper.runOnFxThread(
-        () -> {
-          DisplayPanel displayPanel = new DisplayPanel();
-          LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
-          LifeLikeToolbar toolbar = new LifeLikeToolbar();
-          ControlledScheduler scheduler = new ControlledScheduler();
-
-          LifeLikeController controller =
-              new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
-
-          controller.step();
-          Assert.assertTrue(controller.hasActiveSimulation());
-          Assert.assertNotNull(controller.getActiveImage());
-          Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
-
-          controller.play();
-          Assert.assertTrue(controller.isRunning());
-          Assert.assertTrue(scheduler.isRunning());
-
-          scheduler.tick();
-          Assert.assertEquals(2, controller.getActiveSimulation().getGeneration());
-
-          controller.pause();
-          Assert.assertFalse(controller.isRunning());
-          Assert.assertFalse(scheduler.isRunning());
         });
   }
 
@@ -959,17 +783,6 @@ public class LifeLikeControllerTest {
 
           controller.dispose();
         });
-  }
-
-  private static Image controllerDefaultRender(Grid2D grid) {
-    java.awt.image.BufferedImage raw =
-        com.cellularautomata.image.AutomatonImage.getImageFromGrid(grid);
-    java.awt.image.BufferedImage resized =
-        com.cellularautomata.image.AutomatonImage.resizeImage(
-            com.cellularautomata.image.AutomatonImage.DISPLAY_IMAGE_SIZE,
-            com.cellularautomata.image.AutomatonImage.DISPLAY_IMAGE_SIZE,
-            raw);
-    return javafx.embed.swing.SwingFXUtils.toFXImage(resized, null);
   }
 
   private static void assertThrowsIllegalArgument(Runnable runnable) {

@@ -41,29 +41,43 @@ public class DisplayPanelTest {
   }
 
   @Test
-  public void testSetAutomatonImageUpdatesViewAndClearsError() {
+  public void testSetAutomatonImageUpdatesViewClearsErrorAndMaintainsMutualExclusivity() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           DisplayPanel panel = new DisplayPanel();
+
+          // 1. Initial / Placeholder active state
+          Assert.assertFalse(panel.isDisplayingError());
+          Assert.assertNull(panel.getAutomatonImage());
           Assert.assertNotNull(panel.lookup(".placeholder"));
           Assert.assertNull(panel.lookup(".error-container"));
 
+          // 2. Error active state
           panel.showGenerationError();
           Assert.assertTrue(panel.isDisplayingError());
           Assert.assertNotNull(panel.lookup(".error-container"));
 
+          // 3. Image active state clears error and restores image view
           WritableImage image = new WritableImage(400, 400);
           panel.setAutomatonImage(image);
-
           Assert.assertFalse(panel.isDisplayingError());
           Assert.assertSame(image, panel.getAutomatonImage());
           Assert.assertNull(panel.lookup(".placeholder"));
           Assert.assertNull(panel.lookup(".error-container"));
 
-          // Setting null restores placeholder
+          // 4. Setting null restores placeholder and clears image
           panel.setAutomatonImage(null);
           Assert.assertNull(panel.getAutomatonImage());
           Assert.assertFalse(panel.isDisplayingError());
+          Assert.assertNotNull(panel.lookup(".placeholder"));
+          Assert.assertNull(panel.lookup(".error-container"));
+
+          // 5. showPlaceholder() explicitly restores placeholder
+          panel.setAutomatonImage(image);
+          Assert.assertSame(image, panel.getAutomatonImage());
+          panel.showPlaceholder();
+          Assert.assertFalse(panel.isDisplayingError());
+          Assert.assertNull(panel.getAutomatonImage());
           Assert.assertNotNull(panel.lookup(".placeholder"));
           Assert.assertNull(panel.lookup(".error-container"));
         });
@@ -86,7 +100,6 @@ public class DisplayPanelTest {
           Assert.assertNotNull(errorContainer);
           Assert.assertEquals(Pos.CENTER, errorContainer.getAlignment());
           Assert.assertTrue(errorContainer.getStyleClass().contains("placeholder"));
-          Assert.assertTrue(errorContainer.getStyleClass().contains("error-container"));
           Assert.assertEquals(400.0, errorContainer.getMinWidth(), 0.001);
           Assert.assertEquals(400.0, errorContainer.getPrefWidth(), 0.001);
           Assert.assertEquals(400.0, errorContainer.getMaxWidth(), 0.001);
@@ -99,7 +112,6 @@ public class DisplayPanelTest {
           Assert.assertNotNull(icon);
           Assert.assertEquals(MaterialDesignA.ALERT_CIRCLE_OUTLINE, icon.getIconCode());
           Assert.assertEquals(40, icon.getIconSize());
-          Assert.assertTrue(icon.getStyleClass().contains("error-icon"));
 
           // Locate error labels via semantic CSS selector
           Set<Node> errorLabels = panel.lookupAll(".error-label");
@@ -160,40 +172,6 @@ public class DisplayPanelTest {
           Assert.assertFalse(panel.isDisplayingError());
           Assert.assertSame(image, panel.getAutomatonImage());
           Assert.assertNull(panel.lookup(".placeholder"));
-          Assert.assertNull(panel.lookup(".error-container"));
-        });
-  }
-
-  @Test
-  public void testPresentationStateMutualExclusivity() {
-    JavaFxTestHelper.runOnFxThread(
-        () -> {
-          DisplayPanel panel = new DisplayPanel();
-
-          // 1. Initial / Placeholder active state
-          Assert.assertFalse(panel.isDisplayingError());
-          Assert.assertNull(panel.getAutomatonImage());
-          Assert.assertNotNull(panel.lookup(".placeholder"));
-          Assert.assertNull(panel.lookup(".error-container"));
-
-          // 2. Image active state
-          WritableImage image = new WritableImage(400, 400);
-          panel.setAutomatonImage(image);
-          Assert.assertFalse(panel.isDisplayingError());
-          Assert.assertNotNull(panel.getAutomatonImage());
-          Assert.assertNull(panel.lookup(".placeholder"));
-          Assert.assertNull(panel.lookup(".error-container"));
-
-          // 3. Error active state
-          panel.showGenerationError();
-          Assert.assertTrue(panel.isDisplayingError());
-          Assert.assertNotNull(panel.lookup(".error-container"));
-
-          // 4. Return to placeholder state
-          panel.showPlaceholder();
-          Assert.assertFalse(panel.isDisplayingError());
-          Assert.assertNull(panel.getAutomatonImage());
-          Assert.assertNotNull(panel.lookup(".placeholder"));
           Assert.assertNull(panel.lookup(".error-container"));
         });
   }

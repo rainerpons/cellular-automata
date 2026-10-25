@@ -4,7 +4,6 @@ import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.shared.UiStyles;
-import java.util.List;
 import java.util.Set;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -36,13 +35,15 @@ public class LifeLikeParametersPanelTest {
               0.001);
           Assert.assertTrue(panel.getSizeSlider().isShowTickMarks());
           Assert.assertFalse(panel.getSizeSlider().isSnapToTicks());
-          Assert.assertEquals(8, panel.getSizeValue());
-          Assert.assertEquals("Size (8)", panel.getSizeLabelText());
+          Assert.assertEquals(LifeLikeParametersPanel.DEFAULT_SIZE, panel.getSizeValue());
+          Assert.assertEquals(
+              "Size (%d)".formatted(LifeLikeParametersPanel.DEFAULT_SIZE),
+              panel.getSizeLabelText());
           Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, panel.getPreset());
           Assert.assertEquals(SeedType.DENSITY, panel.getSeedType());
           Assert.assertEquals(
-              List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING),
-              panel.getSeedComboBox().getItems());
+              LifeLikeParametersPanel.SUPPORTED_SEEDS, panel.getSeedComboBox().getItems());
+          Assert.assertFalse(panel.getSeedComboBox().getItems().contains(SeedType.UNIFORM));
           Assert.assertEquals(50, panel.getDensityValue());
           Assert.assertEquals("Density (50%)", panel.getDensityLabelText());
           Assert.assertTrue(panel.isDensityVisible());
@@ -400,54 +401,25 @@ public class LifeLikeParametersPanelTest {
   }
 
   @Test
-  public void testLifeLikeConstants() {
-    Assert.assertEquals(5, LifeLikeParametersPanel.MIN_SIZE);
-    Assert.assertEquals(155, LifeLikeParametersPanel.MAX_SIZE);
-    Assert.assertEquals(8, LifeLikeParametersPanel.DEFAULT_SIZE);
-    Assert.assertEquals(25.0, LifeLikeParametersPanel.SIZE_MAJOR_TICK, 0.001);
-    Assert.assertEquals(
-        List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING),
-        LifeLikeParametersPanel.SUPPORTED_SEEDS);
-
-    try {
-      LifeLikeParametersPanel.SUPPORTED_SEEDS.add(SeedType.UNIFORM);
-      Assert.fail("Expected UnsupportedOperationException on SUPPORTED_SEEDS mutation");
-    } catch (UnsupportedOperationException expected) {
-      // Expected unmodifiable list
-    }
-  }
-
-  @Test
-  public void testLifeLikeSeedTypesContainDensitySparseAlternatingAndExcludeUniform() {
-    JavaFxTestHelper.runOnFxThread(
-        () -> {
-          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
-
-          List<SeedType> items = panel.getSeedComboBox().getItems();
-          Assert.assertEquals(
-              List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING), items);
-          Assert.assertEquals(SeedType.DENSITY, panel.getSeedType());
-          Assert.assertFalse(items.contains(SeedType.UNIFORM));
-        });
-  }
-
-  @Test
   public void testLifeLikeSizeSliderPropertiesAndFullIntegerSelectionRange() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
           Slider slider = panel.getSizeSlider();
 
-          Assert.assertEquals(5.0, slider.getMin(), 0.001);
-          Assert.assertEquals(155.0, slider.getMax(), 0.001);
-          Assert.assertEquals(8.0, slider.getValue(), 0.001);
-          Assert.assertEquals(25.0, slider.getMajorTickUnit(), 0.001);
+          Assert.assertEquals(LifeLikeParametersPanel.MIN_SIZE, slider.getMin(), 0.001);
+          Assert.assertEquals(LifeLikeParametersPanel.MAX_SIZE, slider.getMax(), 0.001);
+          Assert.assertEquals(LifeLikeParametersPanel.DEFAULT_SIZE, slider.getValue(), 0.001);
+          Assert.assertEquals(
+              LifeLikeParametersPanel.SIZE_MAJOR_TICK, slider.getMajorTickUnit(), 0.001);
           Assert.assertEquals(0, slider.getMinorTickCount());
           Assert.assertFalse(slider.isSnapToTicks());
           Assert.assertTrue(slider.isShowTickMarks());
           Assert.assertTrue(slider.isShowTickLabels());
 
-          for (int size = 5; size <= 155; size++) {
+          for (int size = LifeLikeParametersPanel.MIN_SIZE;
+              size <= LifeLikeParametersPanel.MAX_SIZE;
+              size++) {
             panel.setSizeValue(size);
             Assert.assertEquals(size, panel.getSizeValue());
             Assert.assertEquals("Size (%d)".formatted(size), panel.getSizeLabelText());

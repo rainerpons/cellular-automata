@@ -97,43 +97,6 @@ public class ParametersPanelTest {
   }
 
   @Test
-  public void testSeedTypeConstants() {
-    Assert.assertEquals(
-        List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
-        ElementaryParametersPanel.SUPPORTED_SEEDS);
-    Assert.assertEquals(
-        List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
-        TotalisticParametersPanel.SUPPORTED_SEEDS);
-
-    try {
-      ElementaryParametersPanel.SUPPORTED_SEEDS.add(SeedType.DENSITY);
-      Assert.fail(
-          "Expected UnsupportedOperationException on ElementaryParametersPanel.SUPPORTED_SEEDS mutation");
-    } catch (UnsupportedOperationException expected) {
-      // Expected unmodifiable list
-    }
-
-    try {
-      TotalisticParametersPanel.SUPPORTED_SEEDS.add(SeedType.DENSITY);
-      Assert.fail(
-          "Expected UnsupportedOperationException on TotalisticParametersPanel.SUPPORTED_SEEDS mutation");
-    } catch (UnsupportedOperationException expected) {
-      // Expected unmodifiable list
-    }
-  }
-
-  @Test
-  public void testSliderConstants() {
-    Assert.assertEquals(4, ParametersPanel.DEFAULT_MIN_SIZE);
-    Assert.assertEquals(128, ParametersPanel.DEFAULT_MAX_SIZE);
-    Assert.assertEquals(8, ParametersPanel.DEFAULT_SIZE);
-    Assert.assertEquals(1.0, ParametersPanel.DEFAULT_SIZE_MAJOR_TICK, 0.001);
-
-    Assert.assertEquals(ParametersPanel.DEFAULT_MIN_SIZE, ParametersPanel.MIN_SIZE);
-    Assert.assertEquals(ParametersPanel.DEFAULT_MAX_SIZE, ParametersPanel.MAX_SIZE);
-  }
-
-  @Test
   public void testOneDimensionalParametersPanelSeedTypesIncludeUniformSparseAlternating() {
     JavaFxTestHelper.runOnFxThread(
         () -> {

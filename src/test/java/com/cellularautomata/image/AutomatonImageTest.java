@@ -91,25 +91,21 @@ public class AutomatonImageTest {
   }
 
   @Test
-  public void testGetImageFromGridMinAndMaxSupportedSizesWithoutRandomness() {
-    // Minimum supported size 4
-    Grid2D minGrid = new Grid2D(4, (r, c) -> (r + c) % 2 == 0);
-    BufferedImage minImg = AutomatonImage.getImageFromGrid(minGrid);
-    Assert.assertEquals(4, minImg.getWidth());
-    Assert.assertEquals(4, minImg.getHeight());
+  public void testGridImageRenderingAndResizingAtBoundarySizes() {
+    for (int size : new int[] {4, 155}) {
+      Grid2D grid = new Grid2D(size, (r, c) -> (r + c) % 2 == 0);
+      BufferedImage img = AutomatonImage.getImageFromGrid(grid);
+      Assert.assertEquals(size, img.getWidth());
+      Assert.assertEquals(size, img.getHeight());
+      Assert.assertEquals(BLACK_RGB, img.getRGB(0, 0) & 0xFFFFFF);
+      Assert.assertEquals(WHITE_RGB, img.getRGB(1, 0) & 0xFFFFFF);
 
-    // Maximum supported size 128
-    Grid2D maxGrid = new Grid2D(128, (r, c) -> (r + c) % 2 == 0);
-    BufferedImage maxImg = AutomatonImage.getImageFromGrid(maxGrid);
-    Assert.assertEquals(128, maxImg.getWidth());
-    Assert.assertEquals(128, maxImg.getHeight());
-
-    // Verify checkerboard pattern deterministically without randomness
-    Assert.assertEquals(BLACK_RGB, minImg.getRGB(0, 0) & 0xFFFFFF);
-    Assert.assertEquals(WHITE_RGB, minImg.getRGB(1, 0) & 0xFFFFFF);
-    Assert.assertEquals(BLACK_RGB, maxImg.getRGB(0, 0) & 0xFFFFFF);
-    Assert.assertEquals(WHITE_RGB, maxImg.getRGB(1, 0) & 0xFFFFFF);
-    Assert.assertEquals(BLACK_RGB, maxImg.getRGB(127, 127) & 0xFFFFFF);
+      BufferedImage resized =
+          AutomatonImage.resizeImage(
+              AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, img);
+      Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized.getWidth());
+      Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized.getHeight());
+    }
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -118,70 +114,14 @@ public class AutomatonImageTest {
   }
 
   @Test
-  public void testResizingGridImageToDisplayImageSizePreservesDimensions() {
-    Grid2D grid4 = new Grid2D(4);
-    BufferedImage img4 = AutomatonImage.getImageFromGrid(grid4);
-    BufferedImage resized4 =
-        AutomatonImage.resizeImage(
-            AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, img4);
-
-    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized4.getWidth());
-    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized4.getHeight());
-
-    Grid2D grid128 = new Grid2D(128);
-    BufferedImage img128 = AutomatonImage.getImageFromGrid(grid128);
-    BufferedImage resized128 =
-        AutomatonImage.resizeImage(
-            AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, img128);
-
-    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized128.getWidth());
-    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized128.getHeight());
-  }
-
-  @Test
-  public void testLifeLikeBoundaryGridSizes5And155RenderAndResizeDeterministically() {
-    // Boundary size 5
-    Grid2D grid5 = new Grid2D(5, (r, c) -> (r == 0 && c == 0) || (r == 4 && c == 4));
-    BufferedImage img5 = AutomatonImage.getImageFromGrid(grid5);
-    Assert.assertEquals(5, img5.getWidth());
-    Assert.assertEquals(5, img5.getHeight());
-    Assert.assertEquals(BLACK_RGB, img5.getRGB(0, 0) & 0xFFFFFF);
-    Assert.assertEquals(WHITE_RGB, img5.getRGB(1, 1) & 0xFFFFFF);
-    Assert.assertEquals(BLACK_RGB, img5.getRGB(4, 4) & 0xFFFFFF);
-
-    BufferedImage resized5 =
-        AutomatonImage.resizeImage(
-            AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, img5);
-    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized5.getWidth());
-    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized5.getHeight());
-
-    // Boundary size 155
-    Grid2D grid155 = new Grid2D(155, (r, c) -> (r == 0 && c == 0) || (r == 154 && c == 154));
-    BufferedImage img155 = AutomatonImage.getImageFromGrid(grid155);
-    Assert.assertEquals(155, img155.getWidth());
-    Assert.assertEquals(155, img155.getHeight());
-    Assert.assertEquals(BLACK_RGB, img155.getRGB(0, 0) & 0xFFFFFF);
-    Assert.assertEquals(WHITE_RGB, img155.getRGB(1, 1) & 0xFFFFFF);
-    Assert.assertEquals(BLACK_RGB, img155.getRGB(154, 154) & 0xFFFFFF);
-
-    BufferedImage resized155 =
-        AutomatonImage.resizeImage(
-            AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, img155);
-    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized155.getWidth());
-    Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, resized155.getHeight());
-  }
-
-  @Test
   public void testGetRgbForStateComputesEvenlySpacedGrayscale() {
     // 2 states: 0 -> white, 1 -> black
     Assert.assertEquals(0xFFFFFF, AutomatonImage.getRgbForState(0, 2));
     Assert.assertEquals(0x000000, AutomatonImage.getRgbForState(1, 2));
 
-    // 3 states: 0 -> 255, 1 -> 128 (255 - 255/2 = 128), 2 -> 0
-    int gray1 = 255 - (1 * 255 / 2);
-    int expectedRgb1 = (gray1 << 16) | (gray1 << 8) | gray1;
+    // 3 states: 0 -> white (0xFFFFFF), 1 -> mid-gray (0x808080), 2 -> black (0x000000)
     Assert.assertEquals(0xFFFFFF, AutomatonImage.getRgbForState(0, 3));
-    Assert.assertEquals(expectedRgb1, AutomatonImage.getRgbForState(1, 3));
+    Assert.assertEquals(0x808080, AutomatonImage.getRgbForState(1, 3));
     Assert.assertEquals(0x000000, AutomatonImage.getRgbForState(2, 3));
   }
 
