@@ -6,15 +6,20 @@ import com.cellularautomata.engine.automata.AutomataEngine;
 import com.cellularautomata.engine.automata.LifeLikeSimulation;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.image.AutomatonImage;
+import com.cellularautomata.image.AutomatonImageExport;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import javafx.stage.Window;
 
 /**
  * Controller coordinating Life-like cellular automata parameter capture, simulation lifecycle,
- * image rendering, and toolbar/display state.
+ * playback speed synchronization, image rendering, image saving, and toolbar/display state.
  */
 public final class LifeLikeController {
 
@@ -35,17 +40,17 @@ public final class LifeLikeController {
         LifeLikeRule rule, int size, SeedType seedType, double densityPercentage);
   }
 
-  /** Renderer converting a {@link Grid2D} instance to a JavaFX {@link Image}. */
+  /** Renderer converting a {@link Grid2D} instance to a resized {@link BufferedImage}. */
   @FunctionalInterface
   interface GridRenderer {
 
     /**
-     * Renders a grid to an image.
+     * Renders a grid to a buffered image.
      *
      * @param grid the grid to render
-     * @return rendered JavaFX image
+     * @return rendered buffered image
      */
-    Image render(Grid2D grid);
+    BufferedImage render(Grid2D grid);
   }
 
   private final DisplayPanel displayPanel;
@@ -55,10 +60,13 @@ public final class LifeLikeController {
   private final SimulationFactory simulationFactory;
   private final GridRenderer gridRenderer;
   private final SimulationScheduler scheduler;
+  private final DialogService dialogService;
 
   private LifeLikeConfiguration activeConfiguration;
   private LifeLikeSimulation activeSimulation;
+  private BufferedImage activeBufferedImage;
   private Image activeImage;
+  private boolean tickInProgress;
 
   /**
    * Constructs the Life-like controller with default collaborators.
@@ -69,7 +77,24 @@ public final class LifeLikeController {
    */
   LifeLikeController(
       DisplayPanel displayPanel, LifeLikeParametersPanel parametersPanel, LifeLikeToolbar toolbar) {
-    this(displayPanel, parametersPanel, toolbar, new TimelineScheduler());
+    this(displayPanel, parametersPanel, toolbar, new DialogService());
+  }
+
+  /**
+   * Constructs the Life-like controller with default simulation/rendering/scheduler collaborators
+   * and an injected dialog service.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the parameters panel
+   * @param toolbar the simulation toolbar
+   * @param dialogService dialog service for save dialogs and alerts
+   */
+  LifeLikeController(
+      DisplayPanel displayPanel,
+      LifeLikeParametersPanel parametersPanel,
+      LifeLikeToolbar toolbar,
+      DialogService dialogService) {
+    this(displayPanel, parametersPanel, toolbar, new TimelineScheduler(), dialogService);
   }
 
   /**
@@ -86,6 +111,25 @@ public final class LifeLikeController {
       LifeLikeParametersPanel parametersPanel,
       LifeLikeToolbar toolbar,
       SimulationScheduler scheduler) {
+    this(displayPanel, parametersPanel, toolbar, scheduler, new DialogService());
+  }
+
+  /**
+   * Constructs the Life-like controller with default simulation and rendering collaborators and
+   * injected scheduler and dialog service.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the parameters panel
+   * @param toolbar the simulation toolbar
+   * @param scheduler periodic tick scheduler
+   * @param dialogService dialog service for save dialogs and alerts
+   */
+  LifeLikeController(
+      DisplayPanel displayPanel,
+      LifeLikeParametersPanel parametersPanel,
+      LifeLikeToolbar toolbar,
+      SimulationScheduler scheduler,
+      DialogService dialogService) {
     this(
         displayPanel,
         parametersPanel,
@@ -93,18 +137,20 @@ public final class LifeLikeController {
         new LifeLikeStateMachine(),
         AutomataEngine::createLifeLikeSimulation,
         LifeLikeController::defaultRenderGrid,
-        scheduler);
+        scheduler,
+        dialogService);
   }
 
   /**
-   * Constructs the Life-like controller with fully injected collaborators.
+   * Constructs the Life-like controller with injected simulation, rendering, and scheduling
+   * collaborators and a default dialog service.
    *
    * @param displayPanel the display panel
    * @param parametersPanel the parameters panel
    * @param toolbar the simulation toolbar
    * @param stateMachine simulation lifecycle state machine
    * @param simulationFactory factory creating {@link LifeLikeSimulation} instances
-   * @param gridRenderer renderer converting {@link Grid2D} to JavaFX {@link Image}
+   * @param gridRenderer renderer converting {@link Grid2D} to {@link BufferedImage}
    * @param scheduler periodic tick scheduler
    */
   LifeLikeController(
@@ -115,6 +161,38 @@ public final class LifeLikeController {
       SimulationFactory simulationFactory,
       GridRenderer gridRenderer,
       SimulationScheduler scheduler) {
+    this(
+        displayPanel,
+        parametersPanel,
+        toolbar,
+        stateMachine,
+        simulationFactory,
+        gridRenderer,
+        scheduler,
+        new DialogService());
+  }
+
+  /**
+   * Constructs the Life-like controller with fully injected collaborators.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the parameters panel
+   * @param toolbar the simulation toolbar
+   * @param stateMachine simulation lifecycle state machine
+   * @param simulationFactory factory creating {@link LifeLikeSimulation} instances
+   * @param gridRenderer renderer converting {@link Grid2D} to {@link BufferedImage}
+   * @param scheduler periodic tick scheduler
+   * @param dialogService dialog service for save dialogs and alerts
+   */
+  LifeLikeController(
+      DisplayPanel displayPanel,
+      LifeLikeParametersPanel parametersPanel,
+      LifeLikeToolbar toolbar,
+      LifeLikeStateMachine stateMachine,
+      SimulationFactory simulationFactory,
+      GridRenderer gridRenderer,
+      SimulationScheduler scheduler,
+      DialogService dialogService) {
     if (displayPanel == null) {
       throw new IllegalArgumentException("DisplayPanel cannot be null.");
     }
@@ -136,6 +214,9 @@ public final class LifeLikeController {
     if (scheduler == null) {
       throw new IllegalArgumentException("Scheduler cannot be null.");
     }
+    if (dialogService == null) {
+      throw new IllegalArgumentException("DialogService cannot be null.");
+    }
     this.displayPanel = displayPanel;
     this.parametersPanel = parametersPanel;
     this.toolbar = toolbar;
@@ -143,20 +224,23 @@ public final class LifeLikeController {
     this.simulationFactory = simulationFactory;
     this.gridRenderer = gridRenderer;
     this.scheduler = scheduler;
+    this.dialogService = dialogService;
+
+    scheduler.setPlaybackSpeed(parametersPanel.getPlaybackSpeed());
+    parametersPanel.addPlaybackSpeedListener(scheduler::setPlaybackSpeed);
 
     toolbar.addPlayPauseListener(event -> togglePlayPause());
     toolbar.addStepListener(event -> step());
     toolbar.addResetListener(event -> reset());
+    toolbar.addSaveListener(event -> saveAutomatonImage());
 
     updateToolbar();
   }
 
-  private static Image defaultRenderGrid(Grid2D grid) {
+  private static BufferedImage defaultRenderGrid(Grid2D grid) {
     BufferedImage raw = AutomatonImage.getImageFromGrid(grid);
-    BufferedImage resized =
-        AutomatonImage.resizeImage(
-            AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, raw);
-    return SwingFXUtils.toFXImage(resized, null);
+    return AutomatonImage.resizeImage(
+        AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, raw);
   }
 
   /**
@@ -209,19 +293,22 @@ public final class LifeLikeController {
   }
 
   private boolean renderAndDisplay(Grid2D grid) {
-    Image renderedImage;
+    BufferedImage renderedBufferedImage;
+    Image fxImage;
     try {
-      renderedImage = gridRenderer.render(grid);
-      if (renderedImage == null) {
+      renderedBufferedImage = gridRenderer.render(grid);
+      if (renderedBufferedImage == null) {
         throw new IllegalStateException("Grid renderer returned null");
       }
+      fxImage = SwingFXUtils.toFXImage(renderedBufferedImage, null);
     } catch (Exception e) {
       handleRenderingFailure(e);
       return false;
     }
 
-    activeImage = renderedImage;
-    displayPanel.setAutomatonImage(renderedImage);
+    activeBufferedImage = renderedBufferedImage;
+    activeImage = fxImage;
+    displayPanel.setAutomatonImage(fxImage);
     return true;
   }
 
@@ -238,6 +325,7 @@ public final class LifeLikeController {
     }
     stateMachine.onPlay();
     updateToolbar();
+    scheduler.setPlaybackSpeed(parametersPanel.getPlaybackSpeed());
     scheduler.start(this::tick);
   }
 
@@ -306,25 +394,103 @@ public final class LifeLikeController {
     updateToolbar();
   }
 
-  void tick() {
-    if (!stateMachine.isRunning() || activeSimulation == null) {
+  /**
+   * Opens the file save dialog and exports the currently displayed automaton image as a PNG file.
+   * Ignored when the simulation is uninitialized or no rendered image is available.
+   */
+  public void save() {
+    saveAutomatonImage();
+  }
+
+  void saveAutomatonImage() {
+    if (stateMachine.isUninitialized() || activeSimulation == null || activeBufferedImage == null) {
+      return;
+    }
+
+    BufferedImage imageToSave = activeBufferedImage;
+    LifeLikeRule ruleToSave = activeSimulation.getRule();
+    int sizeToSave = activeSimulation.getSize();
+    String initialFileName =
+        AutomatonFileNameFormatter.formatFileName(ruleToSave, sizeToSave, LocalDateTime.now());
+    Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
+    File file =
+        dialogService.showSaveFileDialog(
+            window, AutomatonImageExport.resolveInitialSaveDirectory(), initialFileName);
+    if (file == null) {
       return;
     }
 
     try {
-      activeSimulation.step();
-    } catch (Exception e) {
-      handleGenerationFailure(e);
+      AutomatonImage.saveImage(imageToSave, file);
+    } catch (IOException ie) {
+      System.err.printf("Automaton image save failure: %s%n", ie.getMessage());
+      ie.printStackTrace(System.err);
+      dialogService.showSaveError();
+    }
+  }
+
+  void tick() {
+    if (tickInProgress || !stateMachine.isRunning() || activeSimulation == null) {
       return;
     }
 
-    renderAndDisplay(activeSimulation.getCurrentGrid());
+    tickInProgress = true;
+    try {
+      LifeLikeSimulation targetSimulation = activeSimulation;
+      final Grid2D previousGrid = targetSimulation.getCurrentGrid();
+
+      try {
+        targetSimulation.step();
+      } catch (Exception e) {
+        handleGenerationFailure(e);
+        return;
+      }
+
+      long expectedGeneration = targetSimulation.getGeneration();
+      if (!stateMachine.isRunning()
+          || activeSimulation != targetSimulation
+          || targetSimulation.getGeneration() != expectedGeneration) {
+        return;
+      }
+
+      Grid2D currentGrid = targetSimulation.getCurrentGrid();
+      BufferedImage renderedBufferedImage;
+      Image fxImage;
+      try {
+        renderedBufferedImage = gridRenderer.render(currentGrid);
+        if (renderedBufferedImage == null) {
+          throw new IllegalStateException("Grid renderer returned null");
+        }
+        fxImage = SwingFXUtils.toFXImage(renderedBufferedImage, null);
+      } catch (Exception e) {
+        handleRenderingFailure(e);
+        return;
+      }
+
+      if (!stateMachine.isRunning()
+          || activeSimulation != targetSimulation
+          || targetSimulation.getGeneration() != expectedGeneration) {
+        return;
+      }
+
+      activeBufferedImage = renderedBufferedImage;
+      activeImage = fxImage;
+      displayPanel.setAutomatonImage(fxImage);
+      updateToolbar();
+
+      if (currentGrid.equals(previousGrid)) {
+        pause();
+      }
+    } finally {
+      tickInProgress = false;
+    }
   }
 
   private void handleGenerationFailure(Exception e) {
     scheduler.stop();
     activeSimulation = null;
     activeConfiguration = null;
+    activeBufferedImage = null;
     activeImage = null;
     if (!stateMachine.isUninitialized()) {
       stateMachine.onError();
@@ -339,6 +505,7 @@ public final class LifeLikeController {
     scheduler.stop();
     activeSimulation = null;
     activeConfiguration = null;
+    activeBufferedImage = null;
     activeImage = null;
     if (!stateMachine.isUninitialized()) {
       stateMachine.onError();
@@ -363,14 +530,14 @@ public final class LifeLikeController {
         toolbar.setPlayPauseEnabled(true);
         toolbar.setStepEnabled(false);
         toolbar.setResetEnabled(true);
-        toolbar.setSaveEnabled(false);
+        toolbar.setSaveEnabled(activeBufferedImage != null);
       }
       case PAUSED -> {
         toolbar.setPlaying(false);
         toolbar.setPlayPauseEnabled(true);
         toolbar.setStepEnabled(true);
         toolbar.setResetEnabled(true);
-        toolbar.setSaveEnabled(false);
+        toolbar.setSaveEnabled(activeBufferedImage != null);
       }
       default ->
           throw new IllegalStateException(
@@ -389,7 +556,9 @@ public final class LifeLikeController {
     }
     activeSimulation = null;
     activeConfiguration = null;
+    activeBufferedImage = null;
     activeImage = null;
+    updateToolbar();
   }
 
   LifeLikeStateMachine.State getState() {
@@ -406,6 +575,10 @@ public final class LifeLikeController {
 
   LifeLikeConfiguration getActiveConfiguration() {
     return activeConfiguration;
+  }
+
+  BufferedImage getActiveBufferedImage() {
+    return activeBufferedImage;
   }
 
   Image getActiveImage() {

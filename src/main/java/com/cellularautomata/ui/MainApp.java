@@ -22,14 +22,29 @@ import javafx.stage.Stage;
  * The MainApp class owns JavaFX UI setup and event wiring, while delegating generation and image
  * work.
  */
-public class MainApp extends Application {
+public final class MainApp extends Application {
 
-  private final DialogService dialogService = new DialogService();
+  private final DialogService dialogService;
   private LifeLikeController activeLifeLikeController;
   private LifeLikeParametersPanel activeLifeLikeParametersPanel;
 
-  /** Constructs the main application. */
-  public MainApp() {}
+  /** Constructs the main application with the default dialog service. */
+  public MainApp() {
+    this(new DialogService());
+  }
+
+  /**
+   * Constructs the main application with an injected dialog service.
+   *
+   * @param dialogService dialog service used by workspace controllers
+   * @throws IllegalArgumentException if dialogService is null
+   */
+  MainApp(DialogService dialogService) {
+    if (dialogService == null) {
+      throw new IllegalArgumentException("DialogService cannot be null.");
+    }
+    this.dialogService = dialogService;
+  }
 
   @Override
   public void start(Stage primaryStage) {
@@ -105,7 +120,8 @@ public class MainApp extends Application {
     LifeLikeToolbar toolbar = new LifeLikeToolbar();
     DisplayPanel displayPanel = new DisplayPanel(DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT);
     LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
-    LifeLikeController controller = new LifeLikeController(displayPanel, parametersPanel, toolbar);
+    LifeLikeController controller =
+        new LifeLikeController(displayPanel, parametersPanel, toolbar, dialogService);
     this.activeLifeLikeController = controller;
     this.activeLifeLikeParametersPanel = parametersPanel;
 
