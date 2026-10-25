@@ -100,21 +100,23 @@ public class ParametersPanelTest {
   public void testSeedTypeConstants() {
     Assert.assertEquals(
         List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
-        ParametersPanel.ONE_DIMENSIONAL_SEEDS);
+        ElementaryParametersPanel.SUPPORTED_SEEDS);
     Assert.assertEquals(
-        List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING),
-        ParametersPanel.TWO_DIMENSIONAL_SEEDS);
+        List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
+        TotalisticParametersPanel.SUPPORTED_SEEDS);
 
     try {
-      ParametersPanel.ONE_DIMENSIONAL_SEEDS.add(SeedType.DENSITY);
-      Assert.fail("Expected UnsupportedOperationException on ONE_DIMENSIONAL_SEEDS mutation");
+      ElementaryParametersPanel.SUPPORTED_SEEDS.add(SeedType.DENSITY);
+      Assert.fail(
+          "Expected UnsupportedOperationException on ElementaryParametersPanel.SUPPORTED_SEEDS mutation");
     } catch (UnsupportedOperationException expected) {
       // Expected unmodifiable list
     }
 
     try {
-      ParametersPanel.TWO_DIMENSIONAL_SEEDS.add(SeedType.DENSITY);
-      Assert.fail("Expected UnsupportedOperationException on TWO_DIMENSIONAL_SEEDS mutation");
+      TotalisticParametersPanel.SUPPORTED_SEEDS.add(SeedType.DENSITY);
+      Assert.fail(
+          "Expected UnsupportedOperationException on TotalisticParametersPanel.SUPPORTED_SEEDS mutation");
     } catch (UnsupportedOperationException expected) {
       // Expected unmodifiable list
     }
@@ -122,19 +124,13 @@ public class ParametersPanelTest {
 
   @Test
   public void testSliderConstants() {
-    Assert.assertEquals(4, ParametersPanel.ONE_DIMENSIONAL_MIN_SIZE);
-    Assert.assertEquals(128, ParametersPanel.ONE_DIMENSIONAL_MAX_SIZE);
-    Assert.assertEquals(8, ParametersPanel.ONE_DIMENSIONAL_DEFAULT_SIZE);
-    Assert.assertEquals(1.0, ParametersPanel.ONE_DIMENSIONAL_SIZE_MAJOR_TICK, 0.001);
+    Assert.assertEquals(4, ParametersPanel.DEFAULT_MIN_SIZE);
+    Assert.assertEquals(128, ParametersPanel.DEFAULT_MAX_SIZE);
+    Assert.assertEquals(8, ParametersPanel.DEFAULT_SIZE);
+    Assert.assertEquals(1.0, ParametersPanel.DEFAULT_SIZE_MAJOR_TICK, 0.001);
 
-    Assert.assertEquals(5, ParametersPanel.LIFE_LIKE_MIN_SIZE);
-    Assert.assertEquals(155, ParametersPanel.LIFE_LIKE_MAX_SIZE);
-    Assert.assertEquals(8, ParametersPanel.LIFE_LIKE_DEFAULT_SIZE);
-    Assert.assertEquals(25.0, ParametersPanel.LIFE_LIKE_SIZE_MAJOR_TICK, 0.001);
-
-    Assert.assertEquals(ParametersPanel.ONE_DIMENSIONAL_MIN_SIZE, ParametersPanel.MIN_SIZE);
-    Assert.assertEquals(ParametersPanel.ONE_DIMENSIONAL_MAX_SIZE, ParametersPanel.MAX_SIZE);
-    Assert.assertEquals(ParametersPanel.ONE_DIMENSIONAL_DEFAULT_SIZE, ParametersPanel.DEFAULT_SIZE);
+    Assert.assertEquals(ParametersPanel.DEFAULT_MIN_SIZE, ParametersPanel.MIN_SIZE);
+    Assert.assertEquals(ParametersPanel.DEFAULT_MAX_SIZE, ParametersPanel.MAX_SIZE);
   }
 
   @Test
@@ -143,7 +139,8 @@ public class ParametersPanelTest {
         () -> {
           ParametersPanel panel = new ParametersPanel();
           javafx.scene.control.ComboBox<SeedType> comboBox =
-              panel.addSeedTypeRow(ParametersPanel.ONE_DIMENSIONAL_SEEDS, SeedType.UNIFORM, false);
+              panel.addSeedTypeRow(
+                  ElementaryParametersPanel.SUPPORTED_SEEDS, SeedType.UNIFORM, false);
           Assert.assertEquals(
               List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
               comboBox.getItems());

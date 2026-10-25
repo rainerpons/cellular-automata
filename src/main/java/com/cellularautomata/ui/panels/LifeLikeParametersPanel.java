@@ -23,6 +23,13 @@ import javafx.scene.layout.Priority;
  * and birth and survival neighbor count toggles (0 to 8).
  */
 public final class LifeLikeParametersPanel {
+  public static final int MIN_SIZE = 5;
+  public static final int MAX_SIZE = 155;
+  public static final int DEFAULT_SIZE = 8;
+  public static final double SIZE_MAJOR_TICK = 25.0;
+  public static final List<SeedType> SUPPORTED_SEEDS =
+      List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING);
+
   static final int MIN_DENSITY = 0;
   static final int MAX_DENSITY = 100;
   static final int DEFAULT_DENSITY = 50;
@@ -54,16 +61,9 @@ public final class LifeLikeParametersPanel {
   /** Constructs the Life-like parameters panel with default Conway's Game of Life settings. */
   public LifeLikeParametersPanel() {
     sizeSlider =
-        panel.addSizeSliderRow(
-            ParametersPanel.LIFE_LIKE_MIN_SIZE,
-            ParametersPanel.LIFE_LIKE_MAX_SIZE,
-            ParametersPanel.LIFE_LIKE_DEFAULT_SIZE,
-            ParametersPanel.LIFE_LIKE_SIZE_MAJOR_TICK,
-            true,
-            false);
+        panel.addSizeSliderRow(MIN_SIZE, MAX_SIZE, DEFAULT_SIZE, SIZE_MAJOR_TICK, true, false);
     presetComboBox = addPresetRow();
-    seedComboBox =
-        panel.addSeedTypeRow(ParametersPanel.TWO_DIMENSIONAL_SEEDS, SeedType.DENSITY, true);
+    seedComboBox = panel.addSeedTypeRow(SUPPORTED_SEEDS, SeedType.DENSITY, true);
     densitySlider = addDensityRow();
     panel.addControlRow("Birth", BIRTH_TOOLTIP, createNeighborToggleRow(birthToggles, true), true);
     panel.addControlRow(
@@ -307,9 +307,10 @@ public final class LifeLikeParametersPanel {
     }
     if (isBirth) {
       selectionModel.setBirthSelected(neighborCount, selected);
-    } else {
-      selectionModel.setSurvivalSelected(neighborCount, selected);
+      syncControlsFromModel();
+      return;
     }
+    selectionModel.setSurvivalSelected(neighborCount, selected);
     syncControlsFromModel();
   }
 

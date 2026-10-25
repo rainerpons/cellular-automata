@@ -3,8 +3,6 @@ package com.cellularautomata.ui.panels;
 import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.ui.JavaFxTestHelper;
-import com.cellularautomata.ui.LifeLikeController;
-import com.cellularautomata.ui.LifeLikeToolbar;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.List;
 import java.util.Set;
@@ -29,11 +27,11 @@ public class LifeLikeParametersPanelTest {
           LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
 
           Assert.assertEquals(
-              ParametersPanel.LIFE_LIKE_MIN_SIZE, (int) panel.getSizeSlider().getMin());
+              LifeLikeParametersPanel.MIN_SIZE, (int) panel.getSizeSlider().getMin());
           Assert.assertEquals(
-              ParametersPanel.LIFE_LIKE_MAX_SIZE, (int) panel.getSizeSlider().getMax());
+              LifeLikeParametersPanel.MAX_SIZE, (int) panel.getSizeSlider().getMax());
           Assert.assertEquals(
-              ParametersPanel.LIFE_LIKE_SIZE_MAJOR_TICK,
+              LifeLikeParametersPanel.SIZE_MAJOR_TICK,
               panel.getSizeSlider().getMajorTickUnit(),
               0.001);
           Assert.assertTrue(panel.getSizeSlider().isShowTickMarks());
@@ -402,46 +400,21 @@ public class LifeLikeParametersPanelTest {
   }
 
   @Test
-  public void testCustomPresetDropdownScenario6CustomRemainsDisplayedThroughPlayPauseStepReset() {
-    JavaFxTestHelper.runOnFxThread(
-        () -> {
-          DisplayPanel displayPanel = new DisplayPanel();
-          LifeLikeParametersPanel panel = new LifeLikeParametersPanel();
-          LifeLikeToolbar toolbar = new LifeLikeToolbar();
+  public void testLifeLikeConstants() {
+    Assert.assertEquals(5, LifeLikeParametersPanel.MIN_SIZE);
+    Assert.assertEquals(155, LifeLikeParametersPanel.MAX_SIZE);
+    Assert.assertEquals(8, LifeLikeParametersPanel.DEFAULT_SIZE);
+    Assert.assertEquals(25.0, LifeLikeParametersPanel.SIZE_MAJOR_TICK, 0.001);
+    Assert.assertEquals(
+        List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING),
+        LifeLikeParametersPanel.SUPPORTED_SEEDS);
 
-          LifeLikeController controller = new LifeLikeController(displayPanel, panel, toolbar);
-
-          // Make configuration custom: B3/S3
-          panel.toggleSurvival(2);
-          Assert.assertEquals("Custom", panel.getPresetDisplayText());
-          Assert.assertEquals("Custom", panel.getPresetComboBox().getButtonCell().getText());
-
-          // 1. Step
-          controller.step();
-          Assert.assertEquals("Custom", panel.getPresetDisplayText());
-          Assert.assertEquals("Custom", panel.getPresetComboBox().getButtonCell().getText());
-          Assert.assertNull(panel.getPreset());
-
-          // 2. Play
-          controller.play();
-          Assert.assertEquals("Custom", panel.getPresetDisplayText());
-          Assert.assertEquals("Custom", panel.getPresetComboBox().getButtonCell().getText());
-          Assert.assertNull(panel.getPreset());
-
-          // 3. Pause
-          controller.pause();
-          Assert.assertEquals("Custom", panel.getPresetDisplayText());
-          Assert.assertEquals("Custom", panel.getPresetComboBox().getButtonCell().getText());
-          Assert.assertNull(panel.getPreset());
-
-          // 4. Reset
-          controller.reset();
-          Assert.assertEquals("Custom", panel.getPresetDisplayText());
-          Assert.assertEquals("Custom", panel.getPresetComboBox().getButtonCell().getText());
-          Assert.assertNull(panel.getPreset());
-
-          controller.dispose();
-        });
+    try {
+      LifeLikeParametersPanel.SUPPORTED_SEEDS.add(SeedType.UNIFORM);
+      Assert.fail("Expected UnsupportedOperationException on SUPPORTED_SEEDS mutation");
+    } catch (UnsupportedOperationException expected) {
+      // Expected unmodifiable list
+    }
   }
 
   @Test

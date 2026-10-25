@@ -18,27 +18,16 @@ import javafx.scene.layout.Priority;
  * labels, and shared parameter rows.
  */
 public final class ParametersPanel extends GridPane {
-  public static final int ONE_DIMENSIONAL_MIN_SIZE = 4;
-  public static final int ONE_DIMENSIONAL_MAX_SIZE = 128;
-  public static final int ONE_DIMENSIONAL_DEFAULT_SIZE = 8;
-  public static final double ONE_DIMENSIONAL_SIZE_MAJOR_TICK = 1.0;
+  public static final int DEFAULT_MIN_SIZE = 4;
+  public static final int DEFAULT_MAX_SIZE = 128;
+  public static final int DEFAULT_SIZE = 8;
+  public static final double DEFAULT_SIZE_MAJOR_TICK = 1.0;
 
-  public static final int LIFE_LIKE_MIN_SIZE = 5;
-  public static final int LIFE_LIKE_MAX_SIZE = 155;
-  public static final int LIFE_LIKE_DEFAULT_SIZE = 8;
-  public static final double LIFE_LIKE_SIZE_MAJOR_TICK = 25.0;
-
-  public static final int MIN_SIZE = ONE_DIMENSIONAL_MIN_SIZE;
-  public static final int MAX_SIZE = ONE_DIMENSIONAL_MAX_SIZE;
-  public static final int DEFAULT_SIZE = ONE_DIMENSIONAL_DEFAULT_SIZE;
+  public static final int MIN_SIZE = DEFAULT_MIN_SIZE;
+  public static final int MAX_SIZE = DEFAULT_MAX_SIZE;
 
   public static final String SEED_TYPE_TOOLTIP =
       "Determines how cells are initially populated when generating a new automaton.";
-
-  public static final List<SeedType> ONE_DIMENSIONAL_SEEDS =
-      List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING);
-  public static final List<SeedType> TWO_DIMENSIONAL_SEEDS =
-      List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING);
 
   private int currentRow = 1;
 
@@ -93,12 +82,7 @@ public final class ParametersPanel extends GridPane {
    */
   public LabeledSlider addSizeSliderRow() {
     return addSizeSliderRow(
-        ONE_DIMENSIONAL_MIN_SIZE,
-        ONE_DIMENSIONAL_MAX_SIZE,
-        ONE_DIMENSIONAL_DEFAULT_SIZE,
-        ONE_DIMENSIONAL_SIZE_MAJOR_TICK,
-        false,
-        true);
+        DEFAULT_MIN_SIZE, DEFAULT_MAX_SIZE, DEFAULT_SIZE, DEFAULT_SIZE_MAJOR_TICK, false, true);
   }
 
   /**
