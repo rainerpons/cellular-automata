@@ -199,9 +199,19 @@ public final class LifeLikeController {
       return false;
     }
 
+    if (!renderAndDisplay(simulation.getCurrentGrid())) {
+      return false;
+    }
+
+    activeSimulation = simulation;
+    activeConfiguration = currentConfig;
+    return true;
+  }
+
+  private boolean renderAndDisplay(Grid2D grid) {
     Image renderedImage;
     try {
-      renderedImage = gridRenderer.render(simulation.getCurrentGrid());
+      renderedImage = gridRenderer.render(grid);
       if (renderedImage == null) {
         throw new IllegalStateException("Grid renderer returned null");
       }
@@ -210,8 +220,6 @@ public final class LifeLikeController {
       return false;
     }
 
-    activeSimulation = simulation;
-    activeConfiguration = currentConfig;
     activeImage = renderedImage;
     displayPanel.setAutomatonImage(renderedImage);
     return true;
@@ -271,19 +279,10 @@ public final class LifeLikeController {
       return;
     }
 
-    Image renderedImage;
-    try {
-      renderedImage = gridRenderer.render(activeSimulation.getCurrentGrid());
-      if (renderedImage == null) {
-        throw new IllegalStateException("Grid renderer returned null");
-      }
-    } catch (Exception e) {
-      handleRenderingFailure(e);
+    if (!renderAndDisplay(activeSimulation.getCurrentGrid())) {
       return;
     }
 
-    activeImage = renderedImage;
-    displayPanel.setAutomatonImage(renderedImage);
     stateMachine.onStep();
     updateToolbar();
   }
@@ -299,19 +298,10 @@ public final class LifeLikeController {
     scheduler.stop();
     activeSimulation.reset();
 
-    Image renderedImage;
-    try {
-      renderedImage = gridRenderer.render(activeSimulation.getCurrentGrid());
-      if (renderedImage == null) {
-        throw new IllegalStateException("Grid renderer returned null");
-      }
-    } catch (Exception e) {
-      handleRenderingFailure(e);
+    if (!renderAndDisplay(activeSimulation.getCurrentGrid())) {
       return;
     }
 
-    activeImage = renderedImage;
-    displayPanel.setAutomatonImage(renderedImage);
     stateMachine.onReset();
     updateToolbar();
   }
@@ -328,19 +318,7 @@ public final class LifeLikeController {
       return;
     }
 
-    Image renderedImage;
-    try {
-      renderedImage = gridRenderer.render(activeSimulation.getCurrentGrid());
-      if (renderedImage == null) {
-        throw new IllegalStateException("Grid renderer returned null");
-      }
-    } catch (Exception e) {
-      handleRenderingFailure(e);
-      return;
-    }
-
-    activeImage = renderedImage;
-    displayPanel.setAutomatonImage(renderedImage);
+    renderAndDisplay(activeSimulation.getCurrentGrid());
   }
 
   private void handleGenerationFailure(Exception e) {
