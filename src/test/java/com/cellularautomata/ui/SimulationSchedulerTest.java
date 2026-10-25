@@ -163,4 +163,101 @@ public class SimulationSchedulerTest {
           scheduler.start(null);
         });
   }
+
+  @Test
+  public void testControlledSchedulerPlaybackSpeedAndValidation() {
+    ControlledScheduler scheduler = new ControlledScheduler();
+    Assert.assertEquals(
+        TimelineScheduler.DEFAULT_PLAYBACK_SPEED, scheduler.getPlaybackSpeed(), 0.001);
+    Assert.assertFalse(scheduler.isRunning());
+    Assert.assertEquals(0, scheduler.getStartCount());
+
+    scheduler.setPlaybackSpeed(0.50);
+    Assert.assertEquals(0.50, scheduler.getPlaybackSpeed(), 0.001);
+    Assert.assertFalse(scheduler.isRunning());
+
+    scheduler.start(() -> {});
+    Assert.assertTrue(scheduler.isRunning());
+    Assert.assertEquals(1, scheduler.getStartCount());
+
+    scheduler.setPlaybackSpeed(1.75);
+    Assert.assertEquals(1.75, scheduler.getPlaybackSpeed(), 0.001);
+    Assert.assertTrue(scheduler.isRunning());
+    Assert.assertEquals(1, scheduler.getStartCount());
+
+    assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(0.0));
+    assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(-0.25));
+    assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(Double.NaN));
+    assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(Double.POSITIVE_INFINITY));
+    assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(Double.NEGATIVE_INFINITY));
+  }
+
+  @Test
+  public void testTimelineSchedulerPlaybackSpeedScalingAndLiveUpdateWithoutDuplicateLoops() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          TimelineScheduler scheduler = new TimelineScheduler();
+          Assert.assertEquals(
+              TimelineScheduler.DEFAULT_PLAYBACK_SPEED, scheduler.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals(
+              Duration.millis(TimelineScheduler.DEFAULT_TICK_RATE_MS),
+              scheduler.getEffectiveTickInterval());
+
+          // Setting playback speed while stopped updates interval without starting
+          scheduler.setPlaybackSpeed(0.25);
+          Assert.assertEquals(0.25, scheduler.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals(Duration.millis(480.0), scheduler.getEffectiveTickInterval());
+          Assert.assertFalse(scheduler.isRunning());
+          Assert.assertNull(scheduler.getTimeline());
+
+          // Starting applies the pre-selected 0.25x speed (480ms KeyFrame)
+          AtomicInteger ticks = new AtomicInteger(0);
+          scheduler.start(ticks::incrementAndGet);
+          Assert.assertTrue(scheduler.isRunning());
+
+          Timeline firstTimeline = scheduler.getTimeline();
+          Assert.assertNotNull(firstTimeline);
+          Assert.assertEquals(
+              Duration.millis(480.0), firstTimeline.getKeyFrames().get(0).getTime());
+
+          // Changing speed while running stops the previous Timeline and starts a new one at 2.00x
+          // (60ms KeyFrame)
+          scheduler.setPlaybackSpeed(2.00);
+          Assert.assertEquals(2.00, scheduler.getPlaybackSpeed(), 0.001);
+          Assert.assertEquals(Duration.millis(60.0), scheduler.getEffectiveTickInterval());
+          Assert.assertTrue(scheduler.isRunning());
+
+          Timeline secondTimeline = scheduler.getTimeline();
+          Assert.assertNotNull(secondTimeline);
+          Assert.assertNotSame(firstTimeline, secondTimeline);
+          Assert.assertEquals(Timeline.Status.STOPPED, firstTimeline.getStatus());
+          Assert.assertEquals(Timeline.Status.RUNNING, secondTimeline.getStatus());
+          Assert.assertEquals(
+              Duration.millis(60.0), secondTimeline.getKeyFrames().get(0).getTime());
+
+          // Active tick callback is preserved on the updated timeline
+          secondTimeline.getKeyFrames().get(0).getOnFinished().handle(new ActionEvent());
+          Assert.assertEquals(1, ticks.get());
+
+          // Invalid speeds are rejected
+          assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(0.0));
+          assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(-1.0));
+          assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(Double.NaN));
+          assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(Double.POSITIVE_INFINITY));
+          assertThrowsIllegalArgument(() -> scheduler.setPlaybackSpeed(Double.NEGATIVE_INFINITY));
+
+          scheduler.stop();
+          Assert.assertFalse(scheduler.isRunning());
+          Assert.assertEquals(Timeline.Status.STOPPED, secondTimeline.getStatus());
+        });
+  }
+
+  private static void assertThrowsIllegalArgument(Runnable runnable) {
+    try {
+      runnable.run();
+      Assert.fail("Expected IllegalArgumentException");
+    } catch (IllegalArgumentException expected) {
+      // Expected
+    }
+  }
 }
