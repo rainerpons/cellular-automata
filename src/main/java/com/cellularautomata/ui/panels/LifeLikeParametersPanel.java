@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
@@ -52,7 +53,14 @@ public final class LifeLikeParametersPanel {
 
   /** Constructs the Life-like parameters panel with default Conway's Game of Life settings. */
   public LifeLikeParametersPanel() {
-    sizeSlider = panel.addSizeSliderRow();
+    sizeSlider =
+        panel.addSizeSliderRow(
+            ParametersPanel.LIFE_LIKE_MIN_SIZE,
+            ParametersPanel.LIFE_LIKE_MAX_SIZE,
+            ParametersPanel.LIFE_LIKE_DEFAULT_SIZE,
+            ParametersPanel.LIFE_LIKE_SIZE_MAJOR_TICK,
+            true,
+            false);
     presetComboBox = addPresetRow();
     seedComboBox =
         panel.addSeedTypeRow(ParametersPanel.TWO_DIMENSIONAL_SEEDS, SeedType.DENSITY, true);
@@ -74,6 +82,20 @@ public final class LifeLikeParametersPanel {
 
   public LifeLikePreset getPreset() {
     return selectionModel.getPreset();
+  }
+
+  /**
+   * Returns the display text for the active preset, or {@code "Custom"} when arbitrary birth and
+   * survival counts are selected.
+   *
+   * @return the preset display name or {@code "Custom"}
+   */
+  public String getPresetDisplayText() {
+    LifeLikePreset preset = selectionModel.getPreset();
+    if (preset == null) {
+      return "Custom";
+    }
+    return preset.getDisplayName();
   }
 
   public Set<Integer> getBirthCounts() {
@@ -196,14 +218,22 @@ public final class LifeLikeParametersPanel {
     return densitySlider.getSlider();
   }
 
+  Slider getSizeSlider() {
+    return sizeSlider.getSlider();
+  }
+
   private ComboBox<LifeLikePreset> addPresetRow() {
     ComboBox<LifeLikePreset> comboBox =
         UiStyles.createDropdown(
             List.of(LifeLikePreset.values()), LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+    comboBox.setPromptText("Custom");
+    PresetButtonCell buttonCell = new PresetButtonCell();
+    comboBox.setButtonCell(buttonCell);
     comboBox
         .valueProperty()
         .addListener(
             (obs, oldVal, newVal) -> {
+              buttonCell.update(newVal);
               if (updatingControls || newVal == null) {
                 return;
               }
@@ -212,6 +242,26 @@ public final class LifeLikeParametersPanel {
             });
     panel.addControlRow("Preset", null, comboBox, true);
     return comboBox;
+  }
+
+  private static final class PresetButtonCell extends ListCell<LifeLikePreset> {
+    PresetButtonCell() {
+      update(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+    }
+
+    void update(LifeLikePreset item) {
+      updateItem(item, item == null);
+    }
+
+    @Override
+    protected void updateItem(LifeLikePreset item, boolean empty) {
+      super.updateItem(item, empty);
+      if (empty || item == null) {
+        setText("Custom");
+      } else {
+        setText(item.getDisplayName());
+      }
+    }
   }
 
   private LabeledSlider addDensityRow() {
@@ -267,6 +317,9 @@ public final class LifeLikeParametersPanel {
     updatingControls = true;
     try {
       presetComboBox.setValue(selectionModel.getPreset());
+      if (presetComboBox.getButtonCell() instanceof PresetButtonCell cell) {
+        cell.update(selectionModel.getPreset());
+      }
       for (int count = LifeLikeRule.MIN_NEIGHBOR_COUNT;
           count <= LifeLikeRule.MAX_NEIGHBOR_COUNT;
           count++) {
