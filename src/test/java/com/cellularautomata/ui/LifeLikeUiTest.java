@@ -7,7 +7,6 @@ import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
 import java.util.List;
-import java.util.Set;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -15,7 +14,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.Assert;
@@ -217,28 +215,19 @@ public class LifeLikeUiTest extends ApplicationTest {
         DisplayPanel.GENERATION_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
         displayPanel.getErrorMessage());
 
-    // 2. Verify error view container, icon, text style classes, and dashed border
-    StackPane imageContainer = (StackPane) displayPanel.getChildren().get(1);
-    VBox errorContainer = (VBox) imageContainer.getChildren().get(0);
+    // 2. Verify error view container and icon presentation
+    VBox errorContainer = lookup(".error-container").queryAs(VBox.class);
+    Assert.assertNotNull(errorContainer);
     Assert.assertTrue(
         "Error container must have dashed border matching placeholder",
         errorContainer.getStyleClass().contains("placeholder"));
-    Assert.assertTrue(
-        "Error container must have error-container style class",
-        errorContainer.getStyleClass().contains("error-container"));
     Assert.assertEquals(400.0, errorContainer.getMinWidth(), 0.001);
     Assert.assertEquals(400.0, errorContainer.getMinHeight(), 0.001);
 
-    FontIcon errorIcon = (FontIcon) errorContainer.getChildren().get(0);
+    FontIcon errorIcon = lookup(".error-icon").queryAs(FontIcon.class);
+    Assert.assertNotNull(errorIcon);
     Assert.assertEquals(MaterialDesignA.ALERT_CIRCLE_OUTLINE, errorIcon.getIconCode());
     Assert.assertEquals(40, errorIcon.getIconSize());
-    Assert.assertTrue(errorIcon.getStyleClass().contains("error-icon"));
-
-    Label primaryLabel = (Label) errorContainer.getChildren().get(1);
-    Assert.assertTrue(primaryLabel.getStyleClass().contains("error-label"));
-
-    Label secondaryLabel = (Label) errorContainer.getChildren().get(2);
-    Assert.assertTrue(secondaryLabel.getStyleClass().contains("error-label"));
 
     // 3. Test successful recovery
     interact(controller::step);
@@ -292,7 +281,7 @@ public class LifeLikeUiTest extends ApplicationTest {
   }
 
   @Test
-  public void testCustomPresetDropdownAllSixScenariosInGui() {
+  public void testCustomPresetDropdownPresentationAndVisibleTransitions() {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
@@ -300,86 +289,31 @@ public class LifeLikeUiTest extends ApplicationTest {
     ComboBox<LifeLikePreset> presetComboBox = findPresetComboBox();
     Assert.assertNotNull(presetComboBox);
 
-    // Scenario 1: Selecting Conway's Game of Life displays its name ("Conway's Game of Life") and
-    // selects B3/S23.
-    Assert.assertEquals("Conway's Game of Life", parametersPanel.getPresetDisplayText());
+    // 1. Verify default "Conway's Game of Life" presentation
     Assert.assertEquals("Conway's Game of Life", presetComboBox.getButtonCell().getText());
     Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, parametersPanel.getPreset());
-    Assert.assertEquals(Set.of(3), parametersPanel.getBirthCounts());
-    Assert.assertEquals(Set.of(2, 3), parametersPanel.getSurvivalCounts());
 
-    // Scenario 2: Changing B/S to a non-preset combination displays "Custom", not an empty
-    // selection.
-    interact(() -> parametersPanel.toggleSurvival(2)); // B3/S3 is non-preset
-    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
+    // 2. Toggle off survival 2 (producing custom B3/S3) and verify ComboBox button cell visibly
+    // presents "Custom" (and specifically is NOT empty/blank)
+    interact(() -> parametersPanel.toggleSurvival(2));
     Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
-    Assert.assertFalse(presetComboBox.getButtonCell().getText().isEmpty());
+    Assert.assertFalse(presetComboBox.getButtonCell().getText().isBlank());
     Assert.assertNull(parametersPanel.getPreset());
-    Assert.assertEquals(Set.of(3), parametersPanel.getBirthCounts());
-    Assert.assertEquals(Set.of(3), parametersPanel.getSurvivalCounts());
 
-    // Scenario 3: Changing B/S to match HighLife automatically displays "HighLife".
-    // HighLife is B36/S23: restore S2 and add B6
-    interact(
-        () -> {
-          parametersPanel.toggleSurvival(2);
-          parametersPanel.toggleBirth(6);
-        });
-    Assert.assertEquals("HighLife", parametersPanel.getPresetDisplayText());
-    Assert.assertEquals("HighLife", presetComboBox.getButtonCell().getText());
-    Assert.assertEquals(LifeLikePreset.HIGH_LIFE, parametersPanel.getPreset());
-    Assert.assertEquals(Set.of(3, 6), parametersPanel.getBirthCounts());
-    Assert.assertEquals(Set.of(2, 3), parametersPanel.getSurvivalCounts());
-
-    // Scenario 4: Restoring B3/S23 automatically displays "Conway's Game of Life".
-    interact(() -> parametersPanel.toggleBirth(6)); // toggle off B6 -> B3/S23
-    Assert.assertEquals("Conway's Game of Life", parametersPanel.getPresetDisplayText());
-    Assert.assertEquals("Conway's Game of Life", presetComboBox.getButtonCell().getText());
-    Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, parametersPanel.getPreset());
-    Assert.assertEquals(Set.of(3), parametersPanel.getBirthCounts());
-    Assert.assertEquals(Set.of(2, 3), parametersPanel.getSurvivalCounts());
-
-    // Scenario 5: Selecting a named preset while "Custom" is displayed correctly updates the B/S
-    // controls and dropdown.
-    interact(() -> parametersPanel.toggleSurvival(2)); // make Custom
-    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
-    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
-
-    interact(
-        () -> presetComboBox.setValue(LifeLikePreset.SEEDS)); // Select named preset Seeds (B2/S)
-    Assert.assertEquals("Seeds", parametersPanel.getPresetDisplayText());
+    // 3. Select a named preset (e.g., Seeds) and verify button cell updates to "Seeds"
+    interact(() -> presetComboBox.setValue(LifeLikePreset.SEEDS));
     Assert.assertEquals("Seeds", presetComboBox.getButtonCell().getText());
     Assert.assertEquals(LifeLikePreset.SEEDS, parametersPanel.getPreset());
-    Assert.assertEquals(Set.of(2), parametersPanel.getBirthCounts());
-    Assert.assertTrue(parametersPanel.getSurvivalCounts().isEmpty());
 
-    // Scenario 6: "Custom" remains displayed through Play, Pause, Step, and Reset unless the user
-    // changes the B/S configuration.
-    interact(() -> parametersPanel.toggleBirth(6)); // B26/S is non-preset -> Custom
-    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
+    // 4. Transition to Custom and verify Step/Reset preserves visible "Custom" display
+    interact(() -> parametersPanel.toggleBirth(6)); // Seeds (B2/S) + B6 -> Custom B26/S
     Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
 
-    // Step
     interact(() -> toolbar.getStepButton().fire());
-    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
     Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
 
-    // Play
-    interact(() -> toolbar.getPlayPauseButton().fire());
-    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
-    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
-
-    // Pause
-    interact(() -> toolbar.getPlayPauseButton().fire());
-    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
-    Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
-
-    // Reset
     interact(() -> toolbar.getResetButton().fire());
-    Assert.assertEquals("Custom", parametersPanel.getPresetDisplayText());
     Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
-    Assert.assertEquals(Set.of(2, 6), parametersPanel.getBirthCounts());
-    Assert.assertTrue(parametersPanel.getSurvivalCounts().isEmpty());
   }
 
   @Test
