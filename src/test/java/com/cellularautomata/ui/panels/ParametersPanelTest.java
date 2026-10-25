@@ -102,7 +102,7 @@ public class ParametersPanelTest {
         List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
         ParametersPanel.ONE_DIMENSIONAL_SEEDS);
     Assert.assertEquals(
-        List.of(SeedType.DENSITY, SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
+        List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING),
         ParametersPanel.TWO_DIMENSIONAL_SEEDS);
 
     try {
@@ -118,5 +118,38 @@ public class ParametersPanelTest {
     } catch (UnsupportedOperationException expected) {
       // Expected unmodifiable list
     }
+  }
+
+  @Test
+  public void testSliderConstants() {
+    Assert.assertEquals(4, ParametersPanel.ONE_DIMENSIONAL_MIN_SIZE);
+    Assert.assertEquals(128, ParametersPanel.ONE_DIMENSIONAL_MAX_SIZE);
+    Assert.assertEquals(8, ParametersPanel.ONE_DIMENSIONAL_DEFAULT_SIZE);
+    Assert.assertEquals(1.0, ParametersPanel.ONE_DIMENSIONAL_SIZE_MAJOR_TICK, 0.001);
+
+    Assert.assertEquals(5, ParametersPanel.LIFE_LIKE_MIN_SIZE);
+    Assert.assertEquals(155, ParametersPanel.LIFE_LIKE_MAX_SIZE);
+    Assert.assertEquals(8, ParametersPanel.LIFE_LIKE_DEFAULT_SIZE);
+    Assert.assertEquals(25.0, ParametersPanel.LIFE_LIKE_SIZE_MAJOR_TICK, 0.001);
+
+    Assert.assertEquals(ParametersPanel.ONE_DIMENSIONAL_MIN_SIZE, ParametersPanel.MIN_SIZE);
+    Assert.assertEquals(ParametersPanel.ONE_DIMENSIONAL_MAX_SIZE, ParametersPanel.MAX_SIZE);
+    Assert.assertEquals(ParametersPanel.ONE_DIMENSIONAL_DEFAULT_SIZE, ParametersPanel.DEFAULT_SIZE);
+  }
+
+  @Test
+  public void testOneDimensionalParametersPanelSeedTypesIncludeUniformSparseAlternating() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          ParametersPanel panel = new ParametersPanel();
+          javafx.scene.control.ComboBox<SeedType> comboBox =
+              panel.addSeedTypeRow(ParametersPanel.ONE_DIMENSIONAL_SEEDS, SeedType.UNIFORM, false);
+          Assert.assertEquals(
+              List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
+              comboBox.getItems());
+          Assert.assertTrue(comboBox.getItems().contains(SeedType.UNIFORM));
+          Assert.assertFalse(comboBox.getItems().contains(SeedType.DENSITY));
+          Assert.assertEquals(SeedType.UNIFORM, comboBox.getValue());
+        });
   }
 }
