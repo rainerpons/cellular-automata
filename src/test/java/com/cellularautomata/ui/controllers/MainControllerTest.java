@@ -1,9 +1,12 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.controllers;
 
 import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.Rule;
 import com.cellularautomata.engine.rules.TotalisticRule;
+import com.cellularautomata.ui.DialogService;
+import com.cellularautomata.ui.JavaFxTestHelper;
+import com.cellularautomata.ui.WorkspaceConfig;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.NumericRuleParametersPanel;

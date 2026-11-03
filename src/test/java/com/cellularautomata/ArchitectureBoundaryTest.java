@@ -129,6 +129,18 @@ public class ArchitectureBoundaryTest {
                 + " independently testable");
   }
 
+  public static ArchRule automatonFileNameFormatterDoesNotDependOnJavaFxRule() {
+    return noClasses()
+        .that()
+        .haveSimpleName("AutomatonFileNameFormatter")
+        .should()
+        .dependOnClassesThat()
+        .resideInAnyPackage("javafx..")
+        .because(
+            "AutomatonFileNameFormatter formats default export filenames without JavaFX"
+                + " dependencies so it is independently testable");
+  }
+
   public static ArchRule imageDoesNotDependOnUiOrJavaFxRule() {
     return noClasses()
         .that()
@@ -188,6 +200,11 @@ public class ArchitectureBoundaryTest {
   @Test
   public void testLifeLikeStateMachineDoesNotDependOnJavaFx() {
     lifeLikeStateMachineDoesNotDependOnJavaFxRule().check(productionClasses);
+  }
+
+  @Test
+  public void testAutomatonFileNameFormatterDoesNotDependOnJavaFx() {
+    automatonFileNameFormatterDoesNotDependOnJavaFxRule().check(productionClasses);
   }
 
   @Test
@@ -298,6 +315,17 @@ public class ArchitectureBoundaryTest {
             .importClasses(SelectionModelArchViolationFixture.LifeLikeStateMachine.class);
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("LifeLikeStateMachine"));
+    Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
+  }
+
+  @Test
+  public void testAutomatonFileNameFormatterDoesNotDependOnJavaFxDetectsViolation() {
+    ArchRule rule = automatonFileNameFormatterDoesNotDependOnJavaFxRule();
+    JavaClasses violatingClasses =
+        new ClassFileImporter()
+            .importClasses(SelectionModelArchViolationFixture.AutomatonFileNameFormatter.class);
+    AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
+    Assert.assertTrue(error.getMessage().contains("AutomatonFileNameFormatter"));
     Assert.assertTrue(error.getMessage().contains("javafx.scene.control.Button"));
   }
 

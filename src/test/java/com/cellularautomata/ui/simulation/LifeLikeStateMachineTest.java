@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.simulation;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,6 +20,7 @@ public class LifeLikeStateMachineTest {
     Assert.assertTrue(stateMachine.isUninitialized());
     Assert.assertFalse(stateMachine.isRunning());
     Assert.assertFalse(stateMachine.isPaused());
+    Assert.assertFalse(stateMachine.isFixedPoint());
   }
 
   @Test
@@ -58,6 +59,91 @@ public class LifeLikeStateMachineTest {
   @Test(expected = IllegalStateException.class)
   public void testUninitializedRejectsOnStop() {
     stateMachine.onStop();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testUninitializedRejectsOnFixedPoint() {
+    stateMachine.onFixedPoint();
+  }
+
+  @Test
+  public void testRunningToFixedPointOnFixedPoint() {
+    stateMachine.onPlay();
+    stateMachine.onFixedPoint();
+    Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, stateMachine.getState());
+    Assert.assertFalse(stateMachine.isUninitialized());
+    Assert.assertFalse(stateMachine.isRunning());
+    Assert.assertFalse(stateMachine.isPaused());
+    Assert.assertTrue(stateMachine.isFixedPoint());
+  }
+
+  @Test
+  public void testPausedToFixedPointOnFixedPoint() {
+    stateMachine.onStep();
+    stateMachine.onFixedPoint();
+    Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, stateMachine.getState());
+    Assert.assertFalse(stateMachine.isUninitialized());
+    Assert.assertFalse(stateMachine.isRunning());
+    Assert.assertFalse(stateMachine.isPaused());
+    Assert.assertTrue(stateMachine.isFixedPoint());
+  }
+
+  @Test
+  public void testFixedPointToPausedOnReset() {
+    stateMachine.onPlay();
+    stateMachine.onFixedPoint();
+    stateMachine.onReset();
+    Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, stateMachine.getState());
+    Assert.assertTrue(stateMachine.isPaused());
+    Assert.assertFalse(stateMachine.isFixedPoint());
+  }
+
+  @Test
+  public void testFixedPointToUninitializedOnError() {
+    stateMachine.onPlay();
+    stateMachine.onFixedPoint();
+    stateMachine.onError();
+    Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, stateMachine.getState());
+    Assert.assertTrue(stateMachine.isUninitialized());
+    Assert.assertFalse(stateMachine.isFixedPoint());
+  }
+
+  @Test
+  public void testFixedPointToUninitializedOnStop() {
+    stateMachine.onPlay();
+    stateMachine.onFixedPoint();
+    stateMachine.onStop();
+    Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, stateMachine.getState());
+    Assert.assertTrue(stateMachine.isUninitialized());
+    Assert.assertFalse(stateMachine.isFixedPoint());
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testFixedPointRejectsOnPlay() {
+    stateMachine.onPlay();
+    stateMachine.onFixedPoint();
+    stateMachine.onPlay();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testFixedPointRejectsOnPause() {
+    stateMachine.onPlay();
+    stateMachine.onFixedPoint();
+    stateMachine.onPause();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testFixedPointRejectsOnStep() {
+    stateMachine.onPlay();
+    stateMachine.onFixedPoint();
+    stateMachine.onStep();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testFixedPointRejectsOnFixedPoint() {
+    stateMachine.onPlay();
+    stateMachine.onFixedPoint();
+    stateMachine.onFixedPoint();
   }
 
   @Test

@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.simulation;
 
 import com.cellularautomata.engine.SeedType;
 import java.util.Set;

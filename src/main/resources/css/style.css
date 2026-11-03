@@ -107,6 +107,10 @@
     -fx-opacity: 0.45;
 }
 
+.neighbor-toggle {
+    -fx-min-width: 28px;
+}
+
 .simulation-button {
     -fx-padding: 0;
 }
@@ -178,6 +182,7 @@
     -fx-text-fill: -fx-text-primary;
     -fx-padding: 0 5 0 5;
     -fx-background-insets: 0;
+    -fx-alignment: center-left;
 }
 .spinner .increment-arrow-button, .spinner .decrement-arrow-button {
     -fx-background-color: transparent;
@@ -189,6 +194,41 @@
 .spinner .increment-arrow-button:hover, .spinner .decrement-arrow-button:hover {
     -fx-background-color: -fx-control-bg-hover;
 }
+.spinner.split-arrows-horizontal {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+.spinner.split-arrows-horizontal .decrement-arrow-button,
+.spinner.split-arrows-horizontal .increment-arrow-button {
+    -fx-background-color: -fx-control-bg;
+    -fx-background-insets: 0;
+    -fx-background-radius: 3;
+    -fx-border-color: -fx-control-border;
+    -fx-border-insets: 0;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-padding: 0 11 0 11;
+    -fx-min-width: 28px;
+    -fx-pref-width: 28px;
+    -fx-max-width: 28px;
+}
+.spinner.split-arrows-horizontal .decrement-arrow-button:hover,
+.spinner.split-arrows-horizontal .increment-arrow-button:hover {
+    -fx-background-color: -fx-control-bg-hover;
+}
+.spinner.split-arrows-horizontal .text-field {
+    -fx-background-color: -fx-control-bg;
+    -fx-background-insets: 0 4 0 4;
+    -fx-background-radius: 3;
+    -fx-border-color: -fx-control-border;
+    -fx-border-insets: 0 4 0 4;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-padding: 0 9 0 9;
+    -fx-alignment: center;
+}
 .combo-box .arrow, .spinner .increment-arrow, .spinner .decrement-arrow {
     -fx-background-color: -fx-icon-color;
 }
@@ -197,6 +237,32 @@
 }
 .combo-box .arrow {
     -fx-shape: "M 0 0 h 7 l -3.5 4 z";
+    -fx-scale-shape: true;
+    -fx-padding: 2 3.5 2 3.5;
+}
+.spinner.split-arrows-horizontal .decrement-arrow {
+    -fx-background-color: -fx-icon-color;
+    -fx-shape: "M 4 0 v 7 l -4 -3.5 z";
+    -fx-scale-shape: true;
+    -fx-padding: 3.5 2 3.5 2;
+    -fx-min-width: 4px;
+    -fx-pref-width: 4px;
+    -fx-max-width: 4px;
+    -fx-min-height: 7px;
+    -fx-pref-height: 7px;
+    -fx-max-height: 7px;
+}
+.spinner.split-arrows-horizontal .increment-arrow {
+    -fx-background-color: -fx-icon-color;
+    -fx-shape: "M 0 0 v 7 l 4 -3.5 z";
+    -fx-scale-shape: true;
+    -fx-padding: 3.5 2 3.5 2;
+    -fx-min-width: 4px;
+    -fx-pref-width: 4px;
+    -fx-max-width: 4px;
+    -fx-min-height: 7px;
+    -fx-pref-height: 7px;
+    -fx-max-height: 7px;
 }
 .combo-box-popup .list-view {
     -fx-background-color: -fx-control-border, -fx-control-bg;
@@ -321,6 +387,18 @@
     -fx-wrap-text: true;
     -fx-text-alignment: center;
     -fx-alignment: center;
+}
+
+.module-card-content {
+    -fx-spacing: 15;
+    -fx-alignment: top-center;
+}
+
+.module-card-placeholder {
+    -fx-min-width: 64;
+    -fx-max-width: 64;
+    -fx-min-height: 64;
+    -fx-max-height: 64;
 }
 
 /* Navigation */

@@ -1,5 +1,6 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.ui.components.LifeLikeToolbar;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ParametersPanel;

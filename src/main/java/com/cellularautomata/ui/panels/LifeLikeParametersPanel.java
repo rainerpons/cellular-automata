@@ -4,14 +4,17 @@ import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.ui.LifeLikeRuleSelectionModel;
-import com.cellularautomata.ui.shared.LabeledSlider;
+import com.cellularautomata.ui.components.LabeledSlider;
 import com.cellularautomata.ui.shared.UiStyles;
+import com.cellularautomata.ui.simulation.SimulationScheduler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.DoubleConsumer;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -20,7 +23,7 @@ import javafx.scene.layout.Priority;
 /**
  * The parameters section for the Life-like cellular automata workspace. Composes {@link
  * ParametersPanel} to configure grid size, rule presets, seed type, conditional alive-cell density,
- * and birth and survival neighbor count toggles (0 to 8).
+ * birth and survival neighbor count toggles (0 to 8), and playback speed.
  */
 public final class LifeLikeParametersPanel {
   public static final int MIN_SIZE = 5;
@@ -44,7 +47,6 @@ public final class LifeLikeParametersPanel {
       "Controls the percentage of cells that are initially alive when generating a new automaton.";
 
   private static final int TOGGLE_GAP = 4;
-  private static final int TOGGLE_MIN_WIDTH = 28;
 
   private final LifeLikeRuleSelectionModel selectionModel = new LifeLikeRuleSelectionModel();
   private final ParametersPanel panel = new ParametersPanel();
@@ -55,6 +57,7 @@ public final class LifeLikeParametersPanel {
   private final ComboBox<LifeLikePreset> presetComboBox;
   private final ComboBox<SeedType> seedComboBox;
   private final LabeledSlider densitySlider;
+  private final Spinner<Double> playbackSpeedSpinner;
 
   private boolean updatingControls;
 
@@ -67,7 +70,14 @@ public final class LifeLikeParametersPanel {
     densitySlider = addDensityRow();
     panel.addControlRow("Birth", BIRTH_TOOLTIP, createNeighborToggleRow(birthToggles, true), true);
     panel.addControlRow(
-        "Survival", SURVIVAL_TOOLTIP, createNeighborToggleRow(survivalToggles, false), false);
+        "Survival", SURVIVAL_TOOLTIP, createNeighborToggleRow(survivalToggles, false), true);
+    playbackSpeedSpinner =
+        NumericSpinnerFactory.createPlaybackSpeedSpinner(
+            SimulationScheduler.MIN_PLAYBACK_SPEED,
+            SimulationScheduler.MAX_PLAYBACK_SPEED,
+            SimulationScheduler.DEFAULT_PLAYBACK_SPEED,
+            SimulationScheduler.PLAYBACK_SPEED_STEP);
+    panel.addControlRow("Playback speed", null, playbackSpeedSpinner, false);
 
     seedComboBox
         .valueProperty()
@@ -222,6 +232,64 @@ public final class LifeLikeParametersPanel {
     return sizeSlider.getSlider();
   }
 
+  public double getPlaybackSpeed() {
+    Double value = playbackSpeedSpinner.getValue();
+    return value == null ? SimulationScheduler.DEFAULT_PLAYBACK_SPEED : value;
+  }
+
+  /**
+   * Sets the playback speed multiplier on the playback speed spinner, clamping to {@code [0.25,
+   * 2.00]} and snapping to the nearest {@code 0.25} increment.
+   *
+   * @param speed playback speed multiplier
+   * @throws IllegalArgumentException if speed is NaN or infinite
+   */
+  public void setPlaybackSpeed(double speed) {
+    if (Double.isNaN(speed) || Double.isInfinite(speed)) {
+      throw new IllegalArgumentException("Playback speed must be finite.");
+    }
+    double clamped =
+        Math.max(
+            SimulationScheduler.MIN_PLAYBACK_SPEED,
+            Math.min(SimulationScheduler.MAX_PLAYBACK_SPEED, speed));
+    double snapped =
+        Math.round(
+                    (clamped - SimulationScheduler.MIN_PLAYBACK_SPEED)
+                        / SimulationScheduler.PLAYBACK_SPEED_STEP)
+                * SimulationScheduler.PLAYBACK_SPEED_STEP
+            + SimulationScheduler.MIN_PLAYBACK_SPEED;
+    playbackSpeedSpinner.getValueFactory().setValue(snapped);
+  }
+
+  public String getPlaybackSpeedDisplayText() {
+    return playbackSpeedSpinner.getEditor().getText();
+  }
+
+  /**
+   * Registers a listener notified whenever the playback speed value changes.
+   *
+   * @param listener callback receiving the updated playback speed multiplier
+   * @throws IllegalArgumentException if listener is null
+   */
+  public void addPlaybackSpeedListener(DoubleConsumer listener) {
+    if (listener == null) {
+      throw new IllegalArgumentException("Playback speed listener cannot be null.");
+    }
+    playbackSpeedSpinner
+        .valueProperty()
+        .addListener(
+            (obs, oldVal, newVal) -> {
+              if (newVal == null) {
+                return;
+              }
+              listener.accept(newVal);
+            });
+  }
+
+  Spinner<Double> getPlaybackSpeedSpinner() {
+    return playbackSpeedSpinner;
+  }
+
   private ComboBox<LifeLikePreset> addPresetRow() {
     ComboBox<LifeLikePreset> comboBox =
         UiStyles.createDropdown(
@@ -288,7 +356,6 @@ public final class LifeLikeParametersPanel {
       ToggleButton toggle = new ToggleButton(Integer.toString(count));
       toggle.getStyleClass().add("neighbor-toggle");
       UiStyles.applyControlHeight(toggle);
-      toggle.setMinWidth(TOGGLE_MIN_WIDTH);
       toggle.setMaxWidth(Double.MAX_VALUE);
       HBox.setHgrow(toggle, Priority.ALWAYS);
       toggle

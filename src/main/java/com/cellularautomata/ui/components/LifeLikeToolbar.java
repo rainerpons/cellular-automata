@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.components;
 
 import com.cellularautomata.ui.shared.UiStyles;
 import javafx.event.ActionEvent;

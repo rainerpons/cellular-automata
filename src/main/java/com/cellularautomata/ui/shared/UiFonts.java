@@ -1,16 +1,16 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.shared;
 
 import java.io.InputStream;
 import javafx.scene.text.Font;
 
 /** Loads and registers the bundled IBM Plex Sans font at application startup. */
-final class UiFonts {
+public final class UiFonts {
   static final String IBM_PLEX_SANS = "IBM Plex Sans";
 
   private UiFonts() {}
 
   /** Attempts to register IBM Plex Sans. Failures are logged to stderr and do not propagate. */
-  static void registerBundledFonts() {
+  public static void registerBundledFonts() {
     String resourcePath = "/fonts/IBMPlexSans-Regular.ttf";
     String boldResourcePath = "/fonts/IBMPlexSans-Bold.ttf";
     try (InputStream stream = UiFonts.class.getResourceAsStream(resourcePath);

@@ -2,7 +2,7 @@ package com.cellularautomata.ui.panels;
 
 import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.rules.ElementaryRule;
-import com.cellularautomata.ui.shared.LabeledSlider;
+import com.cellularautomata.ui.components.LabeledSlider;
 import java.util.List;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;

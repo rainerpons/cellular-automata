@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.controllers;
 
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.automata.AutomataEngine;
@@ -8,9 +8,13 @@ import com.cellularautomata.engine.rules.Rule;
 import com.cellularautomata.engine.rules.TotalisticRule;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.image.AutomatonImageExport;
+import com.cellularautomata.ui.AutomatonFileNameFormatter;
+import com.cellularautomata.ui.DialogService;
+import com.cellularautomata.ui.WorkspaceConfig;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.NumericRuleParametersPanel;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +24,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.stage.Window;
 
 /** Controller responsible for coordinating actions between the UI panels and the core engine. */
-class MainController {
+public final class MainController {
   private static final String LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE =
       "Life-like rules use birth and survival counts";
 
@@ -42,7 +46,12 @@ class MainController {
    * @param dialogService the dialog service
    * @param config the workspace configuration
    */
-  MainController(
+  @SuppressFBWarnings(
+      value = "EI_EXPOSE_REP2",
+      justification =
+          "Controller intentionally retains references to active JavaFX workspace panels to"
+              + " coordinate UI state")
+  public MainController(
       DisplayPanel displayPanel,
       NumericRuleParametersPanel parametersPanel,
       CommandsPanel commandsPanel,

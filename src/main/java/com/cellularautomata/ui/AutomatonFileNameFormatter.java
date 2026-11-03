@@ -1,11 +1,15 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.engine.rules.LifeLikeRule;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /** Formats default file names for saving rendered cellular automata images. */
-final class AutomatonFileNameFormatter {
+public final class AutomatonFileNameFormatter {
+
+  private static final DateTimeFormatter TIMESTAMP_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss");
 
   private AutomatonFileNameFormatter() {
     throw new IllegalStateException("Utility class");
@@ -23,7 +27,7 @@ final class AutomatonFileNameFormatter {
    * @throws IllegalArgumentException if config or time is null
    * @throws UnsupportedOperationException if image saving is not supported for the workspace
    */
-  static String formatFileName(
+  public static String formatFileName(
       WorkspaceConfig config, int ruleNumber, int size, int states, LocalDateTime time) {
     if (config == null) {
       throw new IllegalArgumentException("WorkspaceConfig cannot be null.");
@@ -32,7 +36,7 @@ final class AutomatonFileNameFormatter {
       throw new IllegalArgumentException("Time cannot be null.");
     }
 
-    String timestamp = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss"));
+    String timestamp = time.format(TIMESTAMP_FORMATTER);
     String baseName = config.name().toLowerCase(Locale.ROOT);
 
     return switch (config) {
@@ -41,7 +45,30 @@ final class AutomatonFileNameFormatter {
           "%s_states%d_rule%d_size%d_%s.png"
               .formatted(baseName, states, ruleNumber, size, timestamp);
       case LIFE_LIKE ->
-          throw new UnsupportedOperationException("Life-like image saving is not yet supported");
+          throw new UnsupportedOperationException(
+              "Life-like rules use birth and survival notation rather than a rule number.");
     };
+  }
+
+  /**
+   * Generates a default PNG file name for saving a rendered Life-like automaton image.
+   *
+   * <p>Replaces the {@code '/'} separator in {@link LifeLikeRule#getNotation()} with {@code '-'} so
+   * the resulting file name is valid across POSIX and Windows filesystems (for example, {@code
+   * life_like_ruleB3-S23_size8.png}).
+   *
+   * @param rule the active Life-like rule
+   * @param size the active automaton grid size
+   * @return the formatted file name
+   * @throws IllegalArgumentException if rule is null
+   */
+  public static String formatFileName(LifeLikeRule rule, int size) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null.");
+    }
+
+    String baseName = WorkspaceConfig.LIFE_LIKE.name().toLowerCase(Locale.ROOT);
+    String safeRule = rule.getNotation().replace('/', '-');
+    return "%s_rule%s_size%d.png".formatted(baseName, safeRule, size);
   }
 }
