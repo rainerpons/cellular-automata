@@ -3,17 +3,14 @@ package com.cellularautomata.ui.controllers;
 import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.automata.AutomataEngine;
 import com.cellularautomata.engine.automata.AutomataResult;
-import com.cellularautomata.engine.rules.ElementaryRule;
-import com.cellularautomata.engine.rules.Rule;
 import com.cellularautomata.engine.rules.TotalisticRule;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.image.AutomatonImageExport;
 import com.cellularautomata.ui.AutomatonFileNameFormatter;
 import com.cellularautomata.ui.DialogService;
-import com.cellularautomata.ui.WorkspaceConfig;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
-import com.cellularautomata.ui.panels.NumericRuleParametersPanel;
+import com.cellularautomata.ui.panels.TotalisticParametersPanel;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -23,45 +20,68 @@ import java.util.OptionalInt;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.stage.Window;
 
-/** Controller responsible for coordinating actions between the UI panels and the core engine. */
-public final class MainController {
-  private static final String LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE =
-      "Life-like rules use birth and survival counts";
+/**
+ * Controller responsible for coordinating actions in the Totalistic cellular automata workspace.
+ */
+public final class TotalisticController {
 
   private final DisplayPanel displayPanel;
-  private final NumericRuleParametersPanel parametersPanel;
+  private final TotalisticParametersPanel parametersPanel;
   private final CommandsPanel commandsPanel;
   private final DialogService dialogService;
-  private final WorkspaceConfig config;
 
   private BufferedImage resizedAutomatonImage;
-  private Rule rule;
+  private TotalisticRule rule;
+  private int generatedSize;
 
   /**
-   * Constructs the main controller for a numeric-rule workspace.
+   * Constructs the Totalistic controller with the default dialog service.
    *
    * @param displayPanel the display panel
-   * @param parametersPanel the numeric-rule parameters panel
+   * @param parametersPanel the Totalistic parameters panel
+   * @param commandsPanel the commands panel
+   */
+  public TotalisticController(
+      DisplayPanel displayPanel,
+      TotalisticParametersPanel parametersPanel,
+      CommandsPanel commandsPanel) {
+    this(displayPanel, parametersPanel, commandsPanel, new DialogService());
+  }
+
+  /**
+   * Constructs the Totalistic controller with an injected dialog service.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the Totalistic parameters panel
    * @param commandsPanel the commands panel
    * @param dialogService the dialog service
-   * @param config the workspace configuration
    */
   @SuppressFBWarnings(
       value = "EI_EXPOSE_REP2",
       justification =
           "Controller intentionally retains references to active JavaFX workspace panels to"
               + " coordinate UI state")
-  public MainController(
+  public TotalisticController(
       DisplayPanel displayPanel,
-      NumericRuleParametersPanel parametersPanel,
+      TotalisticParametersPanel parametersPanel,
       CommandsPanel commandsPanel,
-      DialogService dialogService,
-      WorkspaceConfig config) {
+      DialogService dialogService) {
+    if (displayPanel == null) {
+      throw new IllegalArgumentException("DisplayPanel cannot be null.");
+    }
+    if (parametersPanel == null) {
+      throw new IllegalArgumentException("ParametersPanel cannot be null.");
+    }
+    if (commandsPanel == null) {
+      throw new IllegalArgumentException("CommandsPanel cannot be null.");
+    }
+    if (dialogService == null) {
+      throw new IllegalArgumentException("DialogService cannot be null.");
+    }
     this.displayPanel = displayPanel;
     this.parametersPanel = parametersPanel;
     this.commandsPanel = commandsPanel;
     this.dialogService = dialogService;
-    this.config = config;
     setupActionListeners();
   }
 
@@ -70,17 +90,19 @@ public final class MainController {
     commandsPanel.addSaveListener(e -> saveAutomatonImage());
   }
 
-  private void generateAutomaton() {
-    int states = parametersPanel.getStatesValue();
-
+  void generateAutomaton() {
     // Defensive safeguard for manual text entry outside the spinner bounds
-    if (config.supportsCustomStates() && !TotalisticRule.isValidStateCount(states)) {
+    OptionalInt parsedStates =
+        RuleValidator.parseRule(
+            parametersPanel.getStatesText(), TotalisticRule.MIN_STATES, TotalisticRule.MAX_STATES);
+    if (!parsedStates.isPresent()) {
       dialogService.showStatesError(TotalisticRule.MIN_STATES, TotalisticRule.MAX_STATES);
       return;
     }
 
-    int minRule = getMinRule();
-    int maxRule = getMaxRule(states);
+    int states = parsedStates.getAsInt();
+    int minRule = TotalisticRule.MIN_RULE_NUMBER;
+    int maxRule = TotalisticRule.calculateMaxRule(states);
     OptionalInt parsedRule =
         RuleValidator.parseRule(parametersPanel.getRuleText(), minRule, maxRule);
     if (!parsedRule.isPresent()) {
@@ -88,11 +110,11 @@ public final class MainController {
       return;
     }
 
-    int parsedRuleInt = parsedRule.getAsInt();
-    rule = instantiateRule(parsedRuleInt, states);
+    int size = parametersPanel.getSizeValue();
+    rule = new TotalisticRule(parsedRule.getAsInt(), states);
     AutomataResult result =
-        AutomataEngine.generate(
-            rule, parametersPanel.getSizeValue(), states, parametersPanel.getSeedType());
+        AutomataEngine.generate(rule, size, states, parametersPanel.getSeedType());
+    generatedSize = size;
 
     BufferedImage automatonImage = AutomatonImage.getImageFromMap(result.getAutomatonMap(), states);
     resizedAutomatonImage =
@@ -103,14 +125,13 @@ public final class MainController {
     commandsPanel.setSaveEnabled(true);
   }
 
-  private void saveAutomatonImage() {
+  void saveAutomatonImage() {
+    if (rule == null || resizedAutomatonImage == null) {
+      return;
+    }
+
     String initialFileName =
-        AutomatonFileNameFormatter.formatFileName(
-            config,
-            rule.getRuleNumber(),
-            parametersPanel.getSizeValue(),
-            parametersPanel.getStatesValue(),
-            LocalDateTime.now());
+        AutomatonFileNameFormatter.formatFileName(rule, generatedSize, LocalDateTime.now());
     Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
     File file =
         dialogService.showSaveFileDialog(
@@ -125,32 +146,5 @@ public final class MainController {
       ie.printStackTrace();
       dialogService.showSaveError();
     }
-  }
-
-  int getMinRule() {
-    return switch (config) {
-      case ELEMENTARY -> ElementaryRule.MIN_RULE_NUMBER;
-      case TOTALISTIC -> TotalisticRule.MIN_RULE_NUMBER;
-      case LIFE_LIKE ->
-          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
-    };
-  }
-
-  int getMaxRule(int states) {
-    return switch (config) {
-      case ELEMENTARY -> ElementaryRule.MAX_RULE_NUMBER;
-      case TOTALISTIC -> TotalisticRule.calculateMaxRule(states);
-      case LIFE_LIKE ->
-          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
-    };
-  }
-
-  Rule instantiateRule(int ruleNumber, int states) {
-    return switch (config) {
-      case ELEMENTARY -> new ElementaryRule(ruleNumber);
-      case TOTALISTIC -> new TotalisticRule(ruleNumber, states);
-      case LIFE_LIKE ->
-          throw new UnsupportedOperationException(LIFE_LIKE_NUMERIC_RULE_UNSUPPORTED_MESSAGE);
-    };
   }
 }

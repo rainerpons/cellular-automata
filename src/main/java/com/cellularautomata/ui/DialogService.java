@@ -18,14 +18,14 @@ public class DialogService {
     Alert alert =
         createStyledErrorDialog(
             "Rule Number Error",
-            "Rule must be a whole number between " + minRule + " and " + maxRule + ".");
+            "Rule must be a whole number between %d and %d.".formatted(minRule, maxRule));
     alert.showAndWait();
   }
 
   /**
    * Displays an error dialog indicating that the states number is invalid. This is a defensive
-   * safeguard supporting the manual entry edge case from MainController where invalid values are
-   * entered into the spinner's text box.
+   * safeguard supporting the manual entry edge case from TotalisticController where invalid values
+   * are entered into the spinner's text box.
    *
    * @param minStates the minimum valid states number
    * @param maxStates the maximum valid states number
@@ -34,7 +34,7 @@ public class DialogService {
     Alert alert =
         createStyledErrorDialog(
             "States Error",
-            "States must be a whole number between " + minStates + " and " + maxStates + ".");
+            "States must be a whole number between %d and %d.".formatted(minStates, maxStates));
     alert.showAndWait();
   }
 

@@ -1,8 +1,9 @@
 package com.cellularautomata.ui;
 
 import com.cellularautomata.ui.components.LifeLikeToolbar;
+import com.cellularautomata.ui.controllers.ElementaryController;
 import com.cellularautomata.ui.controllers.LifeLikeController;
-import com.cellularautomata.ui.controllers.MainController;
+import com.cellularautomata.ui.controllers.TotalisticController;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ElementaryParametersPanel;
@@ -23,8 +24,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * The MainApp class owns JavaFX UI setup and event wiring, while delegating generation and image
- * work.
+ * Application composition root and navigation layer that assembles module workspaces and connects
+ * per-module controllers.
  */
 public final class MainApp extends Application {
 
@@ -103,8 +104,7 @@ public final class MainApp extends Application {
     ElementaryParametersPanel parametersPanel = new ElementaryParametersPanel();
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
-    new MainController(
-        displayPanel, parametersPanel, commandsPanel, dialogService, WorkspaceConfig.ELEMENTARY);
+    new ElementaryController(displayPanel, parametersPanel, commandsPanel, dialogService);
     return createWorkspaceRoot(
         createOneDimensionalDisplayContainer(displayPanel, backLink), sidebarPanel);
   }
@@ -114,8 +114,7 @@ public final class MainApp extends Application {
     TotalisticParametersPanel parametersPanel = new TotalisticParametersPanel();
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
-    new MainController(
-        displayPanel, parametersPanel, commandsPanel, dialogService, WorkspaceConfig.TOTALISTIC);
+    new TotalisticController(displayPanel, parametersPanel, commandsPanel, dialogService);
     return createWorkspaceRoot(
         createOneDimensionalDisplayContainer(displayPanel, backLink), sidebarPanel);
   }
