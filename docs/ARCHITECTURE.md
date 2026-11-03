@@ -87,7 +87,7 @@ The UI owns:
 - Module and workspace metadata (`WorkspaceConfig`)
 - User interaction and navigation
 - Presentation state (`LifeLikeRuleSelectionModel`)
-- Default export filename formatting for workspace configurations (`AutomatonFileNameFormatter`)
+- Default export filename formatting for cellular automata modules (`AutomatonFileNameFormatter`)
 - UI-specific restrictions and interaction behavior
 - Displaying validation feedback and simulation results
 
@@ -100,7 +100,7 @@ The UI may reference authoritative domain constraints where necessary, but must 
 Application composition and coordination are responsible for connecting the UI, Image utilities, and Engine.
 
 - Application composition (`MainApp`) constructs and connects components.
-- Controllers (`MainController`, `LifeLikeController`) coordinate user actions and application operations.
+- Controllers (`ElementaryController`, `TotalisticController`, `LifeLikeController`) coordinate user actions and application operations.
 - Controllers should delegate domain logic, generation, and specialized operations to their appropriate owners.
 - Controllers should not accumulate unrelated responsibilities.
 - New services, interfaces, or abstractions should be introduced only when they provide meaningful separation or reuse.
@@ -115,12 +115,12 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
   - Separation of UI-specific interaction caps (`LifeLikeRuleSelectionModel.MAX_SELECTED_COUNTS_PER_SET`) from mathematical domain bounds (`LifeLikeRule.MIN_NEIGHBOR_COUNT..MAX_NEIGHBOR_COUNT`).
   - JavaFX-free `engine`, `image`, and presentation state models (`LifeLikeRuleSelectionModel`, `WorkspaceConfig`, `AutomatonFileNameFormatter`).
 - **Implementation preferences (local design choices)**:
-  - Keeping numeric-rule lookup and concrete `Rule` instantiation (`ElementaryRule`, `TotalisticRule`) inside `MainController` coordination methods rather than introducing a separate rule factory class while only `MainController` consumes numeric rules.
-  - Representing the shared 1D parameter contract with the narrow `NumericRuleParametersPanel` interface rather than a deep panel inheritance hierarchy.
+  - Giving each module its own dedicated controller (`ElementaryController`, `TotalisticController`, `LifeLikeController`) wired directly to its concrete parameters panel (`ElementaryParametersPanel`, `TotalisticParametersPanel`, `LifeLikeParametersPanel`) rather than multiplexing across `WorkspaceConfig` in a shared controller or forcing panels behind a common parameter interface.
+  - Keeping concrete 1D `Rule` instantiation (`ElementaryRule`, `TotalisticRule`) directly inside `ElementaryController` and `TotalisticController` rather than introducing a separate rule factory class or 1D controller base class.
 
 ## Core Components
 
-- **`WorkspaceConfig`**: Owns workspace metadata and capabilities in `ui`, including routing information, window titles, and supported configuration options, without depending on Engine classes or constructing Engine rules.
+- **`WorkspaceConfig`**: Owns workspace metadata in `ui`, including routing information and window titles, without depending on Engine classes or constructing Engine rules.
 - **`LifeLikePreset`**: Owns mathematical birth and survival rule presets for Life-like cellular automata within `engine.presets`, depending on `LifeLikeRule` without reverse dependencies.
 - **`LifeLikeRule`**: Owns constants, domain validation, notation formatting, and state evaluation for Life-like cellular automata rules within `engine.rules`.
 - **`SeedType`**: Defines strongly typed initial seed generation strategies (`DENSITY`, `UNIFORM`, `SPARSE`, `ALTERNATING`) in `engine` with module-specific compatibility rules.
@@ -128,7 +128,8 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
 - **`Generator`**: Single owner of 1D and 2D initial state generation algorithms in `engine`.
 - **`LifeLikeSimulation`**: Manages the simulation lifecycle, stepping, and reset state for 2D Life-like cellular automata in `engine.automata`.
 - **`MainApp`**: Application composition root and navigation layer in `ui`. Assembles workspaces, initializes UI components, and connects controllers.
-- **`MainController`**: Coordinates UI actions for numeric-rule workspaces in `ui.controllers` and delegates validation, rule construction, generation, and image export operations to their appropriate owners.
+- **`ElementaryController`**: Coordinates UI actions for the Elementary workspace in `ui.controllers`, delegating fixed-bound rule validation, `ElementaryRule` construction, 2-state generation, rendering, and image export operations to their appropriate owners.
+- **`TotalisticController`**: Coordinates UI actions for the Totalistic workspace in `ui.controllers`, delegating state count validation, dynamic-bound rule validation, `TotalisticRule` construction, multi-state generation, rendering, and image export operations to their appropriate owners.
 - **`LifeLikeController`**: Coordinates UI actions for the Life-like workspace in `ui.controllers`, managing parameter capture, simulation lifecycle, fixed-point detection, playback speed synchronization, image rendering, and image export.
 - **`DialogService`**: Owns the boundary for native and modal JavaFX dialogs (`FileChooser` and `Alert`) in `ui` so controllers remain deterministically testable without opening OS dialogs.
 - **`LifeLikeStateMachine`**: Manages JavaFX-free simulation lifecycle state transitions (`UNINITIALIZED`, `RUNNING`, `PAUSED`, `FIXED_POINT`) for the Life-like workspace in `ui.simulation`.
@@ -139,7 +140,7 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
 - **`AutomataEngine`**: Responsible for cellular automata generation and simulation orchestration.
 - **`AutomatonImage`**: Handles automaton image rendering, resizing, and PNG file writing independently of UI controls and workspace naming policy.
 - **`AutomatonImageExport`**: Resolves initial save directories for saving automaton images.
-- **`AutomatonFileNameFormatter`**: Formats default export filenames based on workspace configuration, rule number or Life-like B/S notation, size, and states in `ui`.
+- **`AutomatonFileNameFormatter`**: Formats default export filenames from strongly typed module rules (`ElementaryRule`, `TotalisticRule`, `LifeLikeRule`) and automaton parameters in `ui`.
 
 ## Architectural Principles
 
@@ -183,7 +184,7 @@ cellular-automata/
 │   │   ├── image/          # Image rendering and file export utilities
 │   │   └── ui/             # Application shell, navigation screens, workspace metadata, dialogs, export naming
 │   │       ├── components/ # Reusable self-contained UI controls (ModuleCard, LifeLikeToolbar, LabeledSlider)
-│   │       ├── controllers/# UI action and simulation coordination (MainController, LifeLikeController)
+│   │       ├── controllers/# UI action and simulation coordination (ElementaryController, TotalisticController, LifeLikeController)
 │   │       ├── panels/     # Major workspace layout regions (DisplayPanel, SidebarPanel, ParametersPanel, etc.)
 │   │       ├── shared/     # Shared layout geometry, CSS class constants, and font registration (UiStyles, UiFonts)
 │   │       └── simulation/ # Simulation lifecycle state, configuration, and scheduling (LifeLikeStateMachine, etc.)
