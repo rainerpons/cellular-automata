@@ -116,12 +116,11 @@ The shared backend system responsible for evolving automata.
 Responsibilities include:
 
 - Computing next generations
-- Maintaining simulation state
+- Maintaining mathematical simulation state
 - Stepping simulations
-- Running simulations continuously
 - Resetting simulations
 
-The simulation engine is independent of any specific module or workspace.
+Application-level playback coordination owns scheduling and continuous execution. The simulation engine must remain independent of JavaFX, presentation concerns, and any specific module or workspace.
 
 ## Automaton
 

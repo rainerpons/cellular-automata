@@ -21,8 +21,8 @@
 - Use CSS for colors, borders, backgrounds, typography, padding, alignment, and state-based visuals (`:hover`, `:pressed`, `:focused`, `:selected`, `:disabled`).
 - Keep Java layout code limited to structural layout and behavior: container types, child composition, spacing/gaps, layout constraints (`HBox.setHgrow`, `GridPane` row/column indices, `Region.USE_PREF_SIZE`), and dynamic properties computed at runtime.
 - Do not call `setStyle(...)` in Java unless a style value is computed dynamically at runtime.
-- Do not duplicate visual styling in both Java and `style.css`.
-- Keep `UiStyles` limited to shared layout geometry constants and shared CSS class name constants.
+- Avoid duplicating CSS presentation rules through Java-side styling.
+- `UiStyles` may contain shared layout constants, CSS class names, and reusable UI construction helpers, including component factories and helpers for creating controls, configuring nonvisual behavior, and installing tooltips, while visual appearance continues to be defined in external CSS wherever practical.
 
 ## Constants
 

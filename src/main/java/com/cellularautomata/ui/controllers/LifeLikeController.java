@@ -509,6 +509,7 @@ public final class LifeLikeController {
 
     Grid2D currentGrid = targetSimulation.getCurrentGrid();
     if (currentGrid.equals(previousGrid)) {
+      // Skip rendering because the displayed image already represents the unchanged grid.
       reachFixedPoint();
       return;
     }
