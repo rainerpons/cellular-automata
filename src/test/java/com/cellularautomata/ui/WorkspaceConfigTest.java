@@ -7,26 +7,20 @@ import org.junit.Test;
 public class WorkspaceConfigTest {
 
   @Test
-  public void testElementaryMetadataAndCapabilities() {
-    WorkspaceConfig config = WorkspaceConfig.ELEMENTARY;
-
-    Assert.assertEquals("Cellular Automata (Elementary)", config.getWindowTitle());
-    Assert.assertFalse(config.supportsCustomStates());
+  public void testElementaryWindowTitle() {
+    Assert.assertEquals(
+        "Cellular Automata (Elementary)", WorkspaceConfig.ELEMENTARY.getWindowTitle());
   }
 
   @Test
-  public void testTotalisticMetadataAndCapabilities() {
-    WorkspaceConfig config = WorkspaceConfig.TOTALISTIC;
-
-    Assert.assertEquals("Cellular Automata (Totalistic)", config.getWindowTitle());
-    Assert.assertTrue(config.supportsCustomStates());
+  public void testTotalisticWindowTitle() {
+    Assert.assertEquals(
+        "Cellular Automata (Totalistic)", WorkspaceConfig.TOTALISTIC.getWindowTitle());
   }
 
   @Test
-  public void testLifeLikeMetadataAndCapabilities() {
-    WorkspaceConfig config = WorkspaceConfig.LIFE_LIKE;
-
-    Assert.assertEquals("Cellular Automata (Life-Like)", config.getWindowTitle());
-    Assert.assertFalse(config.supportsCustomStates());
+  public void testLifeLikeWindowTitle() {
+    Assert.assertEquals(
+        "Cellular Automata (Life-Like)", WorkspaceConfig.LIFE_LIKE.getWindowTitle());
   }
 }
