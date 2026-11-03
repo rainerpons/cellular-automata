@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.function.IntSupplier;
-import javafx.geometry.Pos;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextFormatter;
@@ -132,7 +131,6 @@ final class NumericSpinnerFactory {
     Spinner<Double> spinner = new Spinner<>(valueFactory);
     spinner.getStyleClass().add(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL);
     spinner.setEditable(false);
-    spinner.getEditor().setAlignment(Pos.CENTER);
     UiStyles.applyControlHeight(spinner);
     spinner.setMaxWidth(Double.MAX_VALUE);
     GridPane.setHgrow(spinner, Priority.ALWAYS);
@@ -153,7 +151,6 @@ final class NumericSpinnerFactory {
                   }
                   return change;
                 }));
-    spinner.getEditor().setAlignment(Pos.CENTER_LEFT);
     UiStyles.applyControlHeight(spinner);
     spinner.setMaxWidth(Double.MAX_VALUE);
     GridPane.setHgrow(spinner, Priority.ALWAYS);

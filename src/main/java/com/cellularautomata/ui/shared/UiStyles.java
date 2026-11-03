@@ -23,13 +23,10 @@ public final class UiStyles {
   public static final int FORM_LABEL_COLUMN_MIN_WIDTH = 95;
 
   // Vertical and horizontal spacing
-  public static final int HEADING_BOTTOM_GAP = 10;
   public static final int BUTTON_GAP_X = 5;
   public static final int DISPLAY_HEADING_GAP = 19;
   public static final int SECTION_HEADING_GAP = 19;
   public static final int PARAMETERS_HEADING_GAP = 17;
-  public static final int LABEL_TO_CONTROL_GAP = 6;
-  public static final int CONTROL_GROUP_GAP = 21;
   public static final int FORM_ROW_BOTTOM_GAP = 15;
   public static final int FORM_LABEL_COLUMN_GAP = 18;
   public static final int SECTION_SEPARATOR_TOP_GAP = 32;
