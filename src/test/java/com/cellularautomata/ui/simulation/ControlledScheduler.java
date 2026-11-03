@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.simulation;
 
 /**
  * Deterministic test scheduler allowing manual simulation ticks without thread sleeps or JavaFX
@@ -8,7 +8,7 @@ public final class ControlledScheduler implements SimulationScheduler {
 
   private Runnable tickAction;
   private boolean running;
-  private double playbackSpeed = TimelineScheduler.DEFAULT_PLAYBACK_SPEED;
+  private double playbackSpeed = DEFAULT_PLAYBACK_SPEED;
   private int startCount;
 
   @Override

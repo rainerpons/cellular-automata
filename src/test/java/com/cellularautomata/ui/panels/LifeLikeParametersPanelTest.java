@@ -4,10 +4,10 @@ import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.shared.UiStyles;
+import com.cellularautomata.ui.simulation.SimulationScheduler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
@@ -57,7 +57,7 @@ public class LifeLikeParametersPanelTest {
           Assert.assertEquals(Set.of(3), panel.getBirthCounts());
           Assert.assertEquals(Set.of(2, 3), panel.getSurvivalCounts());
           Assert.assertEquals(
-              LifeLikeParametersPanel.DEFAULT_PLAYBACK_SPEED, panel.getPlaybackSpeed(), 0.001);
+              SimulationScheduler.DEFAULT_PLAYBACK_SPEED, panel.getPlaybackSpeed(), 0.001);
           Assert.assertEquals("1.00x", panel.getPlaybackSpeedDisplayText());
         });
   }
@@ -462,24 +462,23 @@ public class LifeLikeParametersPanelTest {
           Assert.assertFalse(spinner.isEditable());
           Assert.assertTrue(
               spinner.getStyleClass().contains(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL));
-          Assert.assertEquals(Pos.CENTER, spinner.getEditor().getAlignment());
           Assert.assertEquals(UiStyles.CONTROL_HEIGHT, spinner.getMinHeight(), 0.001);
           Assert.assertEquals(UiStyles.CONTROL_HEIGHT, spinner.getPrefHeight(), 0.001);
 
           SpinnerValueFactory.DoubleSpinnerValueFactory factory =
               (SpinnerValueFactory.DoubleSpinnerValueFactory) spinner.getValueFactory();
           Assert.assertFalse(factory.isWrapAround());
-          Assert.assertEquals(LifeLikeParametersPanel.MIN_PLAYBACK_SPEED, factory.getMin(), 0.001);
-          Assert.assertEquals(LifeLikeParametersPanel.MAX_PLAYBACK_SPEED, factory.getMax(), 0.001);
+          Assert.assertEquals(SimulationScheduler.MIN_PLAYBACK_SPEED, factory.getMin(), 0.001);
+          Assert.assertEquals(SimulationScheduler.MAX_PLAYBACK_SPEED, factory.getMax(), 0.001);
           Assert.assertEquals(
-              LifeLikeParametersPanel.PLAYBACK_SPEED_STEP, factory.getAmountToStepBy(), 0.001);
+              SimulationScheduler.PLAYBACK_SPEED_STEP, factory.getAmountToStepBy(), 0.001);
 
           // Default is 1.00x
           Assert.assertEquals(1.00, panel.getPlaybackSpeed(), 0.001);
           Assert.assertEquals("1.00x", panel.getPlaybackSpeedDisplayText());
 
           // Step down to 0.25x and verify no wraparound below minimum
-          panel.setPlaybackSpeed(LifeLikeParametersPanel.MIN_PLAYBACK_SPEED);
+          panel.setPlaybackSpeed(SimulationScheduler.MIN_PLAYBACK_SPEED);
           Assert.assertEquals(0.25, panel.getPlaybackSpeed(), 0.001);
           Assert.assertEquals("0.25x", panel.getPlaybackSpeedDisplayText());
 

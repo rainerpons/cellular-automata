@@ -1,11 +1,15 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.ui.components.LifeLikeToolbar;
+import com.cellularautomata.ui.controllers.LifeLikeController;
+import com.cellularautomata.ui.controllers.MainController;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ElementaryParametersPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
 import com.cellularautomata.ui.panels.SidebarPanel;
 import com.cellularautomata.ui.panels.TotalisticParametersPanel;
+import com.cellularautomata.ui.shared.UiFonts;
 import com.cellularautomata.ui.shared.UiStyles;
 import javafx.application.Application;
 import javafx.geometry.Insets;

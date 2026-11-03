@@ -4,8 +4,9 @@ import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.ui.LifeLikeRuleSelectionModel;
-import com.cellularautomata.ui.shared.LabeledSlider;
+import com.cellularautomata.ui.components.LabeledSlider;
 import com.cellularautomata.ui.shared.UiStyles;
+import com.cellularautomata.ui.simulation.SimulationScheduler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -31,10 +32,6 @@ public final class LifeLikeParametersPanel {
   public static final double SIZE_MAJOR_TICK = 25.0;
   public static final List<SeedType> SUPPORTED_SEEDS =
       List.of(SeedType.DENSITY, SeedType.SPARSE, SeedType.ALTERNATING);
-  public static final double MIN_PLAYBACK_SPEED = 0.25;
-  public static final double MAX_PLAYBACK_SPEED = 2.00;
-  public static final double DEFAULT_PLAYBACK_SPEED = 1.00;
-  public static final double PLAYBACK_SPEED_STEP = 0.25;
 
   static final int MIN_DENSITY = 0;
   static final int MAX_DENSITY = 100;
@@ -50,7 +47,6 @@ public final class LifeLikeParametersPanel {
       "Controls the percentage of cells that are initially alive when generating a new automaton.";
 
   private static final int TOGGLE_GAP = 4;
-  private static final int TOGGLE_MIN_WIDTH = 28;
 
   private final LifeLikeRuleSelectionModel selectionModel = new LifeLikeRuleSelectionModel();
   private final ParametersPanel panel = new ParametersPanel();
@@ -77,7 +73,10 @@ public final class LifeLikeParametersPanel {
         "Survival", SURVIVAL_TOOLTIP, createNeighborToggleRow(survivalToggles, false), true);
     playbackSpeedSpinner =
         NumericSpinnerFactory.createPlaybackSpeedSpinner(
-            MIN_PLAYBACK_SPEED, MAX_PLAYBACK_SPEED, DEFAULT_PLAYBACK_SPEED, PLAYBACK_SPEED_STEP);
+            SimulationScheduler.MIN_PLAYBACK_SPEED,
+            SimulationScheduler.MAX_PLAYBACK_SPEED,
+            SimulationScheduler.DEFAULT_PLAYBACK_SPEED,
+            SimulationScheduler.PLAYBACK_SPEED_STEP);
     panel.addControlRow("Playback speed", null, playbackSpeedSpinner, false);
 
     seedComboBox
@@ -235,7 +234,7 @@ public final class LifeLikeParametersPanel {
 
   public double getPlaybackSpeed() {
     Double value = playbackSpeedSpinner.getValue();
-    return value == null ? DEFAULT_PLAYBACK_SPEED : value;
+    return value == null ? SimulationScheduler.DEFAULT_PLAYBACK_SPEED : value;
   }
 
   /**
@@ -249,10 +248,16 @@ public final class LifeLikeParametersPanel {
     if (Double.isNaN(speed) || Double.isInfinite(speed)) {
       throw new IllegalArgumentException("Playback speed must be finite.");
     }
-    double clamped = Math.max(MIN_PLAYBACK_SPEED, Math.min(MAX_PLAYBACK_SPEED, speed));
+    double clamped =
+        Math.max(
+            SimulationScheduler.MIN_PLAYBACK_SPEED,
+            Math.min(SimulationScheduler.MAX_PLAYBACK_SPEED, speed));
     double snapped =
-        Math.round((clamped - MIN_PLAYBACK_SPEED) / PLAYBACK_SPEED_STEP) * PLAYBACK_SPEED_STEP
-            + MIN_PLAYBACK_SPEED;
+        Math.round(
+                    (clamped - SimulationScheduler.MIN_PLAYBACK_SPEED)
+                        / SimulationScheduler.PLAYBACK_SPEED_STEP)
+                * SimulationScheduler.PLAYBACK_SPEED_STEP
+            + SimulationScheduler.MIN_PLAYBACK_SPEED;
     playbackSpeedSpinner.getValueFactory().setValue(snapped);
   }
 
@@ -274,9 +279,10 @@ public final class LifeLikeParametersPanel {
         .valueProperty()
         .addListener(
             (obs, oldVal, newVal) -> {
-              if (newVal != null) {
-                listener.accept(newVal);
+              if (newVal == null) {
+                return;
               }
+              listener.accept(newVal);
             });
   }
 
@@ -350,7 +356,6 @@ public final class LifeLikeParametersPanel {
       ToggleButton toggle = new ToggleButton(Integer.toString(count));
       toggle.getStyleClass().add("neighbor-toggle");
       UiStyles.applyControlHeight(toggle);
-      toggle.setMinWidth(TOGGLE_MIN_WIDTH);
       toggle.setMaxWidth(Double.MAX_VALUE);
       HBox.setHgrow(toggle, Priority.ALWAYS);
       toggle

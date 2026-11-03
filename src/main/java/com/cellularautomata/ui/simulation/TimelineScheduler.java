@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.simulation;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -14,9 +14,6 @@ public final class TimelineScheduler implements SimulationScheduler {
 
   /** Default interval between simulation generation ticks in milliseconds. */
   public static final int DEFAULT_TICK_RATE_MS = 120;
-
-  /** Default playback speed multiplier. */
-  public static final double DEFAULT_PLAYBACK_SPEED = 1.0;
 
   private final Duration baseTickInterval;
   private double playbackSpeed = DEFAULT_PLAYBACK_SPEED;
@@ -73,12 +70,13 @@ public final class TimelineScheduler implements SimulationScheduler {
       throw new IllegalArgumentException("Playback speed must be finite and strictly positive.");
     }
     this.playbackSpeed = speed;
-    if (isRunning() && activeTickAction != null) {
-      Runnable tickAction = activeTickAction;
-      timeline.stop();
-      timeline = null;
-      startTimeline(tickAction);
+    if (!isRunning() || activeTickAction == null) {
+      return;
     }
+    Runnable tickAction = activeTickAction;
+    timeline.stop();
+    timeline = null;
+    startTimeline(tickAction);
   }
 
   @Override

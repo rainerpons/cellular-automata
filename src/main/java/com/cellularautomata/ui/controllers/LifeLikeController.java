@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.controllers;
 
 import com.cellularautomata.engine.Grid2D;
 import com.cellularautomata.engine.SeedType;
@@ -7,12 +7,18 @@ import com.cellularautomata.engine.automata.LifeLikeSimulation;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.image.AutomatonImage;
 import com.cellularautomata.image.AutomatonImageExport;
+import com.cellularautomata.ui.AutomatonFileNameFormatter;
+import com.cellularautomata.ui.DialogService;
+import com.cellularautomata.ui.components.LifeLikeToolbar;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
+import com.cellularautomata.ui.simulation.LifeLikeConfiguration;
+import com.cellularautomata.ui.simulation.LifeLikeStateMachine;
+import com.cellularautomata.ui.simulation.SimulationScheduler;
+import com.cellularautomata.ui.simulation.TimelineScheduler;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.stage.Window;
@@ -53,6 +59,8 @@ public final class LifeLikeController {
     BufferedImage render(Grid2D grid);
   }
 
+  private record RenderedFrame(BufferedImage bufferedImage, Image fxImage) {}
+
   private final DisplayPanel displayPanel;
   private final LifeLikeParametersPanel parametersPanel;
   private final LifeLikeToolbar toolbar;
@@ -75,7 +83,7 @@ public final class LifeLikeController {
    * @param parametersPanel the parameters panel
    * @param toolbar the simulation toolbar
    */
-  LifeLikeController(
+  public LifeLikeController(
       DisplayPanel displayPanel, LifeLikeParametersPanel parametersPanel, LifeLikeToolbar toolbar) {
     this(displayPanel, parametersPanel, toolbar, new DialogService());
   }
@@ -89,7 +97,7 @@ public final class LifeLikeController {
    * @param toolbar the simulation toolbar
    * @param dialogService dialog service for save dialogs and alerts
    */
-  LifeLikeController(
+  public LifeLikeController(
       DisplayPanel displayPanel,
       LifeLikeParametersPanel parametersPanel,
       LifeLikeToolbar toolbar,
@@ -268,18 +276,8 @@ public final class LifeLikeController {
       return true;
     }
 
-    LifeLikeSimulation simulation;
-    try {
-      LifeLikeRule rule =
-          new LifeLikeRule(currentConfig.birthCounts(), currentConfig.survivalCounts());
-      simulation =
-          simulationFactory.create(
-              rule, currentConfig.size(), currentConfig.seedType(), currentConfig.density());
-      if (simulation == null) {
-        throw new IllegalStateException("Simulation factory returned null");
-      }
-    } catch (Exception e) {
-      handleGenerationFailure(e);
+    LifeLikeSimulation simulation = createSimulation(currentConfig);
+    if (simulation == null) {
       return false;
     }
 
@@ -292,32 +290,72 @@ public final class LifeLikeController {
     return true;
   }
 
-  private boolean renderAndDisplay(Grid2D grid) {
-    BufferedImage renderedBufferedImage;
-    Image fxImage;
+  private LifeLikeSimulation createSimulation(LifeLikeConfiguration config) {
     try {
-      renderedBufferedImage = gridRenderer.render(grid);
-      if (renderedBufferedImage == null) {
-        throw new IllegalStateException("Grid renderer returned null");
+      LifeLikeRule rule = new LifeLikeRule(config.birthCounts(), config.survivalCounts());
+      LifeLikeSimulation simulation =
+          simulationFactory.create(rule, config.size(), config.seedType(), config.density());
+      if (simulation == null) {
+        throw new IllegalStateException("Simulation factory returned null.");
       }
-      fxImage = SwingFXUtils.toFXImage(renderedBufferedImage, null);
-    } catch (Exception e) {
-      handleRenderingFailure(e);
+      return simulation;
+    } catch (RuntimeException e) {
+      handleGenerationError(e);
+      return null;
+    }
+  }
+
+  private RenderedFrame renderFrame(Grid2D grid) {
+    try {
+      BufferedImage renderedBufferedImage = gridRenderer.render(grid);
+      if (renderedBufferedImage == null) {
+        throw new IllegalStateException("Grid renderer returned null.");
+      }
+      Image fxImage = SwingFXUtils.toFXImage(renderedBufferedImage, null);
+      return new RenderedFrame(renderedBufferedImage, fxImage);
+    } catch (RuntimeException e) {
+      handleRenderingError(e);
+      return null;
+    }
+  }
+
+  private void applyRenderedFrame(RenderedFrame frame) {
+    activeBufferedImage = frame.bufferedImage();
+    activeImage = frame.fxImage();
+    displayPanel.setAutomatonImage(frame.fxImage());
+  }
+
+  private boolean renderAndDisplay(Grid2D grid) {
+    RenderedFrame frame = renderFrame(grid);
+    if (frame == null) {
       return false;
     }
-
-    activeBufferedImage = renderedBufferedImage;
-    activeImage = fxImage;
-    displayPanel.setAutomatonImage(fxImage);
+    applyRenderedFrame(frame);
     return true;
   }
 
-  /**
-   * Starts or resumes the simulation. Initializes generation 0 if uninitialized or if parameters
-   * have changed.
-   */
-  public void play() {
-    if (stateMachine.isRunning()) {
+  private boolean advanceGeneration(LifeLikeSimulation simulation) {
+    try {
+      simulation.step();
+      return true;
+    } catch (RuntimeException e) {
+      handleGenerationError(e);
+      return false;
+    }
+  }
+
+  private boolean resetSimulation(LifeLikeSimulation simulation) {
+    try {
+      simulation.reset();
+      return true;
+    } catch (RuntimeException e) {
+      handleGenerationError(e);
+      return false;
+    }
+  }
+
+  void play() {
+    if (stateMachine.isRunning() || stateMachine.isFixedPoint()) {
       return;
     }
     if (!prepareSimulation()) {
@@ -329,8 +367,7 @@ public final class LifeLikeController {
     scheduler.start(this::tick);
   }
 
-  /** Pauses the simulation at the current generation. */
-  public void pause() {
+  void pause() {
     if (!stateMachine.isRunning()) {
       return;
     }
@@ -339,66 +376,56 @@ public final class LifeLikeController {
     updateToolbar();
   }
 
-  /** Toggles simulation between running and paused. */
-  public void togglePlayPause() {
+  void togglePlayPause() {
+    if (stateMachine.isFixedPoint()) {
+      return;
+    }
     if (stateMachine.isRunning()) {
       pause();
-    } else {
-      play();
+      return;
     }
+    play();
   }
 
-  /**
-   * Advances the simulation by exactly one generation. When uninitialized or if settings have
-   * changed, initializes generation 0 first before advancing. Ignored while running.
-   */
-  public void step() {
-    if (stateMachine.isRunning()) {
+  void step() {
+    if (stateMachine.isRunning() || stateMachine.isFixedPoint()) {
       return;
     }
     if (!prepareSimulation()) {
       return;
     }
-
-    try {
-      activeSimulation.step();
-    } catch (Exception e) {
-      handleGenerationFailure(e);
+    final Grid2D previousGrid = activeSimulation.getCurrentGrid();
+    if (!advanceGeneration(activeSimulation)) {
       return;
     }
-
-    if (!renderAndDisplay(activeSimulation.getCurrentGrid())) {
+    Grid2D currentGrid = activeSimulation.getCurrentGrid();
+    if (!renderAndDisplay(currentGrid)) {
       return;
     }
-
     stateMachine.onStep();
+    if (currentGrid.equals(previousGrid)) {
+      reachFixedPoint();
+      return;
+    }
     updateToolbar();
   }
 
-  /**
-   * Resets the active simulation to generation 0 and re-renders the initial grid. Ignored when
-   * uninitialized.
-   */
-  public void reset() {
+  void reset() {
     if (stateMachine.isUninitialized() || activeSimulation == null) {
       return;
     }
     scheduler.stop();
-    activeSimulation.reset();
-
+    if (!resetSimulation(activeSimulation)) {
+      return;
+    }
     if (!renderAndDisplay(activeSimulation.getCurrentGrid())) {
       return;
     }
-
     stateMachine.onReset();
     updateToolbar();
   }
 
-  /**
-   * Opens the file save dialog and exports the currently displayed automaton image as a PNG file.
-   * Ignored when the simulation is uninitialized or no rendered image is available.
-   */
-  public void save() {
+  void save() {
     saveAutomatonImage();
   }
 
@@ -410,13 +437,20 @@ public final class LifeLikeController {
     BufferedImage imageToSave = activeBufferedImage;
     LifeLikeRule ruleToSave = activeSimulation.getRule();
     int sizeToSave = activeSimulation.getSize();
-    String initialFileName =
-        AutomatonFileNameFormatter.formatFileName(ruleToSave, sizeToSave, LocalDateTime.now());
+    boolean wasRunning = stateMachine.isRunning();
+    if (wasRunning) {
+      pause();
+    }
+
+    String initialFileName = AutomatonFileNameFormatter.formatFileName(ruleToSave, sizeToSave);
     Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
     File file =
         dialogService.showSaveFileDialog(
             window, AutomatonImageExport.resolveInitialSaveDirectory(), initialFileName);
     if (file == null) {
+      if (wasRunning) {
+        resumeAfterSave();
+      }
       return;
     }
 
@@ -426,82 +460,91 @@ public final class LifeLikeController {
       System.err.printf("Automaton image save failure: %s%n", ie.getMessage());
       ie.printStackTrace(System.err);
       dialogService.showSaveError();
-    }
-  }
-
-  void tick() {
-    if (tickInProgress || !stateMachine.isRunning() || activeSimulation == null) {
       return;
     }
 
+    if (wasRunning) {
+      resumeAfterSave();
+    }
+  }
+
+  private void resumeAfterSave() {
+    if (!stateMachine.isPaused() || activeSimulation == null) {
+      return;
+    }
+    stateMachine.onPlay();
+    updateToolbar();
+    scheduler.setPlaybackSpeed(parametersPanel.getPlaybackSpeed());
+    scheduler.start(this::tick);
+  }
+
+  void tick() {
+    if (tickInProgress) {
+      return;
+    }
     tickInProgress = true;
     try {
-      LifeLikeSimulation targetSimulation = activeSimulation;
-      final Grid2D previousGrid = targetSimulation.getCurrentGrid();
-
-      try {
-        targetSimulation.step();
-      } catch (Exception e) {
-        handleGenerationFailure(e);
-        return;
-      }
-
-      long expectedGeneration = targetSimulation.getGeneration();
-      if (!stateMachine.isRunning()
-          || activeSimulation != targetSimulation
-          || targetSimulation.getGeneration() != expectedGeneration) {
-        return;
-      }
-
-      Grid2D currentGrid = targetSimulation.getCurrentGrid();
-      BufferedImage renderedBufferedImage;
-      Image fxImage;
-      try {
-        renderedBufferedImage = gridRenderer.render(currentGrid);
-        if (renderedBufferedImage == null) {
-          throw new IllegalStateException("Grid renderer returned null");
-        }
-        fxImage = SwingFXUtils.toFXImage(renderedBufferedImage, null);
-      } catch (Exception e) {
-        handleRenderingFailure(e);
-        return;
-      }
-
-      if (!stateMachine.isRunning()
-          || activeSimulation != targetSimulation
-          || targetSimulation.getGeneration() != expectedGeneration) {
-        return;
-      }
-
-      activeBufferedImage = renderedBufferedImage;
-      activeImage = fxImage;
-      displayPanel.setAutomatonImage(fxImage);
-      updateToolbar();
-
-      if (currentGrid.equals(previousGrid)) {
-        pause();
-      }
+      executeTick();
     } finally {
       tickInProgress = false;
     }
   }
 
-  private void handleGenerationFailure(Exception e) {
-    scheduler.stop();
-    activeSimulation = null;
-    activeConfiguration = null;
-    activeBufferedImage = null;
-    activeImage = null;
-    if (!stateMachine.isUninitialized()) {
-      stateMachine.onError();
+  private void executeTick() {
+    if (!stateMachine.isRunning() || activeSimulation == null) {
+      return;
     }
+
+    LifeLikeSimulation targetSimulation = activeSimulation;
+    final Grid2D previousGrid = targetSimulation.getCurrentGrid();
+    long expectedGeneration = targetSimulation.getGeneration() + 1;
+
+    if (!advanceGeneration(targetSimulation)) {
+      return;
+    }
+
+    if (!isTickValid(targetSimulation, expectedGeneration)) {
+      return;
+    }
+
+    Grid2D currentGrid = targetSimulation.getCurrentGrid();
+    if (currentGrid.equals(previousGrid)) {
+      reachFixedPoint();
+      return;
+    }
+
+    RenderedFrame frame = renderFrame(currentGrid);
+    if (frame == null || !isTickValid(targetSimulation, expectedGeneration)) {
+      return;
+    }
+
+    applyRenderedFrame(frame);
     updateToolbar();
-    System.err.printf("Automaton generation failure: %s%n", e.getMessage());
-    e.printStackTrace(System.err);
+  }
+
+  private boolean isTickValid(LifeLikeSimulation targetSimulation, long expectedGeneration) {
+    return stateMachine.isRunning()
+        && activeSimulation == targetSimulation
+        && targetSimulation.getGeneration() == expectedGeneration;
+  }
+
+  private void reachFixedPoint() {
+    scheduler.stop();
+    stateMachine.onFixedPoint();
+    updateToolbar();
+  }
+
+  private void handleGenerationError(RuntimeException e) {
+    resetOnFailure("Automaton generation failure", e);
     displayPanel.showGenerationError();
   }
 
-  private void handleRenderingFailure(Exception e) {
+  private void handleRenderingError(RuntimeException e) {
+    resetOnFailure("Automaton rendering failure", e);
+    displayPanel.showRenderingError();
+  }
+
+  private void resetOnFailure(String logPrefix, RuntimeException e) {
     scheduler.stop();
     activeSimulation = null;
     activeConfiguration = null;
@@ -511,9 +554,8 @@ public final class LifeLikeController {
       stateMachine.onError();
     }
     updateToolbar();
-    System.err.printf("Automaton rendering failure: %s%n", e.getMessage());
+    System.err.printf("%s: %s%n", logPrefix, e.getMessage());
     e.printStackTrace(System.err);
-    displayPanel.showRenderingError();
   }
 
   private void updateToolbar() {
@@ -536,6 +578,13 @@ public final class LifeLikeController {
         toolbar.setPlaying(false);
         toolbar.setPlayPauseEnabled(true);
         toolbar.setStepEnabled(true);
+        toolbar.setResetEnabled(true);
+        toolbar.setSaveEnabled(activeBufferedImage != null);
+      }
+      case FIXED_POINT -> {
+        toolbar.setPlaying(false);
+        toolbar.setPlayPauseEnabled(false);
+        toolbar.setStepEnabled(false);
         toolbar.setResetEnabled(true);
         toolbar.setSaveEnabled(activeBufferedImage != null);
       }

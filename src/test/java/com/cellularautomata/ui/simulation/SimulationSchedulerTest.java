@@ -1,5 +1,6 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.simulation;
 
+import com.cellularautomata.ui.JavaFxTestHelper;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -168,7 +169,7 @@ public class SimulationSchedulerTest {
   public void testControlledSchedulerPlaybackSpeedAndValidation() {
     ControlledScheduler scheduler = new ControlledScheduler();
     Assert.assertEquals(
-        TimelineScheduler.DEFAULT_PLAYBACK_SPEED, scheduler.getPlaybackSpeed(), 0.001);
+        SimulationScheduler.DEFAULT_PLAYBACK_SPEED, scheduler.getPlaybackSpeed(), 0.001);
     Assert.assertFalse(scheduler.isRunning());
     Assert.assertEquals(0, scheduler.getStartCount());
 
@@ -198,7 +199,7 @@ public class SimulationSchedulerTest {
         () -> {
           TimelineScheduler scheduler = new TimelineScheduler();
           Assert.assertEquals(
-              TimelineScheduler.DEFAULT_PLAYBACK_SPEED, scheduler.getPlaybackSpeed(), 0.001);
+              SimulationScheduler.DEFAULT_PLAYBACK_SPEED, scheduler.getPlaybackSpeed(), 0.001);
           Assert.assertEquals(
               Duration.millis(TimelineScheduler.DEFAULT_TICK_RATE_MS),
               scheduler.getEffectiveTickInterval());

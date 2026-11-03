@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.controllers;
 
 import com.cellularautomata.engine.Grid2D;
 import com.cellularautomata.engine.SeedType;
@@ -6,8 +6,15 @@ import com.cellularautomata.engine.automata.LifeLikeSimulation;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.image.AutomatonImage;
+import com.cellularautomata.ui.DialogService;
+import com.cellularautomata.ui.JavaFxTestHelper;
+import com.cellularautomata.ui.components.LifeLikeToolbar;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
+import com.cellularautomata.ui.simulation.ControlledScheduler;
+import com.cellularautomata.ui.simulation.LifeLikeConfiguration;
+import com.cellularautomata.ui.simulation.LifeLikeStateMachine;
+import com.cellularautomata.ui.simulation.SimulationScheduler;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
@@ -15,6 +22,7 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.stage.Window;
@@ -29,6 +37,22 @@ public class LifeLikeControllerTest {
   @BeforeClass
   public static void initJavaFx() {
     JavaFxTestHelper.ensureToolkitInitialized();
+  }
+
+  private static Button playPauseButton(LifeLikeToolbar toolbar) {
+    return (Button) toolbar.getChildren().get(0);
+  }
+
+  private static Button stepButton(LifeLikeToolbar toolbar) {
+    return (Button) toolbar.getChildren().get(1);
+  }
+
+  private static Button resetButton(LifeLikeToolbar toolbar) {
+    return (Button) toolbar.getChildren().get(2);
+  }
+
+  private static Button saveButton(LifeLikeToolbar toolbar) {
+    return (Button) toolbar.getChildren().get(3);
   }
 
   @Test
@@ -118,10 +142,10 @@ public class LifeLikeControllerTest {
 
           Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
           Assert.assertFalse(toolbar.isPlaying());
-          Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-          Assert.assertFalse(toolbar.getStepButton().isDisabled());
-          Assert.assertTrue(toolbar.getResetButton().isDisabled());
-          Assert.assertTrue(toolbar.getSaveButton().isDisabled());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertTrue(resetButton(toolbar).isDisabled());
+          Assert.assertTrue(saveButton(toolbar).isDisabled());
         });
   }
 
@@ -161,10 +185,10 @@ public class LifeLikeControllerTest {
           Assert.assertEquals(400, (int) activeImage.getHeight());
 
           Assert.assertFalse(displayPanel.isDisplayingError());
-          Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-          Assert.assertFalse(toolbar.getStepButton().isDisabled());
-          Assert.assertFalse(toolbar.getResetButton().isDisabled());
-          Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
+          Assert.assertFalse(saveButton(toolbar).isDisabled());
 
           // Verify pixel colors against generation 1 grid content
           PixelReader pixelReader = activeImage.getPixelReader();
@@ -261,10 +285,10 @@ public class LifeLikeControllerTest {
 
           // Verify toolbar in RUNNING state
           Assert.assertTrue(toolbar.isPlaying());
-          Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-          Assert.assertTrue(toolbar.getStepButton().isDisabled());
-          Assert.assertFalse(toolbar.getResetButton().isDisabled());
-          Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertTrue(stepButton(toolbar).isDisabled());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
+          Assert.assertFalse(saveButton(toolbar).isDisabled());
 
           // Advance ticks via scheduler
           scheduler.tick();
@@ -278,9 +302,9 @@ public class LifeLikeControllerTest {
           Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
           Assert.assertFalse(scheduler.isRunning());
           Assert.assertFalse(toolbar.isPlaying());
-          Assert.assertFalse(toolbar.getStepButton().isDisabled());
-          Assert.assertFalse(toolbar.getResetButton().isDisabled());
-          Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
+          Assert.assertFalse(saveButton(toolbar).isDisabled());
 
           // Redundant pause is a safe no-op
           controller.pause();
@@ -326,10 +350,10 @@ public class LifeLikeControllerTest {
           Assert.assertEquals(0, controller.getActiveSimulation().getGeneration());
           Assert.assertEquals(gen0Grid, controller.getActiveSimulation().getCurrentGrid());
           Assert.assertFalse(toolbar.isPlaying());
-          Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-          Assert.assertFalse(toolbar.getStepButton().isDisabled());
-          Assert.assertFalse(toolbar.getResetButton().isDisabled());
-          Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
+          Assert.assertFalse(saveButton(toolbar).isDisabled());
         });
   }
 
@@ -370,10 +394,10 @@ public class LifeLikeControllerTest {
               DisplayPanel.GENERATION_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
               displayPanel.getErrorMessage());
 
-          Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-          Assert.assertFalse(toolbar.getStepButton().isDisabled());
-          Assert.assertTrue(toolbar.getResetButton().isDisabled());
-          Assert.assertTrue(toolbar.getSaveButton().isDisabled());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertTrue(resetButton(toolbar).isDisabled());
+          Assert.assertTrue(saveButton(toolbar).isDisabled());
         });
   }
 
@@ -414,10 +438,10 @@ public class LifeLikeControllerTest {
               DisplayPanel.RENDERING_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
               displayPanel.getErrorMessage());
 
-          Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-          Assert.assertFalse(toolbar.getStepButton().isDisabled());
-          Assert.assertTrue(toolbar.getResetButton().isDisabled());
-          Assert.assertTrue(toolbar.getSaveButton().isDisabled());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertTrue(resetButton(toolbar).isDisabled());
+          Assert.assertTrue(saveButton(toolbar).isDisabled());
         });
   }
 
@@ -459,20 +483,20 @@ public class LifeLikeControllerTest {
               new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
 
           // Step via toolbar button
-          toolbar.getStepButton().fire();
+          stepButton(toolbar).fire();
           Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
           Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
 
           // Play via toolbar button
-          toolbar.getPlayPauseButton().fire();
+          playPauseButton(toolbar).fire();
           Assert.assertTrue(controller.isRunning());
 
           // Pause via toolbar button
-          toolbar.getPlayPauseButton().fire();
+          playPauseButton(toolbar).fire();
           Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
 
           // Reset via toolbar button
-          toolbar.getResetButton().fire();
+          resetButton(toolbar).fire();
           Assert.assertEquals(0, controller.getActiveSimulation().getGeneration());
         });
   }
@@ -546,10 +570,10 @@ public class LifeLikeControllerTest {
           Assert.assertEquals(initialGrid, controller.getActiveSimulation().getCurrentGrid());
           Assert.assertEquals(16, controller.getActiveSimulation().getSize());
           Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
-          Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-          Assert.assertFalse(toolbar.getStepButton().isDisabled());
-          Assert.assertFalse(toolbar.getResetButton().isDisabled());
-          Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
+          Assert.assertFalse(saveButton(toolbar).isDisabled());
         });
   }
 
@@ -994,31 +1018,129 @@ public class LifeLikeControllerTest {
           Assert.assertTrue(scheduler.isRunning());
           Assert.assertTrue(toolbar.isPlaying());
 
-          // Tick 2: 0 live cells -> 0 live cells (consecutive identical grids -> auto-pause!)
+          // Tick 2: 0 live cells -> 0 live cells (consecutive identical grids -> FIXED_POINT!)
           scheduler.tick();
           Assert.assertEquals(2, controller.getActiveSimulation().getGeneration());
-          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
+          Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
           Assert.assertFalse(controller.isRunning());
           Assert.assertFalse(scheduler.isRunning());
           Assert.assertFalse(toolbar.isPlaying());
-          Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-          Assert.assertFalse(toolbar.getStepButton().isDisabled());
-          Assert.assertFalse(toolbar.getResetButton().isDisabled());
-          Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+          Assert.assertTrue(playPauseButton(toolbar).isDisabled());
+          Assert.assertTrue(stepButton(toolbar).isDisabled());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
+          Assert.assertFalse(saveButton(toolbar).isDisabled());
           Assert.assertNotNull(controller.getActiveImage());
           Assert.assertSame(controller.getActiveImage(), displayPanel.getAutomatonImage());
 
-          // Resuming from a fixed point pauses cleanly on the very next tick without a runaway loop
+          // Calling play(), step(), or togglePlayPause() while in FIXED_POINT is blocked
           controller.play();
-          Assert.assertTrue(controller.isRunning());
-          Assert.assertTrue(scheduler.isRunning());
-
-          scheduler.tick();
-          Assert.assertEquals(3, controller.getActiveSimulation().getGeneration());
-          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
+          Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
           Assert.assertFalse(scheduler.isRunning());
-          Assert.assertFalse(toolbar.isPlaying());
-          Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+          Assert.assertEquals(2, controller.getActiveSimulation().getGeneration());
+
+          controller.step();
+          Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
+          Assert.assertEquals(2, controller.getActiveSimulation().getGeneration());
+
+          controller.togglePlayPause();
+          Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
+          Assert.assertFalse(scheduler.isRunning());
+
+          // Editing parameters while in FIXED_POINT does not bypass the Reset requirement
+          parametersPanel.setSizeValue(16);
+          parametersPanel.selectPreset(LifeLikePreset.SEEDS);
+          controller.play();
+          controller.step();
+          controller.togglePlayPause();
+          Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
+          Assert.assertFalse(scheduler.isRunning());
+          Assert.assertEquals(8, controller.getActiveSimulation().getSize());
+          Assert.assertEquals(2, controller.getActiveSimulation().getGeneration());
+
+          // Restore parameters and Reset: returns simulation to generation 0 and transitions to
+          // PAUSED, re-enabling Play and Step
+          parametersPanel.setSizeValue(8);
+          parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+          controller.reset();
+          Assert.assertEquals(0, controller.getActiveSimulation().getGeneration());
+          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
+          Assert.assertFalse(saveButton(toolbar).isDisabled());
+
+          // Reaching FIXED_POINT via step() also transitions to FIXED_POINT and disables Play/Step
+          controller.step();
+          Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
+          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
+
+          controller.step();
+          Assert.assertEquals(2, controller.getActiveSimulation().getGeneration());
+          Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
+          Assert.assertTrue(playPauseButton(toolbar).isDisabled());
+          Assert.assertTrue(stepButton(toolbar).isDisabled());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
+          Assert.assertFalse(saveButton(toolbar).isDisabled());
+        });
+  }
+
+  @Test
+  public void testResetRenderingFailureFromFixedPointClearsActiveStateAndShowsError() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          DisplayPanel displayPanel = new DisplayPanel();
+          LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
+          LifeLikeToolbar toolbar = new LifeLikeToolbar();
+          ControlledScheduler scheduler = new ControlledScheduler();
+
+          parametersPanel.setSizeValue(8);
+          parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+          parametersPanel.selectSeedType(SeedType.SPARSE);
+
+          final boolean[] failOnRender = {false};
+          LifeLikeController.GridRenderer renderer =
+              grid -> {
+                if (failOnRender[0]) {
+                  throw new RuntimeException("Simulated rendering failure during reset");
+                }
+                BufferedImage raw = AutomatonImage.getImageFromGrid(grid);
+                return AutomatonImage.resizeImage(
+                    AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, raw);
+              };
+
+          LifeLikeController controller =
+              new LifeLikeController(
+                  displayPanel,
+                  parametersPanel,
+                  toolbar,
+                  new LifeLikeStateMachine(),
+                  com.cellularautomata.engine.automata.AutomataEngine::createLifeLikeSimulation,
+                  renderer,
+                  scheduler);
+
+          // Step twice to reach FIXED_POINT
+          controller.step();
+          controller.step();
+          Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
+
+          // Trigger rendering failure during reset()
+          failOnRender[0] = true;
+          controller.reset();
+
+          Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
+          Assert.assertFalse(scheduler.isRunning());
+          Assert.assertNull(controller.getActiveSimulation());
+          Assert.assertNull(controller.getActiveConfiguration());
+          Assert.assertNull(controller.getActiveImage());
+          Assert.assertNull(controller.getActiveBufferedImage());
+          Assert.assertTrue(displayPanel.isDisplayingError());
+          Assert.assertEquals(
+              DisplayPanel.RENDERING_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
+              displayPanel.getErrorMessage());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertTrue(resetButton(toolbar).isDisabled());
+          Assert.assertTrue(saveButton(toolbar).isDisabled());
         });
   }
 
@@ -1089,7 +1211,7 @@ public class LifeLikeControllerTest {
 
   @Test
   public void
-      testSaveExportsCurrentlyDisplayedPixelsWithExpectedFileNameAndNoPlaybackSideEffects() {
+      testSaveExportsCurrentlyDisplayedPixelsWithExpectedFileNameAndPausesAndResumesWhenRunning() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           try {
@@ -1113,16 +1235,18 @@ public class LifeLikeControllerTest {
             LifeLikeController controller =
                 new LifeLikeController(
                     displayPanel, parametersPanel, toolbar, scheduler, dialogService);
+            dialogService.controller = controller;
+            dialogService.scheduler = scheduler;
 
             // 1. Save in UNINITIALIZED state is a no-op and button is disabled
-            Assert.assertTrue(toolbar.getSaveButton().isDisabled());
+            Assert.assertTrue(saveButton(toolbar).isDisabled());
             controller.save();
             Assert.assertEquals(0, dialogService.saveDialogCallCount);
 
             // 2. Step to generation 1 (PAUSED)
             controller.step();
             Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
-            Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+            Assert.assertFalse(saveButton(toolbar).isDisabled());
 
             LifeLikeSimulation activeSim = controller.getActiveSimulation();
             Grid2D gen1Grid = activeSim.getCurrentGrid();
@@ -1134,14 +1258,12 @@ public class LifeLikeControllerTest {
             parametersPanel.selectPreset(LifeLikePreset.SEEDS);
 
             dialogService.fileToReturn = savedGen1File;
-            toolbar.getSaveButton().fire();
+            saveButton(toolbar).fire();
 
             Assert.assertEquals(1, dialogService.saveDialogCallCount);
             Assert.assertFalse(dialogService.saveErrorShown);
-            Assert.assertNotNull(dialogService.lastSuggestedFileName);
-            Assert.assertTrue(
-                dialogService.lastSuggestedFileName.startsWith("life_like_ruleB3-S23_size8_"));
-            Assert.assertTrue(dialogService.lastSuggestedFileName.endsWith(".png"));
+            Assert.assertEquals(
+                "life_like_ruleB3-S23_size8.png", dialogService.lastSuggestedFileName);
             Assert.assertTrue(savedGen1File.exists());
 
             // Verify exported PNG pixels match generation 1 grid
@@ -1171,23 +1293,36 @@ public class LifeLikeControllerTest {
             Grid2D gen2Grid = activeSim.getCurrentGrid();
             Assert.assertNotEquals(gen1Grid, gen2Grid);
 
+            // Mutate form controls while RUNNING before clicking Save to verify Save resumes
+            // existing simulation without reinitializing
+            parametersPanel.setSizeValue(64);
+            parametersPanel.selectPreset(LifeLikePreset.HIGH_LIFE);
+
             dialogService.fileToReturn = savedGen2File;
-            toolbar.getSaveButton().fire();
+            saveButton(toolbar).fire();
 
             Assert.assertEquals(2, dialogService.saveDialogCallCount);
             Assert.assertFalse(dialogService.saveErrorShown);
+            Assert.assertEquals(
+                "life_like_ruleB3-S23_size8.png", dialogService.lastSuggestedFileName);
             Assert.assertTrue(savedGen2File.exists());
+            // Verify simulation was paused while the save dialog was open and stale ticks did not
+            // advance generation
+            Assert.assertEquals(
+                LifeLikeStateMachine.State.PAUSED, dialogService.stateDuringSaveDialog);
+            Assert.assertFalse(dialogService.schedulerRunningDuringSaveDialog);
+            Assert.assertEquals(2L, dialogService.generationDuringSaveDialog);
 
             BufferedImage exportedGen2 = ImageIO.read(savedGen2File);
             Assert.assertNotNull(exportedGen2);
             assertExportedImageMatchesGrid(exportedGen2, gen2Grid);
 
-            // Verify zero playback side effects while RUNNING (did not pause, reset, advance, or
-            // regenerate)
+            // Verify playback resumed on the existing simulation after successful save
             Assert.assertTrue(controller.isRunning());
             Assert.assertTrue(scheduler.isRunning());
             Assert.assertSame(activeSim, controller.getActiveSimulation());
             Assert.assertEquals(2, activeSim.getGeneration());
+            Assert.assertEquals(8, activeSim.getSize());
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -1208,29 +1343,66 @@ public class LifeLikeControllerTest {
             ControlledScheduler scheduler = new ControlledScheduler();
             RecordingSaveDialogService dialogService = new RecordingSaveDialogService();
 
+            parametersPanel.setSizeValue(8);
+            parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+            parametersPanel.selectSeedType(SeedType.ALTERNATING);
+
             LifeLikeController controller =
                 new LifeLikeController(
                     displayPanel, parametersPanel, toolbar, scheduler, dialogService);
+            dialogService.controller = controller;
+            dialogService.scheduler = scheduler;
 
             controller.step();
             Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
 
-            // 1. User cancels save dialog (returns null) -> no error shown, state unchanged
+            // 1. User cancels save dialog while PAUSED -> stays PAUSED, no error shown
             dialogService.fileToReturn = null;
             controller.save();
             Assert.assertEquals(1, dialogService.saveDialogCallCount);
             Assert.assertFalse(dialogService.saveErrorShown);
-            Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
-
-            // 2. IOException when writing to a path with a missing parent directory ->
-            // showSaveError invoked, simulation state remains intact
-            dialogService.fileToReturn = tempDir.resolve("missing_parent_dir/out.png").toFile();
-            controller.save();
-            Assert.assertEquals(2, dialogService.saveDialogCallCount);
-            Assert.assertTrue(dialogService.saveErrorShown);
             Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
             Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
-            Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+
+            // 2. User cancels save dialog while RUNNING -> pauses during dialog, resumes after
+            // cancel
+            controller.play();
+            Assert.assertTrue(controller.isRunning());
+            dialogService.fileToReturn = null;
+            controller.save();
+            Assert.assertEquals(2, dialogService.saveDialogCallCount);
+            Assert.assertEquals(
+                LifeLikeStateMachine.State.PAUSED, dialogService.stateDuringSaveDialog);
+            Assert.assertFalse(dialogService.schedulerRunningDuringSaveDialog);
+            Assert.assertTrue(controller.isRunning());
+            Assert.assertTrue(scheduler.isRunning());
+
+            // 3. IOException when writing while RUNNING -> pauses before dialog, showSaveError
+            // invoked, and remains PAUSED (does not resume)
+            dialogService.fileToReturn = tempDir.resolve("missing_parent_dir/out.png").toFile();
+            controller.save();
+            Assert.assertEquals(3, dialogService.saveDialogCallCount);
+            Assert.assertTrue(dialogService.saveErrorShown);
+            Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
+            Assert.assertFalse(scheduler.isRunning());
+            Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
+            Assert.assertFalse(saveButton(toolbar).isDisabled());
+
+            // 4. Saving or canceling from FIXED_POINT leaves state in FIXED_POINT (does not start
+            // playback)
+            parametersPanel.selectSeedType(SeedType.SPARSE);
+            controller.step();
+            controller.step();
+            Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
+
+            dialogService.saveErrorShown = false;
+            dialogService.fileToReturn = null;
+            controller.save();
+            Assert.assertEquals(4, dialogService.saveDialogCallCount);
+            Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
+            Assert.assertFalse(scheduler.isRunning());
+            Assert.assertTrue(playPauseButton(toolbar).isDisabled());
+            Assert.assertTrue(stepButton(toolbar).isDisabled());
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -1256,11 +1428,27 @@ public class LifeLikeControllerTest {
     private String lastSuggestedFileName;
     private File fileToReturn;
     private boolean saveErrorShown;
+    private LifeLikeController controller;
+    private ControlledScheduler scheduler;
+    private LifeLikeStateMachine.State stateDuringSaveDialog;
+    private boolean schedulerRunningDuringSaveDialog;
+    private long generationDuringSaveDialog;
 
     @Override
     public File showSaveFileDialog(Window owner, File initialDirectory, String initialFileName) {
       this.saveDialogCallCount++;
       this.lastSuggestedFileName = initialFileName;
+      if (controller != null) {
+        this.stateDuringSaveDialog = controller.getState();
+        // Verify a tick attempted while the modal save dialog is open is ignored
+        controller.tick();
+        if (controller.getActiveSimulation() != null) {
+          this.generationDuringSaveDialog = controller.getActiveSimulation().getGeneration();
+        }
+      }
+      if (scheduler != null) {
+        this.schedulerRunningDuringSaveDialog = scheduler.isRunning();
+      }
       return fileToReturn;
     }
 

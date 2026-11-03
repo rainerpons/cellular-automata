@@ -1,5 +1,6 @@
-package com.cellularautomata.ui.shared;
+package com.cellularautomata.ui.components;
 
+import com.cellularautomata.ui.shared.UiStyles;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.function.IntFunction;
 import javafx.scene.control.Label;

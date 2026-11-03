@@ -1,5 +1,6 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.components;
 
+import com.cellularautomata.ui.WorkspaceConfig;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -32,14 +33,12 @@ public class ModuleCard extends StackPane {
     StackPane.setAlignment(radio, Pos.TOP_LEFT);
     StackPane.setMargin(radio, RADIO_BUTTON_MARGIN);
 
-    VBox content = new VBox(15);
-    content.setAlignment(Pos.TOP_CENTER);
+    VBox content = new VBox();
+    content.getStyleClass().add("module-card-content");
 
     // Placeholder icon area
     Region placeholder = new Region();
-    placeholder.getStyleClass().add("placeholder");
-    placeholder.setMinSize(64, 64);
-    placeholder.setMaxSize(64, 64);
+    placeholder.getStyleClass().addAll("placeholder", "module-card-placeholder");
 
     Label title = new Label(titleText);
     title.getStyleClass().addAll("label", "h2");
@@ -69,11 +68,6 @@ public class ModuleCard extends StackPane {
     }
   }
 
-  /**
-   * Gets the workspace configuration associated with this card.
-   *
-   * @return the workspace configuration
-   */
   public WorkspaceConfig getConfig() {
     return config;
   }

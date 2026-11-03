@@ -2,8 +2,13 @@ package com.cellularautomata.ui;
 
 import com.cellularautomata.engine.Grid2D;
 import com.cellularautomata.engine.SeedType;
+import com.cellularautomata.engine.automata.AutomataEngine;
 import com.cellularautomata.engine.automata.LifeLikeSimulation;
 import com.cellularautomata.engine.presets.LifeLikePreset;
+import com.cellularautomata.engine.rules.LifeLikeRule;
+import com.cellularautomata.ui.components.LifeLikeToolbar;
+import com.cellularautomata.ui.components.ModuleCard;
+import com.cellularautomata.ui.controllers.LifeLikeController;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
@@ -14,16 +19,20 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import javafx.geometry.Bounds;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -53,6 +62,22 @@ public class LifeLikeUiTest extends ApplicationTest {
     this.dialogService = new TestSaveDialogService();
     this.app = new MainApp(dialogService);
     this.app.start(stage);
+  }
+
+  private static Button playPauseButton(LifeLikeToolbar toolbar) {
+    return (Button) toolbar.getChildren().get(0);
+  }
+
+  private static Button stepButton(LifeLikeToolbar toolbar) {
+    return (Button) toolbar.getChildren().get(1);
+  }
+
+  private static Button resetButton(LifeLikeToolbar toolbar) {
+    return (Button) toolbar.getChildren().get(2);
+  }
+
+  private static Button saveButton(LifeLikeToolbar toolbar) {
+    return (Button) toolbar.getChildren().get(3);
   }
 
   @Test
@@ -112,7 +137,6 @@ public class LifeLikeUiTest extends ApplicationTest {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeController controller = app.getActiveLifeLikeController();
     LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     LifeLikeToolbar toolbar = findLifeLikeToolbar();
 
@@ -120,55 +144,64 @@ public class LifeLikeUiTest extends ApplicationTest {
 
     // 1. Uninitialized state
     Assert.assertFalse(toolbar.isPlaying());
-    Assert.assertEquals("Play", toolbar.getPlayPauseButton().getAccessibleText());
+    Assert.assertEquals("Play", playPauseButton(toolbar).getAccessibleText());
     Assert.assertEquals(
-        LifeLikeToolbar.PLAY_TOOLTIP, toolbar.getPlayPauseButton().getTooltip().getText());
-    Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
+        "Start or resume the simulation, advancing through generations automatically.",
+        playPauseButton(toolbar).getTooltip().getText());
+    Assert.assertFalse(playPauseButton(toolbar).isDisabled());
 
-    Assert.assertEquals("Step", toolbar.getStepButton().getAccessibleText());
+    Assert.assertEquals("Step", stepButton(toolbar).getAccessibleText());
     Assert.assertEquals(
-        LifeLikeToolbar.STEP_TOOLTIP, toolbar.getStepButton().getTooltip().getText());
-    Assert.assertFalse(toolbar.getStepButton().isDisabled());
+        "Advance the simulation by one generation.", stepButton(toolbar).getTooltip().getText());
+    Assert.assertFalse(stepButton(toolbar).isDisabled());
 
-    Assert.assertEquals("Reset", toolbar.getResetButton().getAccessibleText());
+    Assert.assertEquals("Reset", resetButton(toolbar).getAccessibleText());
     Assert.assertEquals(
-        LifeLikeToolbar.RESET_TOOLTIP, toolbar.getResetButton().getTooltip().getText());
-    Assert.assertTrue(toolbar.getResetButton().isDisabled());
+        "Return the simulation to its initial generation.",
+        resetButton(toolbar).getTooltip().getText());
+    Assert.assertTrue(resetButton(toolbar).isDisabled());
 
-    Assert.assertTrue(toolbar.getSaveButton().isDisabled());
+    Assert.assertEquals("Save", saveButton(toolbar).getAccessibleText());
+    Assert.assertEquals(
+        "Save the currently displayed automaton as an image.",
+        saveButton(toolbar).getTooltip().getText());
+    Assert.assertTrue(saveButton(toolbar).isDisabled());
 
     // 2. Play interaction -> Running state
-    interact(() -> toolbar.getPlayPauseButton().fire());
+    interact(() -> playPauseButton(toolbar).fire());
 
     Assert.assertTrue(toolbar.isPlaying());
-    Assert.assertEquals("Pause", toolbar.getPlayPauseButton().getAccessibleText());
+    Assert.assertEquals("Pause", playPauseButton(toolbar).getAccessibleText());
     Assert.assertEquals(
-        LifeLikeToolbar.PAUSE_TOOLTIP, toolbar.getPlayPauseButton().getTooltip().getText());
-    Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-    Assert.assertTrue(toolbar.getStepButton().isDisabled());
-    Assert.assertFalse(toolbar.getResetButton().isDisabled());
-    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+        "Pause the simulation at the current generation.",
+        playPauseButton(toolbar).getTooltip().getText());
+    Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+    Assert.assertTrue(stepButton(toolbar).isDisabled());
+    Assert.assertFalse(resetButton(toolbar).isDisabled());
+    Assert.assertFalse(saveButton(toolbar).isDisabled());
     Assert.assertNotNull(displayPanel.getAutomatonImage());
 
     // 3. Pause interaction -> Paused state
-    interact(() -> toolbar.getPlayPauseButton().fire());
+    interact(() -> playPauseButton(toolbar).fire());
 
     Assert.assertFalse(toolbar.isPlaying());
-    Assert.assertEquals("Play", toolbar.getPlayPauseButton().getAccessibleText());
+    Assert.assertEquals("Play", playPauseButton(toolbar).getAccessibleText());
     Assert.assertEquals(
-        LifeLikeToolbar.PLAY_TOOLTIP, toolbar.getPlayPauseButton().getTooltip().getText());
-    Assert.assertFalse(toolbar.getStepButton().isDisabled());
-    Assert.assertFalse(toolbar.getResetButton().isDisabled());
-    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+        "Start or resume the simulation, advancing through generations automatically.",
+        playPauseButton(toolbar).getTooltip().getText());
+    Assert.assertFalse(stepButton(toolbar).isDisabled());
+    Assert.assertFalse(resetButton(toolbar).isDisabled());
+    Assert.assertFalse(saveButton(toolbar).isDisabled());
 
     // 4. Step interaction from paused
-    long genBefore = controller.getActiveSimulation().getGeneration();
-    interact(() -> toolbar.getStepButton().fire());
-    Assert.assertEquals(genBefore + 1, controller.getActiveSimulation().getGeneration());
+    Image imageBeforeStep = displayPanel.getAutomatonImage();
+    interact(() -> stepButton(toolbar).fire());
+    Assert.assertNotSame(imageBeforeStep, displayPanel.getAutomatonImage());
 
     // 5. Reset interaction
-    interact(() -> toolbar.getResetButton().fire());
-    Assert.assertEquals(0, controller.getActiveSimulation().getGeneration());
+    Image imageBeforeReset = displayPanel.getAutomatonImage();
+    interact(() -> resetButton(toolbar).fire());
+    Assert.assertNotSame(imageBeforeReset, displayPanel.getAutomatonImage());
     Assert.assertFalse(toolbar.isPlaying());
   }
 
@@ -177,7 +210,6 @@ public class LifeLikeUiTest extends ApplicationTest {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeController controller = app.getActiveLifeLikeController();
     LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     LifeLikeToolbar toolbar = findLifeLikeToolbar();
 
@@ -188,7 +220,7 @@ public class LifeLikeUiTest extends ApplicationTest {
           parametersPanel.selectSeedType(SeedType.SPARSE);
         });
 
-    interact(controller::step);
+    interact(() -> stepButton(toolbar).fire());
 
     // Verify image presence and dimensions
     Image fxImage = displayPanel.getAutomatonImage();
@@ -196,8 +228,12 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertEquals(400.0, fxImage.getWidth(), 0.001);
     Assert.assertEquals(400.0, fxImage.getHeight(), 0.001);
 
-    // Verify observable pixel content matches exact alive/dead cells
-    Grid2D grid = controller.getActiveSimulation().getCurrentGrid();
+    // Verify observable pixel content matches exact alive/dead cells for generation 1
+    LifeLikeSimulation referenceSim =
+        AutomataEngine.createLifeLikeSimulation(
+            new LifeLikeRule(Set.of(3), Set.of(2, 3)), 8, SeedType.SPARSE, 50);
+    referenceSim.step();
+    Grid2D grid = referenceSim.getCurrentGrid();
     PixelReader reader = fxImage.getPixelReader();
     int size = grid.getSize();
     for (int r = 0; r < size; r++) {
@@ -211,10 +247,10 @@ public class LifeLikeUiTest extends ApplicationTest {
     }
 
     // Verify toolbar controls state
-    Assert.assertFalse(toolbar.getPlayPauseButton().isDisabled());
-    Assert.assertFalse(toolbar.getStepButton().isDisabled());
-    Assert.assertFalse(toolbar.getResetButton().isDisabled());
-    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+    Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+    Assert.assertFalse(stepButton(toolbar).isDisabled());
+    Assert.assertFalse(resetButton(toolbar).isDisabled());
+    Assert.assertFalse(saveButton(toolbar).isDisabled());
   }
 
   @Test
@@ -222,7 +258,6 @@ public class LifeLikeUiTest extends ApplicationTest {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeController controller = app.getActiveLifeLikeController();
     LifeLikeToolbar toolbar = findLifeLikeToolbar();
 
     interact(displayPanel::showGenerationError);
@@ -233,7 +268,7 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertEquals(
         DisplayPanel.GENERATION_ERROR_PRIMARY + "\n" + DisplayPanel.ERROR_SECONDARY,
         displayPanel.getErrorMessage());
-    Assert.assertTrue(toolbar.getSaveButton().isDisabled());
+    Assert.assertTrue(saveButton(toolbar).isDisabled());
 
     // 2. Verify error view container and icon presentation
     VBox errorContainer = lookup(".error-container").queryAs(VBox.class);
@@ -250,12 +285,12 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertEquals(40, errorIcon.getIconSize());
 
     // 3. Test successful recovery
-    interact(controller::step);
+    interact(() -> stepButton(toolbar).fire());
 
     Assert.assertFalse(displayPanel.isDisplayingError());
     Assert.assertNotNull(displayPanel.getAutomatonImage());
-    Assert.assertFalse(toolbar.getResetButton().isDisabled());
-    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
+    Assert.assertFalse(resetButton(toolbar).isDisabled());
+    Assert.assertFalse(saveButton(toolbar).isDisabled());
   }
 
   @Test
@@ -329,10 +364,10 @@ public class LifeLikeUiTest extends ApplicationTest {
     interact(() -> parametersPanel.toggleBirth(6)); // Seeds (B2/S) + B6 -> Custom B26/S
     Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
 
-    interact(() -> toolbar.getStepButton().fire());
+    interact(() -> stepButton(toolbar).fire());
     Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
 
-    interact(() -> toolbar.getResetButton().fire());
+    interact(() -> resetButton(toolbar).fire());
     Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
   }
 
@@ -368,7 +403,6 @@ public class LifeLikeUiTest extends ApplicationTest {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeController controller = app.getActiveLifeLikeController();
     LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     LifeLikeToolbar toolbar = findLifeLikeToolbar();
     ParametersPanel grid = findNode(stage.getScene().getRoot(), ParametersPanel.class, null);
@@ -378,11 +412,12 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertNotNull(grid);
     Assert.assertNotNull(speedSpinner);
 
-    // 1. Verify spinner presentation, split-arrow geometry, and row placement immediately below
-    // Survival (row 7)
+    // 1. Verify spinner presentation, split-arrow geometry, CSS alignment, and row placement
+    // immediately below Survival (row 7)
     Assert.assertTrue(
         speedSpinner.getStyleClass().contains(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL));
     Assert.assertFalse(speedSpinner.isEditable());
+    Assert.assertEquals(Pos.CENTER, speedSpinner.getEditor().getAlignment());
     Assert.assertEquals(UiStyles.CONTROL_HEIGHT, speedSpinner.getMinHeight(), 0.001);
     Assert.assertEquals(UiStyles.CONTROL_HEIGHT, speedSpinner.getPrefHeight(), 0.001);
 
@@ -399,19 +434,48 @@ public class LifeLikeUiTest extends ApplicationTest {
     Node decArrow = speedSpinner.lookup(".decrement-arrow-button");
     Node editorField = speedSpinner.lookup(".text-field");
     Node incArrow = speedSpinner.lookup(".increment-arrow-button");
+    Region decGlyph = (Region) speedSpinner.lookup(".decrement-arrow");
+    Region incGlyph = (Region) speedSpinner.lookup(".increment-arrow");
     Assert.assertNotNull(decArrow);
     Assert.assertNotNull(editorField);
     Assert.assertNotNull(incArrow);
+    Assert.assertNotNull(decGlyph);
+    Assert.assertNotNull(incGlyph);
+    Assert.assertNotNull(decGlyph.getShape());
+    Assert.assertNotNull(incGlyph.getShape());
+    Assert.assertEquals(4.0, decGlyph.getWidth(), 0.5);
+    Assert.assertEquals(7.0, decGlyph.getHeight(), 0.5);
+    Assert.assertEquals(4.0, incGlyph.getWidth(), 0.5);
+    Assert.assertEquals(7.0, incGlyph.getHeight(), 0.5);
 
     Bounds decBounds = decArrow.localToScene(decArrow.getBoundsInLocal());
     Bounds editorBounds = editorField.localToScene(editorField.getBoundsInLocal());
     Bounds incBounds = incArrow.localToScene(incArrow.getBoundsInLocal());
+    ToggleButton toggle0 = findNode(grid, ToggleButton.class, tb -> "0".equals(tb.getText()));
+    ToggleButton toggle1 = findNode(grid, ToggleButton.class, tb -> "1".equals(tb.getText()));
+    ToggleButton toggle7 = findNode(grid, ToggleButton.class, tb -> "7".equals(tb.getText()));
+    ToggleButton toggle8 = findNode(grid, ToggleButton.class, tb -> "8".equals(tb.getText()));
+    Bounds toggle0Bounds = toggle0.localToScene(toggle0.getBoundsInLocal());
+    Bounds toggle1Bounds = toggle1.localToScene(toggle1.getBoundsInLocal());
+    Bounds toggle7Bounds = toggle7.localToScene(toggle7.getBoundsInLocal());
+    Bounds toggle8Bounds = toggle8.localToScene(toggle8.getBoundsInLocal());
+
     Assert.assertTrue(
         "Decrement button must be on the left of the text field",
         decBounds.getMinX() < editorBounds.getMinX());
     Assert.assertTrue(
         "Increment button must be on the right of the text field",
         editorBounds.getMinX() < incBounds.getMinX());
+    Assert.assertEquals(28.0, decBounds.getWidth(), 1.0);
+    Assert.assertEquals(28.0, incBounds.getWidth(), 1.0);
+    // Decrement button aligns beneath toggle 0; increment button aligns beneath toggle 8;
+    // text field visual box (inset by 4px horizontally) aligns beneath toggles 1 through 7
+    Assert.assertEquals(toggle0Bounds.getMinX(), decBounds.getMinX(), 1.0);
+    Assert.assertEquals(toggle0Bounds.getMaxX(), decBounds.getMaxX(), 1.0);
+    Assert.assertEquals(toggle8Bounds.getMinX(), incBounds.getMinX(), 1.0);
+    Assert.assertEquals(toggle8Bounds.getMaxX(), incBounds.getMaxX(), 1.0);
+    Assert.assertEquals(toggle1Bounds.getMinX(), editorBounds.getMinX() + 4.0, 1.0);
+    Assert.assertEquals(toggle7Bounds.getMaxX(), editorBounds.getMaxX() - 4.0, 1.0);
 
     // Verify footer alignment: Back link aligned with left edge of DisplayPanel, transport toolbar
     // flush with right edge of DisplayPanel
@@ -448,12 +512,10 @@ public class LifeLikeUiTest extends ApplicationTest {
           parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
           parametersPanel.selectSeedType(SeedType.ALTERNATING);
           parametersPanel.setPlaybackSpeed(1.00);
-          toolbar.getPlayPauseButton().fire();
+          playPauseButton(toolbar).fire();
         });
 
-    LifeLikeSimulation activeSim = controller.getActiveSimulation();
-    Assert.assertNotNull(activeSim);
-    Assert.assertTrue(controller.isRunning());
+    Assert.assertTrue(toolbar.isPlaying());
 
     interact(
         () -> {
@@ -463,19 +525,19 @@ public class LifeLikeUiTest extends ApplicationTest {
 
     Assert.assertEquals(1.50, parametersPanel.getPlaybackSpeed(), 0.001);
     Assert.assertEquals("1.50x", speedSpinner.getEditor().getText());
-    Assert.assertTrue(controller.isRunning());
-    Assert.assertSame(activeSim, controller.getActiveSimulation());
+    Assert.assertTrue(toolbar.isPlaying());
 
     // 4. Pause, step, and click the real GUI Save button to export and verify pixels
     interact(
         () -> {
-          toolbar.getPlayPauseButton().fire();
-          toolbar.getStepButton().fire();
+          playPauseButton(toolbar).fire();
+          stepButton(toolbar).fire();
         });
 
-    Assert.assertFalse(controller.isRunning());
-    Assert.assertFalse(toolbar.getSaveButton().isDisabled());
-    Grid2D displayedGrid = controller.getActiveSimulation().getCurrentGrid();
+    Assert.assertFalse(toolbar.isPlaying());
+    Assert.assertFalse(saveButton(toolbar).isDisabled());
+    Image displayedFxImage = displayPanel.getAutomatonImage();
+    Assert.assertNotNull(displayedFxImage);
 
     Path tempDir = Files.createTempDirectory("lifelike_ui_save_test");
     File exportedFile = tempDir.resolve("exported_from_gui.png").toFile();
@@ -483,12 +545,9 @@ public class LifeLikeUiTest extends ApplicationTest {
     tempDir.toFile().deleteOnExit();
 
     dialogService.targetSaveFile = exportedFile;
-    interact(() -> toolbar.getSaveButton().fire());
+    interact(() -> saveButton(toolbar).fire());
 
-    Assert.assertNotNull(dialogService.lastSuggestedFileName);
-    Assert.assertTrue(
-        dialogService.lastSuggestedFileName.startsWith("life_like_ruleB3-S23_size8_"));
-    Assert.assertTrue(dialogService.lastSuggestedFileName.endsWith(".png"));
+    Assert.assertEquals("life_like_ruleB3-S23_size8.png", dialogService.lastSuggestedFileName);
     Assert.assertTrue(exportedFile.exists());
 
     BufferedImage diskImage = ImageIO.read(exportedFile);
@@ -496,17 +555,37 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertEquals(400, diskImage.getWidth());
     Assert.assertEquals(400, diskImage.getHeight());
 
-    int size = displayedGrid.getSize();
+    PixelReader fxReader = displayedFxImage.getPixelReader();
+    int size = 8;
     for (int r = 0; r < size; r++) {
       for (int c = 0; c < size; c++) {
         int x = (int) ((c + 0.5) * 400.0 / size);
         int y = (int) ((r + 0.5) * 400.0 / size);
         int actualRgb = diskImage.getRGB(x, y) & 0xFFFFFF;
-        int expectedRgb = displayedGrid.isAlive(r, c) ? 0x000000 : 0xFFFFFF;
+        int expectedRgb = fxReader.getArgb(x, y) & 0xFFFFFF;
         Assert.assertEquals(
             "Exported pixel mismatch at (" + r + ", " + c + ")", expectedRgb, actualRgb);
       }
     }
+
+    // 5. Verify fixed-point toolbar state in GUI: SPARSE under B3/S23 reaches fixed point after 2
+    // steps, disabling Play and Step while keeping Reset and Save enabled until Reset is clicked
+    interact(
+        () -> {
+          parametersPanel.selectSeedType(SeedType.SPARSE);
+          stepButton(toolbar).fire();
+          stepButton(toolbar).fire();
+        });
+    Assert.assertTrue(playPauseButton(toolbar).isDisabled());
+    Assert.assertTrue(stepButton(toolbar).isDisabled());
+    Assert.assertFalse(resetButton(toolbar).isDisabled());
+    Assert.assertFalse(saveButton(toolbar).isDisabled());
+
+    interact(() -> resetButton(toolbar).fire());
+    Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+    Assert.assertFalse(stepButton(toolbar).isDisabled());
+    Assert.assertFalse(resetButton(toolbar).isDisabled());
+    Assert.assertFalse(saveButton(toolbar).isDisabled());
   }
 
   private void navigateToWorkspace(WorkspaceConfig config) {

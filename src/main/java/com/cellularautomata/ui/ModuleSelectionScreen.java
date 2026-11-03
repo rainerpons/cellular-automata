@@ -1,5 +1,6 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.ui.components.ModuleCard;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.function.Consumer;
 import javafx.geometry.Pos;

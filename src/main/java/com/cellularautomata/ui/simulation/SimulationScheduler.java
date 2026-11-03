@@ -1,7 +1,19 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.simulation;
 
 /** Strategy interface for scheduling periodic simulation generation ticks. */
 public interface SimulationScheduler {
+
+  /** Minimum supported playback speed multiplier. */
+  double MIN_PLAYBACK_SPEED = 0.25;
+
+  /** Maximum supported playback speed multiplier. */
+  double MAX_PLAYBACK_SPEED = 2.00;
+
+  /** Default playback speed multiplier. */
+  double DEFAULT_PLAYBACK_SPEED = 1.00;
+
+  /** Step increment between selectable playback speed multipliers. */
+  double PLAYBACK_SPEED_STEP = 0.25;
 
   /**
    * Starts periodic execution of the specified tick action.
