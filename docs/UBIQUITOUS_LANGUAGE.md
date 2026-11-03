@@ -40,9 +40,13 @@ Examples:
 
 Users select a module when launching the application.
 
+## Screen
+
+A top-level full-window view displayed in the primary application `Stage` (`ModuleSelectionScreen` or a module `Workspace`).
+
 ## Workspace
 
-The complete user interface associated with a module.
+A `Screen` dedicated to a specific module, composed of `Panel`s and `Component`s.
 
 A workspace contains:
 
@@ -60,6 +64,22 @@ Examples:
 - Life-Like Workspace
 
 A module owns exactly one workspace.
+
+## Panel
+
+A major layout region within a `Workspace` that organizes a section of the interface (`DisplayPanel`, `SidebarPanel`, `ParametersPanel`, `CommandsPanel`).
+
+## Component
+
+A self-contained, reusable UI control or widget embedded inside a `Screen` or `Panel` (`ModuleCard`, `LifeLikeToolbar`, `LabeledSlider`).
+
+### UI Hierarchy Clarifications
+
+- A `Workspace` is a `Screen`, not a `Panel`.
+- `ModuleSelectionScreen` is a `Screen`, not a `Workspace`.
+- A `Panel` is a structural region of a `Workspace`, not a standalone screen.
+- A `Component` is a smaller interactive building block used inside a `Screen` or `Panel`.
+- Non-visual classes (`Controller`s, `DialogService`, state machines, schedulers, selection models, configuration records, and style/font utilities) are not `Screen`s, `Panel`s, or `Component`s.
 
 ## Rule Family
 

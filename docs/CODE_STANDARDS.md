@@ -8,6 +8,21 @@
 ## Control Flow
 
 - Always use early returns whenever possible to reduce nesting and improve readability.
+- Prefer early returns over wrapping a method body in an `if` block.
+- Do not nest `try/catch` blocks inside other `try/catch` blocks.
+- Keep `try` blocks small and focused on the operation that can fail.
+- Extract cohesive helper methods when a method mixes guard checks, state transitions, and failure recovery.
+- Do not catch `Exception` when a narrower exception type applies.
+- Do not catch `RuntimeException` around internal helper calls purely as control flow.
+
+## UI Styling
+
+- Prefer CSS classes in `style.css` over inline `-fx-...` strings in Java code.
+- Use CSS for colors, borders, backgrounds, typography, padding, alignment, and state-based visuals (`:hover`, `:pressed`, `:focused`, `:selected`, `:disabled`).
+- Keep Java layout code limited to structural layout and behavior: container types, child composition, spacing/gaps, layout constraints (`HBox.setHgrow`, `GridPane` row/column indices, `Region.USE_PREF_SIZE`), and dynamic properties computed at runtime.
+- Do not call `setStyle(...)` in Java unless a style value is computed dynamically at runtime.
+- Do not duplicate visual styling in both Java and `style.css`.
+- Keep `UiStyles` limited to shared layout geometry constants and shared CSS class name constants.
 
 ## Constants
 
