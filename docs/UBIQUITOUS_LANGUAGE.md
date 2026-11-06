@@ -79,7 +79,7 @@ A self-contained, reusable UI control or widget embedded inside a `Screen` or `P
 - `ModuleSelectionScreen` is a `Screen`, not a `Workspace`.
 - A `Panel` is a structural region of a `Workspace`, not a standalone screen.
 - A `Component` is a smaller interactive building block used inside a `Screen` or `Panel`.
-- Non-visual classes (`Controller`s, `DialogService`, state machines, schedulers, selection models, configuration records, and style/font utilities) are not `Screen`s, `Panel`s, or `Component`s.
+- Non-visual classes (`Controller`s, services (`DialogService`, `AutomatonImageService`), state machines, schedulers, selection models, configuration records, and style/font utilities) are not `Screen`s, `Panel`s, or `Component`s.
 
 ## Rule Family
 
