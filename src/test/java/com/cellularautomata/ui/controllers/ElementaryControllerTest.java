@@ -71,8 +71,8 @@ public class ElementaryControllerTest {
           Assert.assertNull(display.getAutomatonImage());
           Assert.assertTrue(findButton(commands, "Save image").isDisabled());
 
-          ElementaryController controllerWith5Args = new ElementaryController(display, params, commands, dialogService,
-              imageService);
+          ElementaryController controllerWith5Args =
+              new ElementaryController(display, params, commands, dialogService, imageService);
           Assert.assertNotNull(controllerWith5Args);
 
           findButton(commands, "Generate automaton").fire();
@@ -85,9 +85,9 @@ public class ElementaryControllerTest {
   public void testGenerateAcrossRulesSizesAndSeedTypesProducesBinaryDisplayImageAndEnablesSave() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
-          int[] rules = { ElementaryRule.MIN_RULE_NUMBER, 30, 110, ElementaryRule.MAX_RULE_NUMBER };
-          int[] sizes = { 4, 16, 64 };
-          SeedType[] seedTypes = { SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING };
+          int[] rules = {ElementaryRule.MIN_RULE_NUMBER, 30, 110, ElementaryRule.MAX_RULE_NUMBER};
+          int[] sizes = {4, 16, 64};
+          SeedType[] seedTypes = {SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING};
 
           for (int rule : rules) {
             for (int size : sizes) {
@@ -133,7 +133,7 @@ public class ElementaryControllerTest {
   public void testInvalidRuleInputsShowFixedRuleErrorAndDoNotUpdateDisplayOrEnableSave() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
-          String[] invalidRules = { "-1", "256", "1000", "99999999999999999999", "abc", "" };
+          String[] invalidRules = {"-1", "256", "1000", "99999999999999999999", "abc", ""};
 
           for (String invalidRule : invalidRules) {
             DisplayPanel displayPanel = new DisplayPanel();
@@ -173,8 +173,9 @@ public class ElementaryControllerTest {
             CommandsPanel commandsPanel = new CommandsPanel();
             RecordingDialogService dialogService = new RecordingDialogService();
 
-            ElementaryController controller = new ElementaryController(
-                displayPanel, parametersPanel, commandsPanel, dialogService);
+            ElementaryController controller =
+                new ElementaryController(
+                    displayPanel, parametersPanel, commandsPanel, dialogService);
 
             // Calling save before generation is a no-op
             controller.saveAutomatonImage();
@@ -236,10 +237,19 @@ public class ElementaryControllerTest {
             Path tempDir = Files.createTempDirectory("elementary_injected_fail");
             tempDir.toFile().deleteOnExit();
 
+            DisplayPanel displayPanel = new DisplayPanel();
             ElementaryParametersPanel parametersPanel = new ElementaryParametersPanel();
             CommandsPanel commandsPanel = new CommandsPanel();
             RecordingDialogService dialogService = new RecordingDialogService();
             RecordingImageService imageService = new RecordingImageService(dialogService);
+
+            ElementaryController controller =
+                new ElementaryController(
+                    displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
+
+            // Calling save before generation is a no-op
+            controller.saveAutomatonImage();
+            Assert.assertEquals(0, imageService.saveImageCallCount);
 
             // Generate automaton first
             parametersPanel.setRuleText("30");
