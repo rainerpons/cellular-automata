@@ -17,6 +17,7 @@ import com.cellularautomata.ui.shared.UiStyles;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -124,8 +125,7 @@ public final class MainApp extends Application {
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
     new ElementaryController(
         displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
-    return createWorkspaceRoot(
-        createOneDimensionalDisplayContainer(displayPanel, backLink), sidebarPanel);
+    return createWorkspaceRoot(createDisplayContainer(displayPanel, backLink), sidebarPanel);
   }
 
   private HBox createTotalisticWorkspace(Label backLink) {
@@ -135,8 +135,7 @@ public final class MainApp extends Application {
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
     new TotalisticController(
         displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
-    return createWorkspaceRoot(
-        createOneDimensionalDisplayContainer(displayPanel, backLink), sidebarPanel);
+    return createWorkspaceRoot(createDisplayContainer(displayPanel, backLink), sidebarPanel);
   }
 
   private HBox createLifeLikeWorkspace(Runnable onNavigateBack) {
@@ -161,9 +160,8 @@ public final class MainApp extends Application {
     HBox.setHgrow(footerSpacer, Priority.ALWAYS);
     HBox footerRow = new HBox(backLink, footerSpacer, toolbar);
     footerRow.setAlignment(Pos.CENTER_LEFT);
-    VBox.setMargin(footerRow, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
 
-    VBox displayContainer = new VBox(displayPanel, footerRow);
+    VBox displayContainer = createDisplayContainer(displayPanel, footerRow);
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel);
     return createWorkspaceRoot(displayContainer, sidebarPanel);
   }
@@ -176,10 +174,9 @@ public final class MainApp extends Application {
     return activeLifeLikeParametersPanel;
   }
 
-  private static VBox createOneDimensionalDisplayContainer(
-      DisplayPanel displayPanel, Label backLink) {
-    VBox.setMargin(backLink, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
-    return new VBox(displayPanel, backLink);
+  private static VBox createDisplayContainer(DisplayPanel displayPanel, Node footer) {
+    VBox.setMargin(footer, new Insets(UiStyles.APP_SPACING, 0, 0, 0));
+    return new VBox(displayPanel, footer);
   }
 
   private static HBox createWorkspaceRoot(VBox displayContainer, SidebarPanel sidebarPanel) {

@@ -502,18 +502,20 @@ public final class LifeLikeController implements AutomatonController {
       return;
     }
 
-    BufferedImage imageToSave = activeBufferedImage;
-    LifeLikeRule ruleToSave = activeSimulation.getRule();
-    int sizeToSave = activeSimulation.getSize();
     boolean wasRunning = stateMachine.isRunning();
     if (wasRunning) {
       pause();
     }
 
+    BufferedImage imageToSave = activeBufferedImage;
+    LifeLikeRule ruleToSave = activeSimulation.getRule();
+    int sizeToSave = activeSimulation.getSize();
+
+    String fileName = AutomatonFileNameFormatter.formatFileName(ruleToSave, sizeToSave);
+    Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
+
     try {
-      String initialFileName = AutomatonFileNameFormatter.formatFileName(ruleToSave, sizeToSave);
-      Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
-      imageService.saveImage(window, imageToSave, initialFileName);
+      imageService.saveImage(window, imageToSave, fileName);
     } finally {
       if (wasRunning) {
         resumeAfterSave();
