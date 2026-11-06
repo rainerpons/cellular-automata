@@ -9,6 +9,12 @@ module com.cellularautomata {
 
   exports com.cellularautomata.app;
   exports com.cellularautomata.ui;
+  exports com.cellularautomata.ui.components;
+  exports com.cellularautomata.ui.controllers;
+  exports com.cellularautomata.ui.panels;
+  exports com.cellularautomata.ui.screens;
+  exports com.cellularautomata.ui.services;
+  exports com.cellularautomata.ui.simulation;
   exports com.cellularautomata.engine;
   exports com.cellularautomata.engine.automata;
   exports com.cellularautomata.engine.presets;
