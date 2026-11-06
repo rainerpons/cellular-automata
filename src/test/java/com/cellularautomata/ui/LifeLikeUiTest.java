@@ -13,6 +13,7 @@ import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
 import com.cellularautomata.ui.panels.ParametersPanel;
+import com.cellularautomata.ui.screens.LifeLikeWorkspace;
 import com.cellularautomata.ui.services.DialogService;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.awt.image.BufferedImage;
@@ -109,7 +110,9 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertFalse(displayPanel.isDisplayingError());
 
     // 5. Verify parameter controls can be selected
-    LifeLikeController controller = app.getActiveLifeLikeController();
+    LifeLikeWorkspace workspace = findLifeLikeWorkspace();
+    Assert.assertNotNull(workspace);
+    LifeLikeController controller = workspace.getController();
     Assert.assertNotNull(controller);
     LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     Assert.assertNotNull(parametersPanel);
@@ -624,8 +627,17 @@ public class LifeLikeUiTest extends ApplicationTest {
     return findNode(stage.getScene().getRoot(), LifeLikeToolbar.class, null);
   }
 
+  private LifeLikeWorkspace findLifeLikeWorkspace() {
+    if (stage.getScene() != null
+        && stage.getScene().getRoot() instanceof LifeLikeWorkspace workspace) {
+      return workspace;
+    }
+    return null;
+  }
+
   private LifeLikeParametersPanel findLifeLikeParametersPanel() {
-    return app.getActiveLifeLikeParametersPanel();
+    LifeLikeWorkspace workspace = findLifeLikeWorkspace();
+    return workspace != null ? workspace.getParametersPanel() : null;
   }
 
   @SuppressWarnings("unchecked")

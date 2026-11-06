@@ -10,6 +10,7 @@ import com.cellularautomata.ui.SelectionModelArchViolationFixture;
 import com.cellularautomata.ui.controllers.AutomatonController;
 import com.cellularautomata.ui.controllers.ControllerArchViolationFixture;
 import com.cellularautomata.ui.panels.DisplayPanel;
+import com.cellularautomata.ui.panels.ScreensArchViolationFixture;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
@@ -178,6 +179,24 @@ public class ArchitectureBoundaryTest {
                 + " enforce a unified save contract");
   }
 
+  public static ArchRule uiSubpackagesDoNotDependOnScreensRule() {
+    return noClasses()
+        .that()
+        .resideInAnyPackage(
+            "com.cellularautomata.ui.components..",
+            "com.cellularautomata.ui.controllers..",
+            "com.cellularautomata.ui.panels..",
+            "com.cellularautomata.ui.services..",
+            "com.cellularautomata.ui.shared..",
+            "com.cellularautomata.ui.simulation..")
+        .should()
+        .dependOnClassesThat()
+        .resideInAPackage("com.cellularautomata.ui.screens..")
+        .because(
+            "UI subpackages must remain independent of top-level screens to preserve modularity"
+                + " and prevent circular dependencies");
+  }
+
   // --- Production Verification Tests ---
 
   @Test
@@ -239,6 +258,11 @@ public class ArchitectureBoundaryTest {
   @Test
   public void testControllersMustImplementAutomatonController() {
     controllersMustImplementAutomatonControllerRule().check(productionClasses);
+  }
+
+  @Test
+  public void testUiSubpackagesDoNotDependOnScreens() {
+    uiSubpackagesDoNotDependOnScreensRule().check(productionClasses);
   }
 
   // --- Deliberate Violation Detection Tests ---
@@ -397,6 +421,18 @@ public class ArchitectureBoundaryTest {
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("NoncompliantController"));
     Assert.assertTrue(error.getMessage().contains("AutomatonController"));
+  }
+
+  @Test
+  public void testUiSubpackagesDoNotDependOnScreensDetectsViolation() {
+    ArchRule rule = uiSubpackagesDoNotDependOnScreensRule();
+    JavaClasses violatingClasses =
+        new ClassFileImporter()
+            .importClasses(ScreensArchViolationFixture.ViolatesUiSubpackagesToScreens.class);
+    AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
+    Assert.assertTrue(error.getMessage().contains("ViolatesUiSubpackagesToScreens"));
+    Assert.assertTrue(
+        error.getMessage().contains("com.cellularautomata.ui.screens.ModuleSelectionScreen"));
   }
 
   private static <T extends Throwable> T assertThrows(Class<T> expectedType, Runnable executable) {

@@ -5,6 +5,9 @@ import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ParametersPanel;
 import com.cellularautomata.ui.panels.SidebarPanel;
+import com.cellularautomata.ui.screens.ElementaryWorkspace;
+import com.cellularautomata.ui.screens.LifeLikeWorkspace;
+import com.cellularautomata.ui.screens.TotalisticWorkspace;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -28,12 +31,15 @@ public class WorkspaceLayoutTest {
   public void testOneDimensionalWorkspacesShareTopLevelStructureAndIncludeCommandsPanel() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
-          MainApp app = new MainApp();
-
           for (WorkspaceConfig config :
               new WorkspaceConfig[] {WorkspaceConfig.ELEMENTARY, WorkspaceConfig.TOTALISTIC}) {
             AtomicBoolean navigatedBack = new AtomicBoolean(false);
-            HBox root = app.createWorkspace(config, () -> navigatedBack.set(true));
+            HBox root =
+                switch (config) {
+                  case ELEMENTARY -> new ElementaryWorkspace(() -> navigatedBack.set(true));
+                  case TOTALISTIC -> new TotalisticWorkspace(() -> navigatedBack.set(true));
+                  default -> throw new IllegalArgumentException("Unexpected config: " + config);
+                };
 
             Assert.assertEquals(2, root.getChildren().size());
             Assert.assertTrue(root.getChildren().get(0) instanceof VBox);
@@ -66,9 +72,8 @@ public class WorkspaceLayoutTest {
   public void testLifeLikeWorkspaceAlignsFooterToolbarWithBackLinkAndOmitsCommandsSection() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
-          MainApp app = new MainApp();
           AtomicBoolean navigatedBack = new AtomicBoolean(false);
-          HBox root = app.createWorkspace(WorkspaceConfig.LIFE_LIKE, () -> navigatedBack.set(true));
+          HBox root = new LifeLikeWorkspace(() -> navigatedBack.set(true));
 
           Assert.assertEquals(2, root.getChildren().size());
           Assert.assertTrue(root.getChildren().get(0) instanceof VBox);
