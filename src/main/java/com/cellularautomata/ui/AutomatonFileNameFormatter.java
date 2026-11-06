@@ -3,15 +3,10 @@ package com.cellularautomata.ui;
 import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.engine.rules.TotalisticRule;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /** Formats default file names for saving rendered cellular automata images. */
 public final class AutomatonFileNameFormatter {
-
-  private static final DateTimeFormatter TIMESTAMP_FORMATTER =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss");
 
   private AutomatonFileNameFormatter() {
     throw new IllegalStateException("Utility class");
@@ -22,21 +17,15 @@ public final class AutomatonFileNameFormatter {
    *
    * @param rule the Elementary rule
    * @param size the automaton size
-   * @param time the timestamp to include in the file name
    * @return the formatted file name
-   * @throws IllegalArgumentException if rule or time is null
+   * @throws IllegalArgumentException if rule is null
    */
-  public static String formatFileName(ElementaryRule rule, int size, LocalDateTime time) {
+  public static String formatFileName(ElementaryRule rule, int size) {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null.");
     }
-    if (time == null) {
-      throw new IllegalArgumentException("Time cannot be null.");
-    }
-
-    String timestamp = time.format(TIMESTAMP_FORMATTER);
     String baseName = WorkspaceConfig.ELEMENTARY.name().toLowerCase(Locale.ROOT);
-    return "%s_rule%d_size%d_%s.png".formatted(baseName, rule.getRuleNumber(), size, timestamp);
+    return "%s_rule%d_size%d.png".formatted(baseName, rule.getRuleNumber(), size);
   }
 
   /**
@@ -44,22 +33,16 @@ public final class AutomatonFileNameFormatter {
    *
    * @param rule the Totalistic rule
    * @param size the automaton size
-   * @param time the timestamp to include in the file name
    * @return the formatted file name
-   * @throws IllegalArgumentException if rule or time is null
+   * @throws IllegalArgumentException if rule is null
    */
-  public static String formatFileName(TotalisticRule rule, int size, LocalDateTime time) {
+  public static String formatFileName(TotalisticRule rule, int size) {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null.");
     }
-    if (time == null) {
-      throw new IllegalArgumentException("Time cannot be null.");
-    }
-
-    String timestamp = time.format(TIMESTAMP_FORMATTER);
     String baseName = WorkspaceConfig.TOTALISTIC.name().toLowerCase(Locale.ROOT);
-    return "%s_states%d_rule%d_size%d_%s.png"
-        .formatted(baseName, rule.getStates(), rule.getRuleNumber(), size, timestamp);
+    return "%s_states%d_rule%d_size%d.png"
+        .formatted(baseName, rule.getStates(), rule.getRuleNumber(), size);
   }
 
   /**
