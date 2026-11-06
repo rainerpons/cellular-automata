@@ -2,12 +2,13 @@ package com.cellularautomata.ui.controllers;
 
 import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.rules.ElementaryRule;
-import com.cellularautomata.image.AutomatonImage;
-import com.cellularautomata.ui.DialogService;
+import com.cellularautomata.image.AutomatonImageUtils;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ElementaryParametersPanel;
+import com.cellularautomata.ui.services.AutomatonImageService;
+import com.cellularautomata.ui.services.DialogService;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
@@ -50,12 +51,29 @@ public class ElementaryControllerTest {
           assertThrowsIllegalArgument(
               () -> new ElementaryController(display, params, null, dialogService));
           assertThrowsIllegalArgument(
-              () -> new ElementaryController(display, params, commands, null));
+              () -> new ElementaryController(display, params, commands, (DialogService) null));
+
+          AutomatonImageService imageService = new AutomatonImageService(dialogService);
+
+          assertThrowsIllegalArgument(
+              () -> new ElementaryController(null, params, commands, dialogService, imageService));
+          assertThrowsIllegalArgument(
+              () -> new ElementaryController(display, null, commands, dialogService, imageService));
+          assertThrowsIllegalArgument(
+              () -> new ElementaryController(display, params, null, dialogService, imageService));
+          assertThrowsIllegalArgument(
+              () -> new ElementaryController(display, params, commands, null, imageService));
+          assertThrowsIllegalArgument(
+              () -> new ElementaryController(display, params, commands, dialogService, null));
 
           ElementaryController controller = new ElementaryController(display, params, commands);
           Assert.assertNotNull(controller);
           Assert.assertNull(display.getAutomatonImage());
           Assert.assertTrue(findButton(commands, "Save image").isDisabled());
+
+          ElementaryController controllerWith5Args =
+              new ElementaryController(display, params, commands, dialogService, imageService);
+          Assert.assertNotNull(controllerWith5Args);
 
           findButton(commands, "Generate automaton").fire();
           Assert.assertNotNull(display.getAutomatonImage());
@@ -101,8 +119,9 @@ public class ElementaryControllerTest {
 
                 Image image = displayPanel.getAutomatonImage();
                 Assert.assertNotNull(image);
-                Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, (int) image.getWidth());
-                Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, (int) image.getHeight());
+                Assert.assertEquals(AutomatonImageUtils.DISPLAY_IMAGE_SIZE, (int) image.getWidth());
+                Assert.assertEquals(
+                    AutomatonImageUtils.DISPLAY_IMAGE_SIZE, (int) image.getHeight());
                 assertStrictlyBinaryPixels(image);
               }
             }
@@ -181,18 +200,15 @@ public class ElementaryControllerTest {
             saveButton.fire();
 
             Assert.assertEquals(1, dialogService.saveDialogCallCount);
-            Assert.assertNotNull(dialogService.lastSuggestedFileName);
-            Assert.assertTrue(
-                "Unexpected filename: " + dialogService.lastSuggestedFileName,
-                dialogService.lastSuggestedFileName.matches(
-                    "^elementary_rule110_size16_\\d{4}-\\d{2}-\\d{2}T\\d{2}-\\d{2}-\\d{2}\\.png$"));
+            Assert.assertEquals(
+                "elementary_rule110_size16.png", dialogService.lastSuggestedFileName);
             Assert.assertFalse(dialogService.saveErrorShown);
             Assert.assertTrue(Files.exists(targetFile.toPath()));
 
             BufferedImage savedImage = ImageIO.read(targetFile);
             Assert.assertNotNull(savedImage);
-            Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, savedImage.getWidth());
-            Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, savedImage.getHeight());
+            Assert.assertEquals(AutomatonImageUtils.DISPLAY_IMAGE_SIZE, savedImage.getWidth());
+            Assert.assertEquals(AutomatonImageUtils.DISPLAY_IMAGE_SIZE, savedImage.getHeight());
 
             // 2. Cancelled save (dialog returns null) does not show error
             dialogService.fileToReturn = null;
@@ -210,6 +226,86 @@ public class ElementaryControllerTest {
             throw new RuntimeException(e);
           }
         });
+  }
+
+  @Test
+  public void testSaveWorkflowWithInjectedImageServiceCancellationAndFailure() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          try {
+            Path tempDir = Files.createTempDirectory("elementary_injected_fail");
+            tempDir.toFile().deleteOnExit();
+
+            DisplayPanel displayPanel = new DisplayPanel();
+            ElementaryParametersPanel parametersPanel = new ElementaryParametersPanel();
+            CommandsPanel commandsPanel = new CommandsPanel();
+            RecordingDialogService dialogService = new RecordingDialogService();
+            RecordingImageService imageService = new RecordingImageService(dialogService);
+
+            ElementaryController controller =
+                new ElementaryController(
+                    displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
+
+            // Generate automaton first
+            parametersPanel.setRuleText("30");
+            parametersPanel.setSizeValue(32);
+            findButton(commandsPanel, "Generate automaton").fire();
+
+            Button saveButton = findButton(commandsPanel, "Save image");
+            Assert.assertFalse(saveButton.isDisabled());
+
+            // 1. Save Cancellation via injected service
+            dialogService.fileToReturn = null;
+            saveButton.fire();
+
+            Assert.assertEquals(1, imageService.saveImageCallCount);
+            Assert.assertEquals("elementary_rule30_size32.png", imageService.lastSuggestedFileName);
+            Assert.assertNotNull(imageService.lastImage);
+            Assert.assertFalse(
+                "showSaveError should not be called on cancel", dialogService.saveErrorShown);
+
+            // 2. Save Failure via injected service (file in non-existent directory triggers
+            // IOException)
+            File missingDirTarget = new File(tempDir.toFile(), "missing_subdir/exported.png");
+            dialogService.fileToReturn = missingDirTarget;
+            saveButton.fire();
+
+            Assert.assertEquals(2, imageService.saveImageCallCount);
+            Assert.assertTrue(
+                "showSaveError must be called when writer fails", dialogService.saveErrorShown);
+
+            // 3. Save Success via injected service
+            File validTarget = new File(tempDir.toFile(), "successful_export.png");
+            validTarget.deleteOnExit();
+            dialogService.fileToReturn = validTarget;
+            dialogService.saveErrorShown = false;
+            saveButton.fire();
+
+            Assert.assertEquals(3, imageService.saveImageCallCount);
+            Assert.assertFalse(dialogService.saveErrorShown);
+            Assert.assertTrue(validTarget.exists());
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  private static final class RecordingImageService extends AutomatonImageService {
+    private int saveImageCallCount;
+    private String lastSuggestedFileName;
+    private BufferedImage lastImage;
+
+    RecordingImageService(DialogService dialogService) {
+      super(dialogService);
+    }
+
+    @Override
+    public boolean saveImage(Window owner, BufferedImage image, String suggestedFileName) {
+      this.saveImageCallCount++;
+      this.lastSuggestedFileName = suggestedFileName;
+      this.lastImage = image;
+      return super.saveImage(owner, image, suggestedFileName);
+    }
   }
 
   private static void assertStrictlyBinaryPixels(Image image) {

@@ -10,6 +10,8 @@ import com.cellularautomata.ui.panels.ElementaryParametersPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
 import com.cellularautomata.ui.panels.SidebarPanel;
 import com.cellularautomata.ui.panels.TotalisticParametersPanel;
+import com.cellularautomata.ui.services.AutomatonImageService;
+import com.cellularautomata.ui.services.DialogService;
 import com.cellularautomata.ui.shared.UiFonts;
 import com.cellularautomata.ui.shared.UiStyles;
 import javafx.application.Application;
@@ -30,25 +32,41 @@ import javafx.stage.Stage;
 public final class MainApp extends Application {
 
   private final DialogService dialogService;
+  private final AutomatonImageService imageService;
   private LifeLikeController activeLifeLikeController;
   private LifeLikeParametersPanel activeLifeLikeParametersPanel;
 
-  /** Constructs the main application with the default dialog service. */
+  /** Constructs the main application with default services. */
   public MainApp() {
     this(new DialogService());
   }
 
   /**
-   * Constructs the main application with an injected dialog service.
+   * Constructs the main application with an injected dialog service and default image service.
    *
    * @param dialogService dialog service used by workspace controllers
    * @throws IllegalArgumentException if dialogService is null
    */
   MainApp(DialogService dialogService) {
+    this(dialogService, new AutomatonImageService(dialogService));
+  }
+
+  /**
+   * Constructs the main application with injected dialog and image services.
+   *
+   * @param dialogService dialog service used by workspace controllers
+   * @param imageService image service used by workspace controllers
+   * @throws IllegalArgumentException if dialogService or imageService is null
+   */
+  MainApp(DialogService dialogService, AutomatonImageService imageService) {
     if (dialogService == null) {
       throw new IllegalArgumentException("DialogService cannot be null.");
     }
+    if (imageService == null) {
+      throw new IllegalArgumentException("AutomatonImageService cannot be null.");
+    }
     this.dialogService = dialogService;
+    this.imageService = imageService;
   }
 
   @Override
@@ -104,7 +122,8 @@ public final class MainApp extends Application {
     ElementaryParametersPanel parametersPanel = new ElementaryParametersPanel();
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
-    new ElementaryController(displayPanel, parametersPanel, commandsPanel, dialogService);
+    new ElementaryController(
+        displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
     return createWorkspaceRoot(
         createOneDimensionalDisplayContainer(displayPanel, backLink), sidebarPanel);
   }
@@ -114,7 +133,8 @@ public final class MainApp extends Application {
     TotalisticParametersPanel parametersPanel = new TotalisticParametersPanel();
     CommandsPanel commandsPanel = new CommandsPanel();
     SidebarPanel sidebarPanel = new SidebarPanel(parametersPanel, commandsPanel);
-    new TotalisticController(displayPanel, parametersPanel, commandsPanel, dialogService);
+    new TotalisticController(
+        displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
     return createWorkspaceRoot(
         createOneDimensionalDisplayContainer(displayPanel, backLink), sidebarPanel);
   }
@@ -124,7 +144,7 @@ public final class MainApp extends Application {
     DisplayPanel displayPanel = new DisplayPanel(DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT);
     LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
     LifeLikeController controller =
-        new LifeLikeController(displayPanel, parametersPanel, toolbar, dialogService);
+        new LifeLikeController(displayPanel, parametersPanel, toolbar, imageService);
     this.activeLifeLikeController = controller;
     this.activeLifeLikeParametersPanel = parametersPanel;
 

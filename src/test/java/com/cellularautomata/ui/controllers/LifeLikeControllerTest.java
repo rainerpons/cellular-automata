@@ -5,12 +5,13 @@ import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.automata.LifeLikeSimulation;
 import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
-import com.cellularautomata.image.AutomatonImage;
-import com.cellularautomata.ui.DialogService;
+import com.cellularautomata.image.AutomatonImageUtils;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.components.LifeLikeToolbar;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
+import com.cellularautomata.ui.services.AutomatonImageService;
+import com.cellularautomata.ui.services.DialogService;
 import com.cellularautomata.ui.simulation.ControlledScheduler;
 import com.cellularautomata.ui.simulation.LifeLikeConfiguration;
 import com.cellularautomata.ui.simulation.LifeLikeStateMachine;
@@ -80,6 +81,8 @@ public class LifeLikeControllerTest {
               () -> new LifeLikeController(display, params, null, dialogService));
           assertThrowsIllegalArgument(
               () -> new LifeLikeController(display, params, toolbar, (DialogService) null));
+          assertThrowsIllegalArgument(
+              () -> new LifeLikeController(display, params, toolbar, (AutomatonImageService) null));
 
           assertThrowsIllegalArgument(
               () -> new LifeLikeController(null, params, toolbar, scheduler));
@@ -99,7 +102,13 @@ public class LifeLikeControllerTest {
           assertThrowsIllegalArgument(
               () -> new LifeLikeController(display, params, toolbar, null, dialogService));
           assertThrowsIllegalArgument(
-              () -> new LifeLikeController(display, params, toolbar, scheduler, null));
+              () ->
+                  new LifeLikeController(
+                      display, params, toolbar, scheduler, (DialogService) null));
+          assertThrowsIllegalArgument(
+              () ->
+                  new LifeLikeController(
+                      display, params, toolbar, scheduler, (AutomatonImageService) null));
 
           assertThrowsIllegalArgument(
               () ->
@@ -124,7 +133,36 @@ public class LifeLikeControllerTest {
           assertThrowsIllegalArgument(
               () ->
                   new LifeLikeController(
-                      display, params, toolbar, sm, factory, renderer, scheduler, null));
+                      display,
+                      params,
+                      toolbar,
+                      sm,
+                      factory,
+                      renderer,
+                      scheduler,
+                      (DialogService) null));
+          assertThrowsIllegalArgument(
+              () ->
+                  new LifeLikeController(
+                      display,
+                      params,
+                      toolbar,
+                      sm,
+                      factory,
+                      renderer,
+                      scheduler,
+                      (AutomatonImageService) null));
+
+          AutomatonImageService imageService = new AutomatonImageService(dialogService);
+          LifeLikeController c1 = new LifeLikeController(display, params, toolbar, imageService);
+          Assert.assertNotNull(c1);
+          LifeLikeController c2 =
+              new LifeLikeController(display, params, toolbar, scheduler, imageService);
+          Assert.assertNotNull(c2);
+          LifeLikeController c3 =
+              new LifeLikeController(
+                  display, params, toolbar, sm, factory, renderer, scheduler, imageService);
+          Assert.assertNotNull(c3);
         });
   }
 
@@ -949,9 +987,11 @@ public class LifeLikeControllerTest {
                 if (triggerMidRenderPause.get()) {
                   controllerRef.get().pause();
                 }
-                BufferedImage raw = AutomatonImage.getImageFromGrid(grid);
-                return AutomatonImage.resizeImage(
-                    AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, raw);
+                BufferedImage raw = AutomatonImageUtils.getImageFromGrid(grid);
+                return AutomatonImageUtils.resizeImage(
+                    AutomatonImageUtils.DISPLAY_IMAGE_SIZE,
+                    AutomatonImageUtils.DISPLAY_IMAGE_SIZE,
+                    raw);
               };
 
           LifeLikeController controller =
@@ -1103,9 +1143,11 @@ public class LifeLikeControllerTest {
                 if (failOnRender[0]) {
                   throw new RuntimeException("Simulated rendering failure during reset");
                 }
-                BufferedImage raw = AutomatonImage.getImageFromGrid(grid);
-                return AutomatonImage.resizeImage(
-                    AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, raw);
+                BufferedImage raw = AutomatonImageUtils.getImageFromGrid(grid);
+                return AutomatonImageUtils.resizeImage(
+                    AutomatonImageUtils.DISPLAY_IMAGE_SIZE,
+                    AutomatonImageUtils.DISPLAY_IMAGE_SIZE,
+                    raw);
               };
 
           LifeLikeController controller =
@@ -1171,9 +1213,11 @@ public class LifeLikeControllerTest {
                   new LifeLikeStateMachine(),
                   blinkerFactory,
                   grid -> {
-                    BufferedImage raw = AutomatonImage.getImageFromGrid(grid);
-                    return AutomatonImage.resizeImage(
-                        AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, raw);
+                    BufferedImage raw = AutomatonImageUtils.getImageFromGrid(grid);
+                    return AutomatonImageUtils.resizeImage(
+                        AutomatonImageUtils.DISPLAY_IMAGE_SIZE,
+                        AutomatonImageUtils.DISPLAY_IMAGE_SIZE,
+                        raw);
                   },
                   scheduler);
 
@@ -1356,39 +1400,83 @@ public class LifeLikeControllerTest {
             controller.step();
             Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
 
-            // 1. User cancels save dialog while PAUSED -> stays PAUSED, no error shown
+            // 1. User cancels save dialog while PAUSED -> stays PAUSED, no error shown, active
+            // simulation and image preserved
+            LifeLikeSimulation sim = controller.getActiveSimulation();
+            BufferedImage bufImg = controller.getActiveBufferedImage();
+            Image fxImg = controller.getActiveImage();
+
             dialogService.fileToReturn = null;
             controller.save();
             Assert.assertEquals(1, dialogService.saveDialogCallCount);
             Assert.assertFalse(dialogService.saveErrorShown);
             Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
+            Assert.assertFalse(scheduler.isRunning());
+            Assert.assertSame(sim, controller.getActiveSimulation());
+            Assert.assertSame(bufImg, controller.getActiveBufferedImage());
+            Assert.assertSame(fxImg, controller.getActiveImage());
             Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
 
-            // 2. User cancels save dialog while RUNNING -> pauses during dialog, resumes after
-            // cancel
+            // 2. IOException when writing while PAUSED -> remains PAUSED, shows error, active
+            // simulation and image preserved
+            dialogService.fileToReturn =
+                tempDir.resolve("missing_parent_dir/out_paused.png").toFile();
+            controller.save();
+            Assert.assertEquals(2, dialogService.saveDialogCallCount);
+            Assert.assertTrue(dialogService.saveErrorShown);
+            Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
+            Assert.assertFalse(scheduler.isRunning());
+            Assert.assertSame(sim, controller.getActiveSimulation());
+            Assert.assertSame(bufImg, controller.getActiveBufferedImage());
+            Assert.assertSame(fxImg, controller.getActiveImage());
+            Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
+            Assert.assertFalse(saveButton(toolbar).isDisabled());
+
+            // Reset error flag for running tests
+            dialogService.saveErrorShown = false;
+
+            // 3. User cancels save dialog while RUNNING -> pauses during dialog, resumes after
+            // cancel,
+            // active simulation and image preserved
             controller.play();
             Assert.assertTrue(controller.isRunning());
             dialogService.fileToReturn = null;
             controller.save();
-            Assert.assertEquals(2, dialogService.saveDialogCallCount);
+            Assert.assertEquals(3, dialogService.saveDialogCallCount);
+            Assert.assertEquals(
+                LifeLikeStateMachine.State.PAUSED, dialogService.stateDuringSaveDialog);
+            Assert.assertFalse(dialogService.schedulerRunningDuringSaveDialog);
+            Assert.assertFalse(dialogService.saveErrorShown);
+            Assert.assertTrue(controller.isRunning());
+            Assert.assertTrue(scheduler.isRunning());
+            Assert.assertSame(sim, controller.getActiveSimulation());
+            Assert.assertSame(bufImg, controller.getActiveBufferedImage());
+            Assert.assertSame(fxImg, controller.getActiveImage());
+
+            // 4. IOException when writing while RUNNING -> pauses during save, displays Save Failed
+            // dialog,
+            // resumes playback after dismissal, active simulation and image preserved
+            dialogService.fileToReturn =
+                tempDir.resolve("missing_parent_dir/out_running.png").toFile();
+            controller.save();
+            Assert.assertEquals(4, dialogService.saveDialogCallCount);
+            Assert.assertTrue(dialogService.saveErrorShown);
             Assert.assertEquals(
                 LifeLikeStateMachine.State.PAUSED, dialogService.stateDuringSaveDialog);
             Assert.assertFalse(dialogService.schedulerRunningDuringSaveDialog);
             Assert.assertTrue(controller.isRunning());
             Assert.assertTrue(scheduler.isRunning());
-
-            // 3. IOException when writing while RUNNING -> pauses before dialog, showSaveError
-            // invoked, and remains PAUSED (does not resume)
-            dialogService.fileToReturn = tempDir.resolve("missing_parent_dir/out.png").toFile();
-            controller.save();
-            Assert.assertEquals(3, dialogService.saveDialogCallCount);
-            Assert.assertTrue(dialogService.saveErrorShown);
-            Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
-            Assert.assertFalse(scheduler.isRunning());
+            Assert.assertSame(sim, controller.getActiveSimulation());
+            Assert.assertSame(bufImg, controller.getActiveBufferedImage());
+            Assert.assertSame(fxImg, controller.getActiveImage());
             Assert.assertEquals(1, controller.getActiveSimulation().getGeneration());
             Assert.assertFalse(saveButton(toolbar).isDisabled());
 
-            // 4. Saving or canceling from FIXED_POINT leaves state in FIXED_POINT (does not start
+            // Pause before fixed point test
+            controller.pause();
+            Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
+
+            // 5. Saving or canceling from FIXED_POINT leaves state in FIXED_POINT (does not start
             // playback)
             parametersPanel.selectSeedType(SeedType.SPARSE);
             controller.step();
@@ -1398,7 +1486,7 @@ public class LifeLikeControllerTest {
             dialogService.saveErrorShown = false;
             dialogService.fileToReturn = null;
             controller.save();
-            Assert.assertEquals(4, dialogService.saveDialogCallCount);
+            Assert.assertEquals(5, dialogService.saveDialogCallCount);
             Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
             Assert.assertFalse(scheduler.isRunning());
             Assert.assertTrue(playPauseButton(toolbar).isDisabled());

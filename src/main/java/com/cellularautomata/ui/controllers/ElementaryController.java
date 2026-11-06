@@ -4,18 +4,15 @@ import com.cellularautomata.engine.RuleValidator;
 import com.cellularautomata.engine.automata.AutomataEngine;
 import com.cellularautomata.engine.automata.AutomataResult;
 import com.cellularautomata.engine.rules.ElementaryRule;
-import com.cellularautomata.image.AutomatonImage;
-import com.cellularautomata.image.AutomatonImageExport;
+import com.cellularautomata.image.AutomatonImageUtils;
 import com.cellularautomata.ui.AutomatonFileNameFormatter;
-import com.cellularautomata.ui.DialogService;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.ElementaryParametersPanel;
+import com.cellularautomata.ui.services.AutomatonImageService;
+import com.cellularautomata.ui.services.DialogService;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.OptionalInt;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.stage.Window;
@@ -29,13 +26,14 @@ public final class ElementaryController {
   private final ElementaryParametersPanel parametersPanel;
   private final CommandsPanel commandsPanel;
   private final DialogService dialogService;
+  private final AutomatonImageService imageService;
 
   private BufferedImage resizedAutomatonImage;
   private ElementaryRule rule;
   private int generatedSize;
 
   /**
-   * Constructs the Elementary controller with the default dialog service.
+   * Constructs the Elementary controller with the default dialog service and image service.
    *
    * @param displayPanel the display panel
    * @param parametersPanel the Elementary parameters panel
@@ -56,6 +54,28 @@ public final class ElementaryController {
    * @param commandsPanel the commands panel
    * @param dialogService the dialog service
    */
+  public ElementaryController(
+      DisplayPanel displayPanel,
+      ElementaryParametersPanel parametersPanel,
+      CommandsPanel commandsPanel,
+      DialogService dialogService) {
+    this(
+        displayPanel,
+        parametersPanel,
+        commandsPanel,
+        dialogService,
+        new AutomatonImageService(dialogService));
+  }
+
+  /**
+   * Constructs the Elementary controller with fully injected collaborators.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the Elementary parameters panel
+   * @param commandsPanel the commands panel
+   * @param dialogService the dialog service
+   * @param imageService the automaton image service
+   */
   @SuppressFBWarnings(
       value = "EI_EXPOSE_REP2",
       justification =
@@ -65,7 +85,8 @@ public final class ElementaryController {
       DisplayPanel displayPanel,
       ElementaryParametersPanel parametersPanel,
       CommandsPanel commandsPanel,
-      DialogService dialogService) {
+      DialogService dialogService,
+      AutomatonImageService imageService) {
     if (displayPanel == null) {
       throw new IllegalArgumentException("DisplayPanel cannot be null.");
     }
@@ -78,10 +99,14 @@ public final class ElementaryController {
     if (dialogService == null) {
       throw new IllegalArgumentException("DialogService cannot be null.");
     }
+    if (imageService == null) {
+      throw new IllegalArgumentException("AutomatonImageService cannot be null.");
+    }
     this.displayPanel = displayPanel;
     this.parametersPanel = parametersPanel;
     this.commandsPanel = commandsPanel;
     this.dialogService = dialogService;
+    this.imageService = imageService;
     setupActionListeners();
   }
 
@@ -109,10 +134,12 @@ public final class ElementaryController {
     generatedSize = size;
 
     BufferedImage automatonImage =
-        AutomatonImage.getImageFromMap(result.getAutomatonMap(), ElementaryRule.STATE_COUNT);
+        AutomatonImageUtils.getImageFromMap(result.getAutomatonMap(), ElementaryRule.STATE_COUNT);
     resizedAutomatonImage =
-        AutomatonImage.resizeImage(
-            AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, automatonImage);
+        AutomatonImageUtils.resizeImage(
+            AutomatonImageUtils.DISPLAY_IMAGE_SIZE,
+            AutomatonImageUtils.DISPLAY_IMAGE_SIZE,
+            automatonImage);
 
     displayPanel.setAutomatonImage(SwingFXUtils.toFXImage(resizedAutomatonImage, null));
     commandsPanel.setSaveEnabled(true);
@@ -123,21 +150,8 @@ public final class ElementaryController {
       return;
     }
 
-    String initialFileName =
-        AutomatonFileNameFormatter.formatFileName(rule, generatedSize, LocalDateTime.now());
+    String initialFileName = AutomatonFileNameFormatter.formatFileName(rule, generatedSize);
     Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
-    File file =
-        dialogService.showSaveFileDialog(
-            window, AutomatonImageExport.resolveInitialSaveDirectory(), initialFileName);
-    if (file == null) {
-      return;
-    }
-
-    try {
-      AutomatonImage.saveImage(resizedAutomatonImage, file);
-    } catch (IOException ie) {
-      ie.printStackTrace();
-      dialogService.showSaveError();
-    }
+    imageService.saveImage(window, resizedAutomatonImage, initialFileName);
   }
 }

@@ -2,12 +2,13 @@ package com.cellularautomata.ui.controllers;
 
 import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.rules.TotalisticRule;
-import com.cellularautomata.image.AutomatonImage;
-import com.cellularautomata.ui.DialogService;
+import com.cellularautomata.image.AutomatonImageUtils;
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.TotalisticParametersPanel;
+import com.cellularautomata.ui.services.AutomatonImageService;
+import com.cellularautomata.ui.services.DialogService;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
@@ -50,12 +51,29 @@ public class TotalisticControllerTest {
           assertThrowsIllegalArgument(
               () -> new TotalisticController(display, params, null, dialogService));
           assertThrowsIllegalArgument(
-              () -> new TotalisticController(display, params, commands, null));
+              () -> new TotalisticController(display, params, commands, (DialogService) null));
+
+          AutomatonImageService imageService = new AutomatonImageService(dialogService);
+
+          assertThrowsIllegalArgument(
+              () -> new TotalisticController(null, params, commands, dialogService, imageService));
+          assertThrowsIllegalArgument(
+              () -> new TotalisticController(display, null, commands, dialogService, imageService));
+          assertThrowsIllegalArgument(
+              () -> new TotalisticController(display, params, null, dialogService, imageService));
+          assertThrowsIllegalArgument(
+              () -> new TotalisticController(display, params, commands, null, imageService));
+          assertThrowsIllegalArgument(
+              () -> new TotalisticController(display, params, commands, dialogService, null));
 
           TotalisticController controller = new TotalisticController(display, params, commands);
           Assert.assertNotNull(controller);
           Assert.assertNull(display.getAutomatonImage());
           Assert.assertTrue(findButton(commands, "Save image").isDisabled());
+
+          TotalisticController controllerWith5Args =
+              new TotalisticController(display, params, commands, dialogService, imageService);
+          Assert.assertNotNull(controllerWith5Args);
 
           findButton(commands, "Generate automaton").fire();
           Assert.assertNotNull(display.getAutomatonImage());
@@ -116,8 +134,10 @@ public class TotalisticControllerTest {
 
                   Image image = displayPanel.getAutomatonImage();
                   Assert.assertNotNull(image);
-                  Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, (int) image.getWidth());
-                  Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, (int) image.getHeight());
+                  Assert.assertEquals(
+                      AutomatonImageUtils.DISPLAY_IMAGE_SIZE, (int) image.getWidth());
+                  Assert.assertEquals(
+                      AutomatonImageUtils.DISPLAY_IMAGE_SIZE, (int) image.getHeight());
 
                   if (states > 2 && rule == allOnesRule) {
                     assertContainsIntermediateGrayscalePixels(image, states);
@@ -201,9 +221,8 @@ public class TotalisticControllerTest {
           Assert.assertFalse(findButton(commandsPanel, "Save image").isDisabled());
 
           findButton(commandsPanel, "Save image").fire();
-          Assert.assertNotNull(dialogService.lastSuggestedFileName);
-          Assert.assertTrue(
-              dialogService.lastSuggestedFileName.startsWith("totalistic_states3_rule100_size8_"));
+          Assert.assertEquals(
+              "totalistic_states3_rule100_size8.png", dialogService.lastSuggestedFileName);
         });
   }
 
@@ -296,18 +315,15 @@ public class TotalisticControllerTest {
             saveButton.fire();
 
             Assert.assertEquals(1, dialogService.saveDialogCallCount);
-            Assert.assertNotNull(dialogService.lastSuggestedFileName);
-            Assert.assertTrue(
-                "Unexpected filename: " + dialogService.lastSuggestedFileName,
-                dialogService.lastSuggestedFileName.matches(
-                    "^totalistic_states3_rule777_size16_\\d{4}-\\d{2}-\\d{2}T\\d{2}-\\d{2}-\\d{2}\\.png$"));
+            Assert.assertEquals(
+                "totalistic_states3_rule777_size16.png", dialogService.lastSuggestedFileName);
             Assert.assertFalse(dialogService.saveErrorShown);
             Assert.assertTrue(Files.exists(targetFile.toPath()));
 
             BufferedImage savedImage = ImageIO.read(targetFile);
             Assert.assertNotNull(savedImage);
-            Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, savedImage.getWidth());
-            Assert.assertEquals(AutomatonImage.DISPLAY_IMAGE_SIZE, savedImage.getHeight());
+            Assert.assertEquals(AutomatonImageUtils.DISPLAY_IMAGE_SIZE, savedImage.getWidth());
+            Assert.assertEquals(AutomatonImageUtils.DISPLAY_IMAGE_SIZE, savedImage.getHeight());
 
             // 2. Cancelled save (dialog returns null) does not show error
             dialogService.fileToReturn = null;
@@ -327,16 +343,98 @@ public class TotalisticControllerTest {
         });
   }
 
+  @Test
+  public void testSaveWorkflowWithInjectedImageServiceCancellationAndFailure() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          try {
+            Path tempDir = Files.createTempDirectory("totalistic_injected_test");
+            tempDir.toFile().deleteOnExit();
+
+            DisplayPanel displayPanel = new DisplayPanel();
+            TotalisticParametersPanel parametersPanel = new TotalisticParametersPanel();
+            CommandsPanel commandsPanel = new CommandsPanel();
+            RecordingDialogService dialogService = new RecordingDialogService();
+            RecordingImageService imageService = new RecordingImageService(dialogService);
+
+            TotalisticController controller =
+                new TotalisticController(
+                    displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
+
+            // Configure states=3, rule=100, size=8 and generate
+            parametersPanel.setStatesValue(3);
+            parametersPanel.setRuleText("100");
+            parametersPanel.setSizeValue(8);
+            findButton(commandsPanel, "Generate automaton").fire();
+
+            Button saveButton = findButton(commandsPanel, "Save image");
+            Assert.assertFalse(saveButton.isDisabled());
+
+            // 1. Save Cancellation via injected service
+            dialogService.fileToReturn = null;
+            saveButton.fire();
+
+            Assert.assertEquals(1, imageService.saveImageCallCount);
+            Assert.assertEquals(
+                "totalistic_states3_rule100_size8.png", imageService.lastSuggestedFileName);
+            Assert.assertNotNull(imageService.lastImage);
+            Assert.assertFalse(
+                "showSaveError should not be called on cancel", dialogService.saveErrorShown);
+
+            // 2. Save Failure via injected service (file in non-existent directory triggers
+            // IOException)
+            File missingDirTarget = new File(tempDir.toFile(), "missing_subdir/exported.png");
+            dialogService.fileToReturn = missingDirTarget;
+            saveButton.fire();
+
+            Assert.assertEquals(2, imageService.saveImageCallCount);
+            Assert.assertTrue(
+                "showSaveError must be called when writer fails", dialogService.saveErrorShown);
+
+            // 3. Save Success via injected service
+            File validTarget = new File(tempDir.toFile(), "successful_export.png");
+            validTarget.deleteOnExit();
+            dialogService.fileToReturn = validTarget;
+            dialogService.saveErrorShown = false;
+            saveButton.fire();
+
+            Assert.assertEquals(3, imageService.saveImageCallCount);
+            Assert.assertFalse(dialogService.saveErrorShown);
+            Assert.assertTrue(validTarget.exists());
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  private static final class RecordingImageService extends AutomatonImageService {
+    private int saveImageCallCount;
+    private String lastSuggestedFileName;
+    private BufferedImage lastImage;
+
+    RecordingImageService(DialogService dialogService) {
+      super(dialogService);
+    }
+
+    @Override
+    public boolean saveImage(Window owner, BufferedImage image, String suggestedFileName) {
+      this.saveImageCallCount++;
+      this.lastSuggestedFileName = suggestedFileName;
+      this.lastImage = image;
+      return super.saveImage(owner, image, suggestedFileName);
+    }
+  }
+
   private static void assertContainsIntermediateGrayscalePixels(Image image, int states) {
     PixelReader reader = image.getPixelReader();
     Assert.assertNotNull(reader);
-    int expectedStateOneRgb = AutomatonImage.getRgbForState(1, states);
+    int expectedStateOneRgb = AutomatonImageUtils.getRgbForState(1, states);
     Assert.assertNotEquals(0x000000, expectedStateOneRgb);
     Assert.assertNotEquals(0xFFFFFF, expectedStateOneRgb);
 
     // Generation 1+ (bottom half of the image) under the all-ones rule is entirely state 1
-    int sampleX = AutomatonImage.DISPLAY_IMAGE_SIZE / 2;
-    int sampleY = (AutomatonImage.DISPLAY_IMAGE_SIZE * 3) / 4;
+    int sampleX = AutomatonImageUtils.DISPLAY_IMAGE_SIZE / 2;
+    int sampleY = (AutomatonImageUtils.DISPLAY_IMAGE_SIZE * 3) / 4;
     int actualRgb = reader.getArgb(sampleX, sampleY) & 0xFFFFFF;
     Assert.assertEquals(expectedStateOneRgb, actualRgb);
   }

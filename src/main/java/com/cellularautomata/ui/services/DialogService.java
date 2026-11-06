@@ -1,4 +1,4 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.services;
 
 import java.io.File;
 import javafx.scene.control.Alert;
