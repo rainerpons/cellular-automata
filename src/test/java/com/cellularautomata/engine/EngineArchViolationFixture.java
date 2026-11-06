@@ -5,10 +5,10 @@ public final class EngineArchViolationFixture {
   private EngineArchViolationFixture() {}
 
   public static class ViolatesEngineToUi {
-    com.cellularautomata.ui.DialogService dialogService;
+    com.cellularautomata.ui.services.DialogService dialogService;
   }
 
   public static class ViolatesEngineToImage {
-    com.cellularautomata.image.AutomatonImage image;
+    com.cellularautomata.image.AutomatonImageUtils image;
   }
 }

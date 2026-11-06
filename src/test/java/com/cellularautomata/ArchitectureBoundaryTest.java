@@ -1,11 +1,14 @@
 package com.cellularautomata;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import com.cellularautomata.engine.EngineArchViolationFixture;
 import com.cellularautomata.engine.rules.RulesArchViolationFixture;
 import com.cellularautomata.image.ImageArchViolationFixture;
 import com.cellularautomata.ui.SelectionModelArchViolationFixture;
+import com.cellularautomata.ui.controllers.AutomatonController;
+import com.cellularautomata.ui.controllers.ControllerArchViolationFixture;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -160,6 +163,21 @@ public class ArchitectureBoundaryTest {
             "DisplayPanel.getProperties() must never be used to store or retrieve controllers");
   }
 
+  public static ArchRule controllersMustImplementAutomatonControllerRule() {
+    return classes()
+        .that()
+        .resideInAPackage("..ui.controllers..")
+        .and()
+        .haveSimpleNameEndingWith("Controller")
+        .and()
+        .areNotInterfaces()
+        .should()
+        .implement(AutomatonController.class)
+        .because(
+            "Concrete module controllers in ui.controllers must implement AutomatonController to"
+                + " enforce a unified save contract");
+  }
+
   // --- Production Verification Tests ---
 
   @Test
@@ -218,6 +236,11 @@ public class ArchitectureBoundaryTest {
     displayPanelPropertiesNeverUsedRule().check(allClasses);
   }
 
+  @Test
+  public void testControllersMustImplementAutomatonController() {
+    controllersMustImplementAutomatonControllerRule().check(productionClasses);
+  }
+
   // --- Deliberate Violation Detection Tests ---
 
   @Test
@@ -227,7 +250,8 @@ public class ArchitectureBoundaryTest {
         new ClassFileImporter().importClasses(EngineArchViolationFixture.ViolatesEngineToUi.class);
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("ViolatesEngineToUi"));
-    Assert.assertTrue(error.getMessage().contains("com.cellularautomata.ui.DialogService"));
+    Assert.assertTrue(
+        error.getMessage().contains("com.cellularautomata.ui.services.DialogService"));
   }
 
   @Test
@@ -238,7 +262,8 @@ public class ArchitectureBoundaryTest {
             .importClasses(EngineArchViolationFixture.ViolatesEngineToImage.class);
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("ViolatesEngineToImage"));
-    Assert.assertTrue(error.getMessage().contains("com.cellularautomata.image.AutomatonImage"));
+    Assert.assertTrue(
+        error.getMessage().contains("com.cellularautomata.image.AutomatonImageUtils"));
   }
 
   @Test
@@ -361,6 +386,17 @@ public class ArchitectureBoundaryTest {
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("ViolatesImageToWorkspaceConfig"));
     Assert.assertTrue(error.getMessage().contains("com.cellularautomata.ui.WorkspaceConfig"));
+  }
+
+  @Test
+  public void testControllersMustImplementAutomatonControllerDetectsViolation() {
+    ArchRule rule = controllersMustImplementAutomatonControllerRule();
+    JavaClasses violatingClasses =
+        new ClassFileImporter()
+            .importClasses(ControllerArchViolationFixture.NoncompliantController.class);
+    AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
+    Assert.assertTrue(error.getMessage().contains("NoncompliantController"));
+    Assert.assertTrue(error.getMessage().contains("AutomatonController"));
   }
 
   private static <T extends Throwable> T assertThrows(Class<T> expectedType, Runnable executable) {

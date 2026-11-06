@@ -28,10 +28,10 @@ public final class TotalisticRule implements Rule {
   public TotalisticRule(int ruleNumber, int states) {
     if (!isValidStateCount(states)) {
       throw new IllegalArgumentException(
-          "States must be between " + MIN_STATES + " and " + MAX_STATES);
+          "States must be between %d and %d".formatted(MIN_STATES, MAX_STATES));
     }
     if (ruleNumber < MIN_RULE_NUMBER || ruleNumber > calculateMaxRule(states)) {
-      throw new IllegalArgumentException("Invalid rule number: " + ruleNumber);
+      throw new IllegalArgumentException("Invalid rule number: %d".formatted(ruleNumber));
     }
 
     this.ruleNumber = ruleNumber;
@@ -56,8 +56,13 @@ public final class TotalisticRule implements Rule {
    *
    * @param states the number of states
    * @return the maximum rule number
+   * @throws IllegalArgumentException if the state count is invalid
    */
   public static int calculateMaxRule(int states) {
+    if (!isValidStateCount(states)) {
+      throw new IllegalArgumentException(
+          "States must be between %d and %d".formatted(MIN_STATES, MAX_STATES));
+    }
     BigInteger max = BigInteger.valueOf(states).pow(3 * (states - 1) + 1).subtract(BigInteger.ONE);
 
     if (max.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0) {
@@ -70,6 +75,10 @@ public final class TotalisticRule implements Rule {
   @Override
   public int getRuleNumber() {
     return ruleNumber;
+  }
+
+  public int getStates() {
+    return states;
   }
 
   @Override

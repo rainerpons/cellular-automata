@@ -1,7 +1,8 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.LifeLikeRule;
-import java.time.LocalDateTime;
+import com.cellularautomata.engine.rules.TotalisticRule;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,42 +12,32 @@ public class AutomatonFileNameFormatterTest {
 
   @Test
   public void testFormatFileNameElementary() {
-    LocalDateTime time = LocalDateTime.of(2026, 7, 13, 15, 30, 45);
-    String fileName =
-        AutomatonFileNameFormatter.formatFileName(WorkspaceConfig.ELEMENTARY, 110, 64, 2, time);
+    ElementaryRule rule = new ElementaryRule(110);
+    String fileName = AutomatonFileNameFormatter.formatFileName(rule, 64);
 
-    Assert.assertEquals("elementary_rule110_size64_2026-07-13T15-30-45.png", fileName);
+    Assert.assertEquals("elementary_rule110_size64.png", fileName);
   }
 
   @Test
   public void testFormatFileNameTotalistic() {
-    LocalDateTime time = LocalDateTime.of(2026, 7, 13, 15, 30, 45);
-    String fileName =
-        AutomatonFileNameFormatter.formatFileName(WorkspaceConfig.TOTALISTIC, 777, 128, 3, time);
+    TotalisticRule rule = new TotalisticRule(100, 3);
+    String fileName = AutomatonFileNameFormatter.formatFileName(rule, 64);
 
-    Assert.assertEquals("totalistic_states3_rule777_size128_2026-07-13T15-30-45.png", fileName);
-  }
+    Assert.assertEquals("totalistic_states3_rule100_size64.png", fileName);
 
-  @Test
-  public void testFormatFileNameLifeLikeNumericOverloadThrows() {
-    LocalDateTime time = LocalDateTime.of(2026, 7, 13, 15, 30, 45);
-    try {
-      AutomatonFileNameFormatter.formatFileName(WorkspaceConfig.LIFE_LIKE, 0, 64, 2, time);
-      Assert.fail("Expected UnsupportedOperationException");
-    } catch (UnsupportedOperationException expected) {
-      Assert.assertNotNull(expected.getMessage());
-      Assert.assertFalse(expected.getMessage().contains("formatFileName"));
-      Assert.assertFalse(expected.getMessage().contains("LocalDateTime"));
-    }
+    TotalisticRule rule777 = new TotalisticRule(777, 3);
+    Assert.assertEquals(
+        "totalistic_states3_rule777_size128.png",
+        AutomatonFileNameFormatter.formatFileName(rule777, 128));
   }
 
   @Test
   public void testFormatFileNameLifeLikeRuleStandardAndEdgeNotations() {
     LifeLikeRule conway = new LifeLikeRule(Set.of(3), Set.of(2, 3));
     Assert.assertEquals(
-        "life_like_ruleB3-S23_size8.png", AutomatonFileNameFormatter.formatFileName(conway, 8));
-    Assert.assertEquals(
         "life_like_ruleB3-S23_size64.png", AutomatonFileNameFormatter.formatFileName(conway, 64));
+    Assert.assertEquals(
+        "life_like_ruleB3-S23_size8.png", AutomatonFileNameFormatter.formatFileName(conway, 8));
 
     LifeLikeRule seeds = new LifeLikeRule(Set.of(2), Set.of());
     Assert.assertEquals(
@@ -67,18 +58,30 @@ public class AutomatonFileNameFormatterTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void testFormatFileNameElementaryNullRuleThrows() {
+    AutomatonFileNameFormatter.formatFileName((ElementaryRule) null, 64);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFormatFileNameTotalisticNullRuleThrows() {
+    AutomatonFileNameFormatter.formatFileName((TotalisticRule) null, 128);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testFormatFileNameLifeLikeNullRuleThrows() {
-    AutomatonFileNameFormatter.formatFileName(null, 64);
+    AutomatonFileNameFormatter.formatFileName((LifeLikeRule) null, 64);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testFormatFileNameNullConfigThrows() {
-    LocalDateTime time = LocalDateTime.of(2026, 7, 13, 15, 30, 45);
-    AutomatonFileNameFormatter.formatFileName(null, 110, 64, 2, time);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testFormatFileNameNullTimeThrows() {
-    AutomatonFileNameFormatter.formatFileName(WorkspaceConfig.ELEMENTARY, 110, 64, 2, null);
+  @Test
+  public void testPrivateConstructorThrowsIllegalStateException() throws Exception {
+    var constructor = AutomatonFileNameFormatter.class.getDeclaredConstructor();
+    constructor.setAccessible(true);
+    try {
+      constructor.newInstance();
+      Assert.fail("Expected InvocationTargetException wrapping IllegalStateException");
+    } catch (java.lang.reflect.InvocationTargetException e) {
+      Assert.assertTrue(e.getCause() instanceof IllegalStateException);
+      Assert.assertEquals("Utility class", e.getCause().getMessage());
+    }
   }
 }

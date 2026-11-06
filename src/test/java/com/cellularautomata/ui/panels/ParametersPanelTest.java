@@ -19,7 +19,7 @@ public class ParametersPanelTest {
   }
 
   @Test
-  public void testElementaryParametersPanelDefaultsLayoutAndTooltips() {
+  public void testElementaryParametersPanelDefaultsMutatorsLayoutAndTooltips() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           ElementaryParametersPanel panel = new ElementaryParametersPanel();
@@ -27,7 +27,6 @@ public class ParametersPanelTest {
 
           Assert.assertEquals(8, panel.getSizeValue());
           Assert.assertEquals("Size (8)", panel.getSizeLabelText());
-          Assert.assertEquals(ElementaryRule.STATE_COUNT, panel.getStatesValue());
           Assert.assertEquals(
               Integer.toString(ElementaryRule.DEFAULT_RULE_NUMBER), panel.getRuleText());
           Assert.assertEquals(SeedType.UNIFORM, panel.getSeedType());
@@ -38,6 +37,12 @@ public class ParametersPanelTest {
           panel.setSizeValue(64);
           Assert.assertEquals(64, panel.getSizeValue());
           Assert.assertEquals("Size (64)", panel.getSizeLabelText());
+
+          panel.setRuleText("110");
+          Assert.assertEquals("110", panel.getRuleText());
+
+          panel.selectSeedType(SeedType.SPARSE);
+          Assert.assertEquals(SeedType.SPARSE, panel.getSeedType());
 
           Label sizeLabel = grid.findLabelByPrefix("Size (");
           Label ruleLabel = grid.findLabelByPrefix("Rule number");
@@ -56,7 +61,7 @@ public class ParametersPanelTest {
   }
 
   @Test
-  public void testTotalisticParametersPanelDefaultsDynamicMaxRuleAndTooltips() {
+  public void testTotalisticParametersPanelDefaultsMutatorsDynamicMaxRuleAndTooltips() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           TotalisticParametersPanel panel = new TotalisticParametersPanel();
@@ -71,6 +76,19 @@ public class ParametersPanelTest {
           Assert.assertEquals(
               List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING),
               panel.getSeedComboBox().getItems());
+
+          panel.setSizeValue(32);
+          Assert.assertEquals(32, panel.getSizeValue());
+          Assert.assertEquals("Size (32)", panel.getSizeLabelText());
+
+          panel.setStatesValue(4);
+          Assert.assertEquals(4, panel.getStatesValue());
+
+          panel.setRuleText("777");
+          Assert.assertEquals("777", panel.getRuleText());
+
+          panel.selectSeedType(SeedType.ALTERNATING);
+          Assert.assertEquals(SeedType.ALTERNATING, panel.getSeedType());
 
           Label sizeLabel = grid.findLabelByPrefix("Size (");
           Label statesLabel = grid.findLabelByPrefix("States");
@@ -89,8 +107,33 @@ public class ParametersPanelTest {
           Assert.assertEquals(ParametersPanel.SEED_TYPE_TOOLTIP, seedLabel.getTooltip().getText());
 
           // When states is set to 2, max rule is 15; incrementing clamps to 15
-          panel.getStatesSpinner().getValueFactory().setValue(2);
+          panel.setStatesValue(2);
           Assert.assertEquals(2, panel.getStatesValue());
+          Assert.assertEquals("2", panel.getStatesText());
+          panel.getRuleSpinner().getValueFactory().setValue(5);
+          panel.getRuleSpinner().getValueFactory().increment(20);
+          Assert.assertEquals(Integer.valueOf(15), panel.getRuleSpinner().getValue());
+
+          // Uncommitted states text ("3") dynamically updates ruleSpinner max rule to 2186
+          panel.setStatesText("3");
+          Assert.assertEquals("3", panel.getStatesText());
+          panel.getRuleSpinner().getValueFactory().increment(5000);
+          Assert.assertEquals(Integer.valueOf(2186), panel.getRuleSpinner().getValue());
+
+          // Out-of-bounds states value or uncommitted invalid states text does not throw when
+          // incrementing ruleSpinner
+          panel.setStatesValue(6);
+          panel.getRuleSpinner().getValueFactory().setValue(5);
+          panel.getRuleSpinner().getValueFactory().increment(10);
+          Assert.assertEquals(Integer.valueOf(15), panel.getRuleSpinner().getValue());
+
+          panel.setStatesValue(1);
+          panel.getRuleSpinner().getValueFactory().setValue(5);
+          panel.getRuleSpinner().getValueFactory().increment(20);
+          Assert.assertEquals(Integer.valueOf(15), panel.getRuleSpinner().getValue());
+
+          panel.setStatesText("");
+          panel.getRuleSpinner().getValueFactory().setValue(5);
           panel.getRuleSpinner().getValueFactory().increment(20);
           Assert.assertEquals(Integer.valueOf(15), panel.getRuleSpinner().getValue());
         });

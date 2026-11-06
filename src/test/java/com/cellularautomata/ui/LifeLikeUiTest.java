@@ -13,6 +13,7 @@ import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
 import com.cellularautomata.ui.panels.ParametersPanel;
+import com.cellularautomata.ui.services.DialogService;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.awt.image.BufferedImage;
 import java.io.File;

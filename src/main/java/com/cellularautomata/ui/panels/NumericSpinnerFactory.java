@@ -28,9 +28,7 @@ final class NumericSpinnerFactory {
    * @return the configured integer spinner
    */
   static Spinner<Integer> createIntegerSpinner(int min, int max, int defaultValue) {
-    SpinnerValueFactory<Integer> valueFactory =
-        new SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, defaultValue);
-    return createNumericSpinner(valueFactory);
+    return createRuleSpinner(min, defaultValue, () -> max);
   }
 
   /**

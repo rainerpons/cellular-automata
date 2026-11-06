@@ -24,6 +24,19 @@ public class TotalisticRuleTest {
   }
 
   @Test
+  public void testCalculateMaxRuleInvalidStatesThrowsException() {
+    int[] invalidStates = {0, 1, 6};
+    for (int states : invalidStates) {
+      try {
+        TotalisticRule.calculateMaxRule(states);
+        Assert.fail("Expected IllegalArgumentException for states=" + states);
+      } catch (IllegalArgumentException expected) {
+        // Expected
+      }
+    }
+  }
+
+  @Test
   public void testCalculateMaxRuleIsMonotonic() {
     for (int states = TotalisticRule.MIN_STATES; states < TotalisticRule.MAX_STATES; states++) {
       int currentMax = TotalisticRule.calculateMaxRule(states);
@@ -128,6 +141,7 @@ public class TotalisticRuleTest {
       int maxRule = TotalisticRule.calculateMaxRule(states);
       TotalisticRule rule = new TotalisticRule(maxRule, states);
       Assert.assertEquals(maxRule, rule.getRuleNumber());
+      Assert.assertEquals(states, rule.getStates());
     }
   }
 

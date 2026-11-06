@@ -5,20 +5,18 @@ import com.cellularautomata.engine.SeedType;
 import com.cellularautomata.engine.automata.AutomataEngine;
 import com.cellularautomata.engine.automata.LifeLikeSimulation;
 import com.cellularautomata.engine.rules.LifeLikeRule;
-import com.cellularautomata.image.AutomatonImage;
-import com.cellularautomata.image.AutomatonImageExport;
+import com.cellularautomata.image.AutomatonImageUtils;
 import com.cellularautomata.ui.AutomatonFileNameFormatter;
-import com.cellularautomata.ui.DialogService;
 import com.cellularautomata.ui.components.LifeLikeToolbar;
 import com.cellularautomata.ui.panels.DisplayPanel;
 import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
+import com.cellularautomata.ui.services.AutomatonImageService;
+import com.cellularautomata.ui.services.DialogService;
 import com.cellularautomata.ui.simulation.LifeLikeConfiguration;
 import com.cellularautomata.ui.simulation.LifeLikeStateMachine;
 import com.cellularautomata.ui.simulation.SimulationScheduler;
 import com.cellularautomata.ui.simulation.TimelineScheduler;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.stage.Window;
@@ -27,7 +25,7 @@ import javafx.stage.Window;
  * Controller coordinating Life-like cellular automata parameter capture, simulation lifecycle,
  * playback speed synchronization, image rendering, image saving, and toolbar/display state.
  */
-public final class LifeLikeController {
+public final class LifeLikeController implements AutomatonController {
 
   /** Factory for creating {@link LifeLikeSimulation} instances. */
   @FunctionalInterface
@@ -68,7 +66,7 @@ public final class LifeLikeController {
   private final SimulationFactory simulationFactory;
   private final GridRenderer gridRenderer;
   private final SimulationScheduler scheduler;
-  private final DialogService dialogService;
+  private final AutomatonImageService imageService;
 
   private LifeLikeConfiguration activeConfiguration;
   private LifeLikeSimulation activeSimulation;
@@ -85,7 +83,7 @@ public final class LifeLikeController {
    */
   public LifeLikeController(
       DisplayPanel displayPanel, LifeLikeParametersPanel parametersPanel, LifeLikeToolbar toolbar) {
-    this(displayPanel, parametersPanel, toolbar, new DialogService());
+    this(displayPanel, parametersPanel, toolbar, new AutomatonImageService());
   }
 
   /**
@@ -102,7 +100,24 @@ public final class LifeLikeController {
       LifeLikeParametersPanel parametersPanel,
       LifeLikeToolbar toolbar,
       DialogService dialogService) {
-    this(displayPanel, parametersPanel, toolbar, new TimelineScheduler(), dialogService);
+    this(displayPanel, parametersPanel, toolbar, new AutomatonImageService(dialogService));
+  }
+
+  /**
+   * Constructs the Life-like controller with default simulation/rendering/scheduler collaborators
+   * and an injected image service.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the parameters panel
+   * @param toolbar the simulation toolbar
+   * @param imageService automaton image service for saving images
+   */
+  public LifeLikeController(
+      DisplayPanel displayPanel,
+      LifeLikeParametersPanel parametersPanel,
+      LifeLikeToolbar toolbar,
+      AutomatonImageService imageService) {
+    this(displayPanel, parametersPanel, toolbar, new TimelineScheduler(), imageService);
   }
 
   /**
@@ -119,7 +134,7 @@ public final class LifeLikeController {
       LifeLikeParametersPanel parametersPanel,
       LifeLikeToolbar toolbar,
       SimulationScheduler scheduler) {
-    this(displayPanel, parametersPanel, toolbar, scheduler, new DialogService());
+    this(displayPanel, parametersPanel, toolbar, scheduler, new AutomatonImageService());
   }
 
   /**
@@ -142,16 +157,40 @@ public final class LifeLikeController {
         displayPanel,
         parametersPanel,
         toolbar,
+        scheduler,
+        new AutomatonImageService(dialogService));
+  }
+
+  /**
+   * Constructs the Life-like controller with default simulation and rendering collaborators and
+   * injected scheduler and image service.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the parameters panel
+   * @param toolbar the simulation toolbar
+   * @param scheduler periodic tick scheduler
+   * @param imageService automaton image service for saving images
+   */
+  LifeLikeController(
+      DisplayPanel displayPanel,
+      LifeLikeParametersPanel parametersPanel,
+      LifeLikeToolbar toolbar,
+      SimulationScheduler scheduler,
+      AutomatonImageService imageService) {
+    this(
+        displayPanel,
+        parametersPanel,
+        toolbar,
         new LifeLikeStateMachine(),
         AutomataEngine::createLifeLikeSimulation,
         LifeLikeController::defaultRenderGrid,
         scheduler,
-        dialogService);
+        imageService);
   }
 
   /**
    * Constructs the Life-like controller with injected simulation, rendering, and scheduling
-   * collaborators and a default dialog service.
+   * collaborators and a default image service.
    *
    * @param displayPanel the display panel
    * @param parametersPanel the parameters panel
@@ -177,11 +216,11 @@ public final class LifeLikeController {
         simulationFactory,
         gridRenderer,
         scheduler,
-        new DialogService());
+        new AutomatonImageService());
   }
 
   /**
-   * Constructs the Life-like controller with fully injected collaborators.
+   * Constructs the Life-like controller with injected collaborators and dialog service.
    *
    * @param displayPanel the display panel
    * @param parametersPanel the parameters panel
@@ -201,6 +240,38 @@ public final class LifeLikeController {
       GridRenderer gridRenderer,
       SimulationScheduler scheduler,
       DialogService dialogService) {
+    this(
+        displayPanel,
+        parametersPanel,
+        toolbar,
+        stateMachine,
+        simulationFactory,
+        gridRenderer,
+        scheduler,
+        new AutomatonImageService(dialogService));
+  }
+
+  /**
+   * Constructs the Life-like controller with fully injected collaborators.
+   *
+   * @param displayPanel the display panel
+   * @param parametersPanel the parameters panel
+   * @param toolbar the simulation toolbar
+   * @param stateMachine simulation lifecycle state machine
+   * @param simulationFactory factory creating {@link LifeLikeSimulation} instances
+   * @param gridRenderer renderer converting {@link Grid2D} to {@link BufferedImage}
+   * @param scheduler periodic tick scheduler
+   * @param imageService automaton image service for saving images
+   */
+  LifeLikeController(
+      DisplayPanel displayPanel,
+      LifeLikeParametersPanel parametersPanel,
+      LifeLikeToolbar toolbar,
+      LifeLikeStateMachine stateMachine,
+      SimulationFactory simulationFactory,
+      GridRenderer gridRenderer,
+      SimulationScheduler scheduler,
+      AutomatonImageService imageService) {
     if (displayPanel == null) {
       throw new IllegalArgumentException("DisplayPanel cannot be null.");
     }
@@ -222,8 +293,8 @@ public final class LifeLikeController {
     if (scheduler == null) {
       throw new IllegalArgumentException("Scheduler cannot be null.");
     }
-    if (dialogService == null) {
-      throw new IllegalArgumentException("DialogService cannot be null.");
+    if (imageService == null) {
+      throw new IllegalArgumentException("AutomatonImageService cannot be null.");
     }
     this.displayPanel = displayPanel;
     this.parametersPanel = parametersPanel;
@@ -232,7 +303,7 @@ public final class LifeLikeController {
     this.simulationFactory = simulationFactory;
     this.gridRenderer = gridRenderer;
     this.scheduler = scheduler;
-    this.dialogService = dialogService;
+    this.imageService = imageService;
 
     scheduler.setPlaybackSpeed(parametersPanel.getPlaybackSpeed());
     parametersPanel.addPlaybackSpeedListener(scheduler::setPlaybackSpeed);
@@ -240,15 +311,15 @@ public final class LifeLikeController {
     toolbar.addPlayPauseListener(event -> togglePlayPause());
     toolbar.addStepListener(event -> step());
     toolbar.addResetListener(event -> reset());
-    toolbar.addSaveListener(event -> saveAutomatonImage());
+    toolbar.addSaveListener(event -> save());
 
     updateToolbar();
   }
 
   private static BufferedImage defaultRenderGrid(Grid2D grid) {
-    BufferedImage raw = AutomatonImage.getImageFromGrid(grid);
-    return AutomatonImage.resizeImage(
-        AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE, raw);
+    BufferedImage raw = AutomatonImageUtils.getImageFromGrid(grid);
+    return AutomatonImageUtils.resizeImage(
+        AutomatonImageUtils.DISPLAY_IMAGE_SIZE, AutomatonImageUtils.DISPLAY_IMAGE_SIZE, raw);
   }
 
   /**
@@ -425,46 +496,30 @@ public final class LifeLikeController {
     updateToolbar();
   }
 
-  void save() {
-    saveAutomatonImage();
-  }
-
-  void saveAutomatonImage() {
+  @Override
+  public void save() {
     if (stateMachine.isUninitialized() || activeSimulation == null || activeBufferedImage == null) {
       return;
     }
 
-    BufferedImage imageToSave = activeBufferedImage;
-    LifeLikeRule ruleToSave = activeSimulation.getRule();
-    int sizeToSave = activeSimulation.getSize();
     boolean wasRunning = stateMachine.isRunning();
     if (wasRunning) {
       pause();
     }
 
-    String initialFileName = AutomatonFileNameFormatter.formatFileName(ruleToSave, sizeToSave);
+    BufferedImage imageToSave = activeBufferedImage;
+    LifeLikeRule ruleToSave = activeSimulation.getRule();
+    int sizeToSave = activeSimulation.getSize();
+
+    String fileName = AutomatonFileNameFormatter.formatFileName(ruleToSave, sizeToSave);
     Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
-    File file =
-        dialogService.showSaveFileDialog(
-            window, AutomatonImageExport.resolveInitialSaveDirectory(), initialFileName);
-    if (file == null) {
+
+    try {
+      imageService.saveImage(window, imageToSave, fileName);
+    } finally {
       if (wasRunning) {
         resumeAfterSave();
       }
-      return;
-    }
-
-    try {
-      AutomatonImage.saveImage(imageToSave, file);
-    } catch (IOException ie) {
-      System.err.printf("Automaton image save failure: %s%n", ie.getMessage());
-      ie.printStackTrace(System.err);
-      dialogService.showSaveError();
-      return;
-    }
-
-    if (wasRunning) {
-      resumeAfterSave();
     }
   }
 

@@ -1,53 +1,48 @@
 package com.cellularautomata.ui;
 
+import com.cellularautomata.engine.rules.ElementaryRule;
 import com.cellularautomata.engine.rules.LifeLikeRule;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import com.cellularautomata.engine.rules.TotalisticRule;
 import java.util.Locale;
 
 /** Formats default file names for saving rendered cellular automata images. */
 public final class AutomatonFileNameFormatter {
-
-  private static final DateTimeFormatter TIMESTAMP_FORMATTER =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss");
 
   private AutomatonFileNameFormatter() {
     throw new IllegalStateException("Utility class");
   }
 
   /**
-   * Generates a default PNG file name for saving a rendered automaton image.
+   * Generates a default PNG file name for saving a rendered Elementary automaton image.
    *
-   * @param config the workspace configuration
-   * @param ruleNumber the rule number
+   * @param rule the Elementary rule
    * @param size the automaton size
-   * @param states the number of cell states
-   * @param time the timestamp to include in the file name
    * @return the formatted file name
-   * @throws IllegalArgumentException if config or time is null
-   * @throws UnsupportedOperationException if image saving is not supported for the workspace
+   * @throws IllegalArgumentException if rule is null
    */
-  public static String formatFileName(
-      WorkspaceConfig config, int ruleNumber, int size, int states, LocalDateTime time) {
-    if (config == null) {
-      throw new IllegalArgumentException("WorkspaceConfig cannot be null.");
+  public static String formatFileName(ElementaryRule rule, int size) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null.");
     }
-    if (time == null) {
-      throw new IllegalArgumentException("Time cannot be null.");
+    String baseName = WorkspaceConfig.ELEMENTARY.name().toLowerCase(Locale.ROOT);
+    return "%s_rule%d_size%d.png".formatted(baseName, rule.getRuleNumber(), size);
+  }
+
+  /**
+   * Generates a default PNG file name for saving a rendered Totalistic automaton image.
+   *
+   * @param rule the Totalistic rule
+   * @param size the automaton size
+   * @return the formatted file name
+   * @throws IllegalArgumentException if rule is null
+   */
+  public static String formatFileName(TotalisticRule rule, int size) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null.");
     }
-
-    String timestamp = time.format(TIMESTAMP_FORMATTER);
-    String baseName = config.name().toLowerCase(Locale.ROOT);
-
-    return switch (config) {
-      case ELEMENTARY -> "%s_rule%d_size%d_%s.png".formatted(baseName, ruleNumber, size, timestamp);
-      case TOTALISTIC ->
-          "%s_states%d_rule%d_size%d_%s.png"
-              .formatted(baseName, states, ruleNumber, size, timestamp);
-      case LIFE_LIKE ->
-          throw new UnsupportedOperationException(
-              "Life-like rules use birth and survival notation rather than a rule number.");
-    };
+    String baseName = WorkspaceConfig.TOTALISTIC.name().toLowerCase(Locale.ROOT);
+    return "%s_states%d_rule%d_size%d.png"
+        .formatted(baseName, rule.getStates(), rule.getRuleNumber(), size);
   }
 
   /**

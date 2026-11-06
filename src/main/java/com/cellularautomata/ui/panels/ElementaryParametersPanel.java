@@ -12,7 +12,7 @@ import javafx.scene.control.Spinner;
  * ParametersPanel} to configure automaton size, elementary rule number, and one-dimensional seed
  * type.
  */
-public final class ElementaryParametersPanel implements NumericRuleParametersPanel {
+public final class ElementaryParametersPanel {
   public static final List<SeedType> SUPPORTED_SEEDS =
       List.of(SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING);
 
@@ -33,32 +33,47 @@ public final class ElementaryParametersPanel implements NumericRuleParametersPan
     seedComboBox = panel.addSeedTypeRow(SUPPORTED_SEEDS, SeedType.UNIFORM, false);
   }
 
-  @Override
   public int getSizeValue() {
     return sizeSlider.getValue();
   }
 
-  @Override
-  public int getStatesValue() {
-    return ElementaryRule.STATE_COUNT;
-  }
-
-  @Override
   public String getRuleText() {
     return ruleSpinner.getEditor().getText();
   }
 
-  @Override
   public SeedType getSeedType() {
     return seedComboBox.getValue();
   }
 
-  ParametersPanel getPanel() {
-    return panel;
+  /**
+   * Sets the automaton size value on the size slider.
+   *
+   * @param size automaton size
+   */
+  public void setSizeValue(int size) {
+    sizeSlider.setValue(size);
   }
 
-  void setSizeValue(int size) {
-    sizeSlider.setValue(size);
+  /**
+   * Sets the rule text in the rule spinner editor.
+   *
+   * @param ruleText rule number text
+   */
+  public void setRuleText(String ruleText) {
+    ruleSpinner.getEditor().setText(ruleText);
+  }
+
+  /**
+   * Selects an initial seed type in the seed type dropdown.
+   *
+   * @param seedType initial cell lattice seed type
+   */
+  public void selectSeedType(SeedType seedType) {
+    seedComboBox.setValue(seedType);
+  }
+
+  ParametersPanel getPanel() {
+    return panel;
   }
 
   String getSizeLabelText() {

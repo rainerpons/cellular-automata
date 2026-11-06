@@ -1,6 +1,6 @@
 package com.cellularautomata.ui.panels;
 
-import com.cellularautomata.image.AutomatonImage;
+import com.cellularautomata.image.AutomatonImageUtils;
 import com.cellularautomata.ui.shared.UiStyles;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -82,9 +82,12 @@ public final class DisplayPanel extends VBox {
   }
 
   private static void applyDisplayBounds(Region region) {
-    region.setMinSize(AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE);
-    region.setPrefSize(AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE);
-    region.setMaxSize(AutomatonImage.DISPLAY_IMAGE_SIZE, AutomatonImage.DISPLAY_IMAGE_SIZE);
+    region.setMinSize(
+        AutomatonImageUtils.DISPLAY_IMAGE_SIZE, AutomatonImageUtils.DISPLAY_IMAGE_SIZE);
+    region.setPrefSize(
+        AutomatonImageUtils.DISPLAY_IMAGE_SIZE, AutomatonImageUtils.DISPLAY_IMAGE_SIZE);
+    region.setMaxSize(
+        AutomatonImageUtils.DISPLAY_IMAGE_SIZE, AutomatonImageUtils.DISPLAY_IMAGE_SIZE);
   }
 
   private static Label createCenteredLabel(String text, String... styleClasses) {

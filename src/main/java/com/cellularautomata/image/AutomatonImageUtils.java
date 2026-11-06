@@ -10,19 +10,17 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 /**
- * The <code>AutomatonImage</code> class generates images of an automaton. This class originally
- * creates small images of automatons. When required, it resizes the small images into larger ones.
- * Since the images are entirely composed of black and white pixels, increasing the size of the
- * original images does not ruin the image quality.
+ * The <code>AutomatonImageUtils</code> class generates images of an automaton. This class creates
+ * small images of automatons and resizes them into larger display images.
  *
  * @author Rainer Pons
  */
-public final class AutomatonImage {
+public final class AutomatonImageUtils {
 
   /** Standard width and height in pixels for the rendered automaton display image. */
   public static final int DISPLAY_IMAGE_SIZE = 400;
 
-  private AutomatonImage() {
+  private AutomatonImageUtils() {
     throw new IllegalStateException("Utility class");
   }
 
