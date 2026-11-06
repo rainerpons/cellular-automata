@@ -71,8 +71,8 @@ public class TotalisticControllerTest {
           Assert.assertNull(display.getAutomatonImage());
           Assert.assertTrue(findButton(commands, "Save image").isDisabled());
 
-          TotalisticController controllerWith5Args =
-              new TotalisticController(display, params, commands, dialogService, imageService);
+          TotalisticController controllerWith5Args = new TotalisticController(display, params, commands, dialogService,
+              imageService);
           Assert.assertNotNull(controllerWith5Args);
 
           findButton(commands, "Generate automaton").fire();
@@ -82,18 +82,17 @@ public class TotalisticControllerTest {
   }
 
   @Test
-  public void
-      testGenerateAcrossStatesRuleBoundsSeedTypesAndSizesProducesMultiStateGrayscaleImage() {
+  public void testGenerateAcrossStatesRuleBoundsSeedTypesAndSizesProducesMultiStateGrayscaleImage() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           int[][] stateAndMaxRulePairs = {
-            {2, 15},
-            {3, 2186},
-            {4, 1048575},
-            {5, 1220703124}
+              { 2, 15 },
+              { 3, 2186 },
+              { 4, 1048575 },
+              { 5, 1220703124 }
           };
-          int[] sizes = {4, 16};
-          SeedType[] seedTypes = {SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING};
+          int[] sizes = { 4, 16 };
+          SeedType[] seedTypes = { SeedType.UNIFORM, SeedType.SPARSE, SeedType.ALTERNATING };
 
           for (int[] pair : stateAndMaxRulePairs) {
             int states = pair[0];
@@ -101,7 +100,7 @@ public class TotalisticControllerTest {
             Assert.assertEquals(maxRule, TotalisticRule.calculateMaxRule(states));
 
             int allOnesRule = maxRule / (states - 1);
-            int[] rulesToTest = {TotalisticRule.MIN_RULE_NUMBER, allOnesRule, maxRule};
+            int[] rulesToTest = { TotalisticRule.MIN_RULE_NUMBER, allOnesRule, maxRule };
 
             for (int rule : rulesToTest) {
               for (int size : sizes) {
@@ -153,7 +152,7 @@ public class TotalisticControllerTest {
   public void testOutOfBoundsAndUncommittedStateInputsShowStatesErrorAndValidUncommittedSucceeds() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
-          int[] invalidStatesValues = {0, 1, 6, 10};
+          int[] invalidStatesValues = { 0, 1, 6, 10 };
 
           for (int states : invalidStatesValues) {
             DisplayPanel displayPanel = new DisplayPanel();
@@ -176,7 +175,7 @@ public class TotalisticControllerTest {
             Assert.assertTrue(findButton(commandsPanel, "Save image").isDisabled());
           }
 
-          String[] invalidStatesTexts = {"", "0", "1", "6", "abc", "99999999999999999999"};
+          String[] invalidStatesTexts = { "", "0", "1", "6", "abc", "99999999999999999999" };
 
           for (String statesText : invalidStatesTexts) {
             DisplayPanel displayPanel = new DisplayPanel();
@@ -201,7 +200,8 @@ public class TotalisticControllerTest {
             Assert.assertTrue(findButton(commandsPanel, "Save image").isDisabled());
           }
 
-          // Valid uncommitted manual text entry ("3") while committed spinner value is still 2
+          // Valid uncommitted manual text entry ("3") while committed spinner value is
+          // still 2
           // should allow rules up to 2186 (e.g. "100") and generate a 3-state automaton
           DisplayPanel displayPanel = new DisplayPanel();
           TotalisticParametersPanel parametersPanel = new TotalisticParametersPanel();
@@ -231,13 +231,13 @@ public class TotalisticControllerTest {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           Object[][] invalidStateRuleCases = {
-            {2, "16", 15},
-            {2, "-1", 15},
-            {2, "abc", 15},
-            {2, "", 15},
-            {3, "2187", 2186},
-            {4, "1048576", 1048575},
-            {5, "1220703125", 1220703124}
+              { 2, "16", 15 },
+              { 2, "-1", 15 },
+              { 2, "abc", 15 },
+              { 2, "", 15 },
+              { 3, "2187", 2186 },
+              { 4, "1048576", 1048575 },
+              { 5, "1220703125", 1220703124 }
           };
 
           for (Object[] testCase : invalidStateRuleCases) {
@@ -270,8 +270,7 @@ public class TotalisticControllerTest {
   }
 
   @Test
-  public void
-      testSaveWorkflowUsesGeneratedRuleStatesExportsPngHandlesCancelAndReportsIoException() {
+  public void testSaveWorkflowUsesGeneratedRuleStatesExportsPngHandlesCancelAndReportsIoException() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           try {
@@ -285,9 +284,8 @@ public class TotalisticControllerTest {
             CommandsPanel commandsPanel = new CommandsPanel();
             RecordingDialogService dialogService = new RecordingDialogService();
 
-            TotalisticController controller =
-                new TotalisticController(
-                    displayPanel, parametersPanel, commandsPanel, dialogService);
+            TotalisticController controller = new TotalisticController(
+                displayPanel, parametersPanel, commandsPanel, dialogService);
 
             // Calling save before generation is a no-op
             controller.saveAutomatonImage();
@@ -331,7 +329,8 @@ public class TotalisticControllerTest {
             Assert.assertEquals(2, dialogService.saveDialogCallCount);
             Assert.assertFalse(dialogService.saveErrorShown);
 
-            // 3. IOException during save (passing existing directory as file target) triggers
+            // 3. IOException during save (passing existing directory as file target)
+            // triggers
             // showSaveError
             dialogService.fileToReturn = tempDir.toFile();
             saveButton.fire();
@@ -351,15 +350,10 @@ public class TotalisticControllerTest {
             Path tempDir = Files.createTempDirectory("totalistic_injected_test");
             tempDir.toFile().deleteOnExit();
 
-            DisplayPanel displayPanel = new DisplayPanel();
             TotalisticParametersPanel parametersPanel = new TotalisticParametersPanel();
             CommandsPanel commandsPanel = new CommandsPanel();
             RecordingDialogService dialogService = new RecordingDialogService();
             RecordingImageService imageService = new RecordingImageService(dialogService);
-
-            TotalisticController controller =
-                new TotalisticController(
-                    displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
 
             // Configure states=3, rule=100, size=8 and generate
             parametersPanel.setStatesValue(3);
@@ -432,7 +426,8 @@ public class TotalisticControllerTest {
     Assert.assertNotEquals(0x000000, expectedStateOneRgb);
     Assert.assertNotEquals(0xFFFFFF, expectedStateOneRgb);
 
-    // Generation 1+ (bottom half of the image) under the all-ones rule is entirely state 1
+    // Generation 1+ (bottom half of the image) under the all-ones rule is entirely
+    // state 1
     int sampleX = AutomatonImageUtils.DISPLAY_IMAGE_SIZE / 2;
     int sampleY = (AutomatonImageUtils.DISPLAY_IMAGE_SIZE * 3) / 4;
     int actualRgb = reader.getArgb(sampleX, sampleY) & 0xFFFFFF;
