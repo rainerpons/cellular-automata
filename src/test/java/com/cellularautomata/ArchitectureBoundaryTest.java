@@ -227,7 +227,8 @@ public class ArchitectureBoundaryTest {
         new ClassFileImporter().importClasses(EngineArchViolationFixture.ViolatesEngineToUi.class);
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("ViolatesEngineToUi"));
-    Assert.assertTrue(error.getMessage().contains("com.cellularautomata.ui.DialogService"));
+    Assert.assertTrue(
+        error.getMessage().contains("com.cellularautomata.ui.services.DialogService"));
   }
 
   @Test
@@ -238,7 +239,8 @@ public class ArchitectureBoundaryTest {
             .importClasses(EngineArchViolationFixture.ViolatesEngineToImage.class);
     AssertionError error = assertThrows(AssertionError.class, () -> rule.check(violatingClasses));
     Assert.assertTrue(error.getMessage().contains("ViolatesEngineToImage"));
-    Assert.assertTrue(error.getMessage().contains("com.cellularautomata.image.AutomatonImage"));
+    Assert.assertTrue(
+        error.getMessage().contains("com.cellularautomata.image.AutomatonImageUtils"));
   }
 
   @Test
