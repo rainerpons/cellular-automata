@@ -102,6 +102,8 @@ Application composition and coordination are responsible for connecting the UI, 
 
 - Application composition (`MainApp`) constructs and connects components.
 - Controllers (`ElementaryController`, `TotalisticController`, `LifeLikeController`) coordinate user actions and application operations.
+- The `AutomatonController` interface establishes a common controller API across all module controllers, defining a single `save()` contract for saving the active automaton image.
+- By defining a common interface without sharing implementation or creating a base class, controllers maintain a consistent external API while keeping their module-specific validation, rule construction, generation coordination, and simulation lifecycles completely independent.
 - Controllers should delegate domain logic, generation, and specialized operations to their appropriate owners.
 - Controllers should not accumulate unrelated responsibilities.
 - New services, interfaces, or abstractions should be introduced only when they provide meaningful separation or reuse.
@@ -112,6 +114,7 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
 
 - **Architectural contracts (invariants)**:
   - Permitted package dependency directions (enforced by ArchUnit).
+  - Concrete module controllers in `ui.controllers` must implement `AutomatonController` (enforced by ArchUnit).
   - Single source of truth for mathematical domain constraints in `engine.rules`.
   - Separation of UI-specific interaction caps (`LifeLikeRuleSelectionModel.MAX_SELECTED_COUNTS_PER_SET`) from mathematical domain bounds (`LifeLikeRule.MIN_NEIGHBOR_COUNT..MAX_NEIGHBOR_COUNT`).
   - JavaFX-free `engine`, `image`, and presentation state models (`LifeLikeRuleSelectionModel`, `WorkspaceConfig`, `AutomatonFileNameFormatter`).
@@ -129,9 +132,10 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
 - **`Generator`**: Single owner of 1D and 2D initial state generation algorithms in `engine`.
 - **`LifeLikeSimulation`**: Manages the simulation lifecycle, stepping, and reset state for 2D Life-like cellular automata in `engine.automata`.
 - **`MainApp`**: Application composition root and navigation layer in `ui`. Assembles workspaces, initializes UI components, and connects controllers.
-- **`ElementaryController`**: Coordinates UI actions for the Elementary workspace in `ui.controllers`, delegating fixed-bound rule validation, `ElementaryRule` construction, 2-state generation, rendering, and image export operations to their appropriate owners.
-- **`TotalisticController`**: Coordinates UI actions for the Totalistic workspace in `ui.controllers`, delegating state count validation, dynamic-bound rule validation, `TotalisticRule` construction, multi-state generation, rendering, and image export operations to their appropriate owners.
-- **`LifeLikeController`**: Coordinates UI actions for the Life-like workspace in `ui.controllers`, managing parameter capture, simulation lifecycle, fixed-point detection, playback speed synchronization, image rendering, and image export.
+- **`AutomatonController`**: Common interface in `ui.controllers` defining the `save()` contract implemented by all concrete module controllers, establishing a uniform saving API across modules while preserving independent controller implementations.
+- **`ElementaryController`**: Coordinates UI actions for the Elementary workspace in `ui.controllers`, implementing `AutomatonController` and delegating fixed-bound rule validation, `ElementaryRule` construction, 2-state generation, rendering, and image export operations to their appropriate owners.
+- **`TotalisticController`**: Coordinates UI actions for the Totalistic workspace in `ui.controllers`, implementing `AutomatonController` and delegating state count validation, dynamic-bound rule validation, `TotalisticRule` construction, multi-state generation, rendering, and image export operations to their appropriate owners.
+- **`LifeLikeController`**: Coordinates UI actions for the Life-like workspace in `ui.controllers`, implementing `AutomatonController` and managing parameter capture, simulation lifecycle, fixed-point detection, playback speed synchronization, image rendering, and image export.
 - **`DialogService`**: Owns the boundary for native and modal JavaFX dialogs (`FileChooser` and `Alert`) in `ui.services` so controllers and services remain deterministically testable without opening OS dialogs.
 - **`AutomatonImageService`**: Coordinates saving rendered automaton images to disk in `ui.services`, resolving initial save directories, prompting the user via `DialogService`, delegating image writing to `AutomatonImageUtils::saveImage`, and displaying error feedback.
 - **`LifeLikeStateMachine`**: Manages JavaFX-free simulation lifecycle state transitions (`UNINITIALIZED`, `RUNNING`, `PAUSED`, `FIXED_POINT`) for the Life-like workspace in `ui.simulation`.

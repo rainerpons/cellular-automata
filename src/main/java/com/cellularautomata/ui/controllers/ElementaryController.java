@@ -20,7 +20,7 @@ import javafx.stage.Window;
 /**
  * Controller responsible for coordinating actions in the Elementary cellular automata workspace.
  */
-public final class ElementaryController {
+public final class ElementaryController implements AutomatonController {
 
   private final DisplayPanel displayPanel;
   private final ElementaryParametersPanel parametersPanel;
@@ -112,7 +112,7 @@ public final class ElementaryController {
 
   private void setupActionListeners() {
     commandsPanel.addGenerateListener(e -> generateAutomaton());
-    commandsPanel.addSaveListener(e -> saveAutomatonImage());
+    commandsPanel.addSaveListener(e -> save());
   }
 
   void generateAutomaton() {
@@ -145,7 +145,8 @@ public final class ElementaryController {
     commandsPanel.setSaveEnabled(true);
   }
 
-  void saveAutomatonImage() {
+  @Override
+  public void save() {
     if (rule == null || resizedAutomatonImage == null) {
       return;
     }

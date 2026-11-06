@@ -178,7 +178,7 @@ public class ElementaryControllerTest {
                     displayPanel, parametersPanel, commandsPanel, dialogService);
 
             // Calling save before generation is a no-op
-            controller.saveAutomatonImage();
+            controller.save();
             Assert.assertEquals(0, dialogService.saveDialogCallCount);
 
             // Configure rule 110, size 16, alternating seed and generate
@@ -248,7 +248,7 @@ public class ElementaryControllerTest {
                     displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
 
             // Calling save before generation is a no-op
-            controller.saveAutomatonImage();
+            controller.save();
             Assert.assertEquals(0, imageService.saveImageCallCount);
 
             // Generate automaton first

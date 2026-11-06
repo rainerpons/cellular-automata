@@ -291,7 +291,7 @@ public class TotalisticControllerTest {
                     displayPanel, parametersPanel, commandsPanel, dialogService);
 
             // Calling save before generation is a no-op
-            controller.saveAutomatonImage();
+            controller.save();
             Assert.assertEquals(0, dialogService.saveDialogCallCount);
 
             // Configure states=3, rule=777, size=16, alternating seed and generate
@@ -364,7 +364,7 @@ public class TotalisticControllerTest {
                     displayPanel, parametersPanel, commandsPanel, dialogService, imageService);
 
             // Calling save before generation is a no-op
-            controller.saveAutomatonImage();
+            controller.save();
             Assert.assertEquals(0, imageService.saveImageCallCount);
 
             // Configure states=3, rule=100, size=8 and generate

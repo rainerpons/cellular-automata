@@ -25,7 +25,7 @@ import javafx.stage.Window;
  * Controller coordinating Life-like cellular automata parameter capture, simulation lifecycle,
  * playback speed synchronization, image rendering, image saving, and toolbar/display state.
  */
-public final class LifeLikeController {
+public final class LifeLikeController implements AutomatonController {
 
   /** Factory for creating {@link LifeLikeSimulation} instances. */
   @FunctionalInterface
@@ -311,7 +311,7 @@ public final class LifeLikeController {
     toolbar.addPlayPauseListener(event -> togglePlayPause());
     toolbar.addStepListener(event -> step());
     toolbar.addResetListener(event -> reset());
-    toolbar.addSaveListener(event -> saveAutomatonImage());
+    toolbar.addSaveListener(event -> save());
 
     updateToolbar();
   }
@@ -496,11 +496,8 @@ public final class LifeLikeController {
     updateToolbar();
   }
 
-  void save() {
-    saveAutomatonImage();
-  }
-
-  void saveAutomatonImage() {
+  @Override
+  public void save() {
     if (stateMachine.isUninitialized() || activeSimulation == null || activeBufferedImage == null) {
       return;
     }
