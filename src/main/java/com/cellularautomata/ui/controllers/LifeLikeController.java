@@ -513,12 +513,14 @@ public final class LifeLikeController {
       pause();
     }
 
-    String initialFileName = AutomatonFileNameFormatter.formatFileName(ruleToSave, sizeToSave);
-    Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
-    imageService.saveImage(window, imageToSave, initialFileName);
-
-    if (wasRunning) {
-      resumeAfterSave();
+    try {
+      String initialFileName = AutomatonFileNameFormatter.formatFileName(ruleToSave, sizeToSave);
+      Window window = displayPanel.getScene() != null ? displayPanel.getScene().getWindow() : null;
+      imageService.saveImage(window, imageToSave, initialFileName);
+    } finally {
+      if (wasRunning) {
+        resumeAfterSave();
+      }
     }
   }
 

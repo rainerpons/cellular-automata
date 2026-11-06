@@ -1497,6 +1497,80 @@ public class LifeLikeControllerTest {
         });
   }
 
+  @Test
+  public void testSaveUnexpectedExceptionRestoresPlaybackIfPreviouslyRunning() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          DisplayPanel displayPanel = new DisplayPanel();
+          LifeLikeParametersPanel parametersPanel = new LifeLikeParametersPanel();
+          LifeLikeToolbar toolbar = new LifeLikeToolbar();
+          ControlledScheduler scheduler = new ControlledScheduler();
+
+          AtomicBoolean throwException = new AtomicBoolean(true);
+          AutomatonImageService failingImageService =
+              new AutomatonImageService(new DialogService()) {
+                @Override
+                public boolean saveImage(
+                    Window owner, BufferedImage image, String suggestedFileName) {
+                  if (throwException.get()) {
+                    throw new RuntimeException("Simulated unexpected save exception");
+                  }
+                  return super.saveImage(owner, image, suggestedFileName);
+                }
+              };
+
+          parametersPanel.setSizeValue(8);
+          parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+          parametersPanel.selectSeedType(SeedType.ALTERNATING);
+
+          LifeLikeController controller =
+              new LifeLikeController(
+                  displayPanel, parametersPanel, toolbar, scheduler, failingImageService);
+
+          controller.step();
+          LifeLikeSimulation sim = controller.getActiveSimulation();
+          BufferedImage bufImg = controller.getActiveBufferedImage();
+          Image fxImg = controller.getActiveImage();
+
+          // 1. Unexpected exception while RUNNING -> pauses during save attempt, restores playback
+          // in finally
+          controller.play();
+          Assert.assertTrue(controller.isRunning());
+          Assert.assertTrue(scheduler.isRunning());
+
+          try {
+            controller.save();
+            Assert.fail("Expected RuntimeException from failing image service");
+          } catch (RuntimeException expected) {
+            Assert.assertEquals("Simulated unexpected save exception", expected.getMessage());
+          }
+
+          Assert.assertTrue(controller.isRunning());
+          Assert.assertTrue(scheduler.isRunning());
+          Assert.assertSame(sim, controller.getActiveSimulation());
+          Assert.assertSame(bufImg, controller.getActiveBufferedImage());
+          Assert.assertSame(fxImg, controller.getActiveImage());
+
+          // 2. Unexpected exception while PAUSED -> remains PAUSED
+          controller.pause();
+          Assert.assertFalse(controller.isRunning());
+          Assert.assertFalse(scheduler.isRunning());
+
+          try {
+            controller.save();
+            Assert.fail("Expected RuntimeException from failing image service");
+          } catch (RuntimeException expected) {
+            Assert.assertEquals("Simulated unexpected save exception", expected.getMessage());
+          }
+
+          Assert.assertFalse(controller.isRunning());
+          Assert.assertFalse(scheduler.isRunning());
+          Assert.assertSame(sim, controller.getActiveSimulation());
+          Assert.assertSame(bufImg, controller.getActiveBufferedImage());
+          Assert.assertSame(fxImg, controller.getActiveImage());
+        });
+  }
+
   private static void assertExportedImageMatchesGrid(BufferedImage exportedImage, Grid2D grid) {
     int size = grid.getSize();
     for (int row = 0; row < size; row++) {

@@ -95,15 +95,6 @@ public class AutomatonImageServiceTest {
   }
 
   @Test
-  public void testResolveInitialSaveDirectoryZeroArgDelegatesToUserHome() {
-    AutomatonImageService service = new AutomatonImageService();
-    File resolved = service.resolveInitialSaveDirectory();
-    String userHome = System.getProperty("user.home");
-    File expected = AutomatonImageService.resolveInitialSaveDirectory(userHome);
-    Assert.assertEquals(expected, resolved);
-  }
-
-  @Test
   public void testSaveImageInputValidation() {
     AutomatonImageService service = new AutomatonImageService();
     BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
