@@ -1,5 +1,6 @@
-package com.cellularautomata.ui;
+package com.cellularautomata.ui.screens;
 
+import com.cellularautomata.ui.WorkspaceConfig;
 import com.cellularautomata.ui.components.ModuleCard;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.util.function.Consumer;
@@ -15,7 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
 /** The application entry point screen for selecting a module. */
-public class ModuleSelectionScreen extends VBox {
+public final class ModuleSelectionScreen extends VBox {
 
   private static final double CONTINUE_BUTTON_WIDTH = 540;
   private static final double FOOTER_SPACING = 14;

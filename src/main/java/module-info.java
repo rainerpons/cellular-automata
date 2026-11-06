@@ -9,6 +9,7 @@ module com.cellularautomata {
 
   exports com.cellularautomata.app;
   exports com.cellularautomata.ui;
+  exports com.cellularautomata.ui.screens;
   exports com.cellularautomata.engine;
   exports com.cellularautomata.engine.automata;
   exports com.cellularautomata.engine.presets;
