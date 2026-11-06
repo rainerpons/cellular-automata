@@ -2,13 +2,16 @@ package com.cellularautomata.ui.shared;
 
 import java.util.Collection;
 import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 /**
  * Shared styling constants and component helpers for the UI package. Centralises spacing, sizing,
@@ -113,5 +116,49 @@ public final class UiStyles {
     comboBox.setMaxWidth(Double.MAX_VALUE);
     GridPane.setHgrow(comboBox, Priority.ALWAYS);
     return comboBox;
+  }
+
+  /**
+   * Creates a styled navigation back-link that executes the provided callback on click.
+   *
+   * @param onNavigateBack the callback to execute when clicked
+   * @return the navigation back-link label
+   */
+  public static Label createBackLink(Runnable onNavigateBack) {
+    Label backLink = new Label("← Back to Modules");
+    backLink.getStyleClass().add("navigation-link");
+    backLink.setOnMouseClicked(
+        e -> {
+          if (onNavigateBack != null) {
+            onNavigateBack.run();
+          }
+        });
+    return backLink;
+  }
+
+  /**
+   * Creates a display container wrapping the given display node and footer node.
+   *
+   * @param displayNode the display node
+   * @param footer the footer node beneath the display node
+   * @return the configured display container
+   */
+  public static VBox createDisplayContainer(Node displayNode, Node footer) {
+    VBox.setMargin(footer, new Insets(APP_SPACING, 0, 0, 0));
+    return new VBox(displayNode, footer);
+  }
+
+  /**
+   * Configures a workspace root container with standard spacing, padding, and layout constraints.
+   *
+   * @param root the workspace root HBox
+   * @param displayContainer the display container VBox
+   * @param sidebarPanel the sidebar panel node
+   */
+  public static void configureWorkspaceRoot(HBox root, VBox displayContainer, Node sidebarPanel) {
+    root.setSpacing(APP_SPACING);
+    root.setPadding(new Insets(APP_SPACING));
+    HBox.setHgrow(sidebarPanel, Priority.ALWAYS);
+    root.getChildren().addAll(displayContainer, sidebarPanel);
   }
 }
