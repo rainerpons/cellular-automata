@@ -2,11 +2,14 @@ package com.cellularautomata.ui.screens;
 
 import com.cellularautomata.ui.JavaFxTestHelper;
 import com.cellularautomata.ui.WorkspaceConfig;
+import com.cellularautomata.ui.components.LifeLikeToolbar;
 import com.cellularautomata.ui.components.ModuleCard;
 import com.cellularautomata.ui.services.AutomatonImageService;
 import com.cellularautomata.ui.services.DialogService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -75,34 +78,12 @@ public class WorkspaceScreensTest {
   }
 
   @Test
-  public void testElementaryWorkspaceConstructorsValidationAndGetters() {
+  public void testElementaryWorkspaceConstructorNullValidation() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           DialogService dialogService = new DialogService();
           AutomatonImageService imageService = new AutomatonImageService(dialogService);
 
-          // 1-argument constructor
-          assertThrows(
-              IllegalArgumentException.class, () -> new ElementaryWorkspace((Runnable) null));
-          ElementaryWorkspace ws1 = new ElementaryWorkspace(() -> {});
-          Assert.assertNotNull(ws1.getController());
-          Assert.assertNotNull(ws1.getParametersPanel());
-          Assert.assertNotNull(ws1.getCommandsPanel());
-          Assert.assertNotNull(ws1.getDisplayPanel());
-
-          // 2-argument constructor
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> new ElementaryWorkspace((DialogService) null, () -> {}));
-          assertThrows(
-              IllegalArgumentException.class, () -> new ElementaryWorkspace(dialogService, null));
-          ElementaryWorkspace ws2 = new ElementaryWorkspace(dialogService, () -> {});
-          Assert.assertNotNull(ws2.getController());
-          Assert.assertNotNull(ws2.getParametersPanel());
-          Assert.assertNotNull(ws2.getCommandsPanel());
-          Assert.assertNotNull(ws2.getDisplayPanel());
-
-          // 3-argument constructor
           assertThrows(
               IllegalArgumentException.class,
               () -> new ElementaryWorkspace(null, imageService, () -> {}));
@@ -112,12 +93,6 @@ public class WorkspaceScreensTest {
           assertThrows(
               IllegalArgumentException.class,
               () -> new ElementaryWorkspace(dialogService, imageService, null));
-
-          ElementaryWorkspace ws3 = new ElementaryWorkspace(dialogService, imageService, () -> {});
-          Assert.assertNotNull(ws3.getController());
-          Assert.assertNotNull(ws3.getParametersPanel());
-          Assert.assertNotNull(ws3.getCommandsPanel());
-          Assert.assertNotNull(ws3.getDisplayPanel());
         });
   }
 
@@ -125,8 +100,11 @@ public class WorkspaceScreensTest {
   public void testElementaryWorkspaceBackLinkExecutesNavigationCallback() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
+          DialogService dialogService = new DialogService();
+          AutomatonImageService imageService = new AutomatonImageService(dialogService);
           AtomicBoolean navigated = new AtomicBoolean(false);
-          ElementaryWorkspace workspace = new ElementaryWorkspace(() -> navigated.set(true));
+          ElementaryWorkspace workspace =
+              new ElementaryWorkspace(dialogService, imageService, () -> navigated.set(true));
 
           Label backLink = (Label) workspace.lookup(".navigation-link");
           Assert.assertNotNull(backLink);
@@ -138,34 +116,12 @@ public class WorkspaceScreensTest {
   }
 
   @Test
-  public void testTotalisticWorkspaceConstructorsValidationAndGetters() {
+  public void testTotalisticWorkspaceConstructorNullValidation() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           DialogService dialogService = new DialogService();
           AutomatonImageService imageService = new AutomatonImageService(dialogService);
 
-          // 1-argument constructor
-          assertThrows(
-              IllegalArgumentException.class, () -> new TotalisticWorkspace((Runnable) null));
-          TotalisticWorkspace ws1 = new TotalisticWorkspace(() -> {});
-          Assert.assertNotNull(ws1.getController());
-          Assert.assertNotNull(ws1.getParametersPanel());
-          Assert.assertNotNull(ws1.getCommandsPanel());
-          Assert.assertNotNull(ws1.getDisplayPanel());
-
-          // 2-argument constructor
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> new TotalisticWorkspace((DialogService) null, () -> {}));
-          assertThrows(
-              IllegalArgumentException.class, () -> new TotalisticWorkspace(dialogService, null));
-          TotalisticWorkspace ws2 = new TotalisticWorkspace(dialogService, () -> {});
-          Assert.assertNotNull(ws2.getController());
-          Assert.assertNotNull(ws2.getParametersPanel());
-          Assert.assertNotNull(ws2.getCommandsPanel());
-          Assert.assertNotNull(ws2.getDisplayPanel());
-
-          // 3-argument constructor
           assertThrows(
               IllegalArgumentException.class,
               () -> new TotalisticWorkspace(null, imageService, () -> {}));
@@ -175,12 +131,6 @@ public class WorkspaceScreensTest {
           assertThrows(
               IllegalArgumentException.class,
               () -> new TotalisticWorkspace(dialogService, imageService, null));
-
-          TotalisticWorkspace ws3 = new TotalisticWorkspace(dialogService, imageService, () -> {});
-          Assert.assertNotNull(ws3.getController());
-          Assert.assertNotNull(ws3.getParametersPanel());
-          Assert.assertNotNull(ws3.getCommandsPanel());
-          Assert.assertNotNull(ws3.getDisplayPanel());
         });
   }
 
@@ -188,8 +138,11 @@ public class WorkspaceScreensTest {
   public void testTotalisticWorkspaceBackLinkExecutesNavigationCallback() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
+          DialogService dialogService = new DialogService();
+          AutomatonImageService imageService = new AutomatonImageService(dialogService);
           AtomicBoolean navigated = new AtomicBoolean(false);
-          TotalisticWorkspace workspace = new TotalisticWorkspace(() -> navigated.set(true));
+          TotalisticWorkspace workspace =
+              new TotalisticWorkspace(dialogService, imageService, () -> navigated.set(true));
 
           Label backLink = (Label) workspace.lookup(".navigation-link");
           Assert.assertNotNull(backLink);
@@ -201,95 +154,19 @@ public class WorkspaceScreensTest {
   }
 
   @Test
-  public void testLifeLikeWorkspaceConstructorsValidationAndGetters() {
+  public void testLifeLikeWorkspaceConstructorNullValidation() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
-          DialogService dialogService = new DialogService();
-          AutomatonImageService imageService = new AutomatonImageService(dialogService);
+          AutomatonImageService imageService = new AutomatonImageService(new DialogService());
 
-          // 1-argument constructor
-          assertThrows(
-              IllegalArgumentException.class, () -> new LifeLikeWorkspace((Runnable) null));
-          LifeLikeWorkspace ws1 = new LifeLikeWorkspace(() -> {});
-          Assert.assertNotNull(ws1.getController());
-          Assert.assertNotNull(ws1.getParametersPanel());
-          Assert.assertNotNull(ws1.getDisplayPanel());
-          Assert.assertNotNull(ws1.getToolbar());
-
-          // 2-argument constructor with DialogService
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> new LifeLikeWorkspace((DialogService) null, () -> {}));
-          assertThrows(
-              IllegalArgumentException.class, () -> new LifeLikeWorkspace(dialogService, null));
-          LifeLikeWorkspace ws2 = new LifeLikeWorkspace(dialogService, () -> {});
-          Assert.assertNotNull(ws2.getController());
-          Assert.assertNotNull(ws2.getParametersPanel());
-          Assert.assertNotNull(ws2.getDisplayPanel());
-          Assert.assertNotNull(ws2.getToolbar());
-
-          // 3-argument constructor
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> new LifeLikeWorkspace((DialogService) null, null, () -> {}));
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> new LifeLikeWorkspace(dialogService, imageService, null));
-
-          LifeLikeWorkspace ws3a = new LifeLikeWorkspace(dialogService, null, () -> {});
-          Assert.assertNotNull(ws3a.getController());
-          Assert.assertNotNull(ws3a.getParametersPanel());
-          Assert.assertNotNull(ws3a.getDisplayPanel());
-          Assert.assertNotNull(ws3a.getToolbar());
-
-          LifeLikeWorkspace ws3b = new LifeLikeWorkspace(null, imageService, () -> {});
-          Assert.assertNotNull(ws3b.getController());
-          Assert.assertNotNull(ws3b.getParametersPanel());
-          Assert.assertNotNull(ws3b.getDisplayPanel());
-          Assert.assertNotNull(ws3b.getToolbar());
-
-          // 2-argument constructor with AutomatonImageService
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> new LifeLikeWorkspace((AutomatonImageService) null, () -> {}));
+          assertThrows(IllegalArgumentException.class, () -> new LifeLikeWorkspace(null, () -> {}));
           assertThrows(
               IllegalArgumentException.class, () -> new LifeLikeWorkspace(imageService, null));
-          LifeLikeWorkspace ws4 = new LifeLikeWorkspace(imageService, () -> {});
-          Assert.assertNotNull(ws4.getController());
-          Assert.assertNotNull(ws4.getParametersPanel());
-          Assert.assertNotNull(ws4.getDisplayPanel());
-          Assert.assertNotNull(ws4.getToolbar());
         });
   }
 
   @Test
-  public void testLifeLikeWorkspaceDirectDisposeReleasesResources() {
-    JavaFxTestHelper.runOnFxThread(
-        () -> {
-          DialogService dialogService = new DialogService();
-          AutomatonImageService imageService = new AutomatonImageService(dialogService);
-          LifeLikeWorkspace workspace = new LifeLikeWorkspace(imageService, () -> {});
-
-          Button stepButton = (Button) workspace.getToolbar().getChildren().get(1);
-          Button resetButton = (Button) workspace.getToolbar().getChildren().get(2);
-          Button saveButton = (Button) workspace.getToolbar().getChildren().get(3);
-
-          // Advance one step so simulation is active and Reset/Save become enabled
-          stepButton.fire();
-          Assert.assertNotNull(workspace.getDisplayPanel().getAutomatonImage());
-          Assert.assertFalse(resetButton.isDisabled());
-          Assert.assertFalse(saveButton.isDisabled());
-
-          // Calling dispose directly must reset simulation state and disable Reset and Save
-          workspace.dispose();
-          Assert.assertFalse(workspace.getToolbar().isPlaying());
-          Assert.assertTrue(resetButton.isDisabled());
-          Assert.assertTrue(saveButton.isDisabled());
-        });
-  }
-
-  @Test
-  public void testLifeLikeWorkspaceBackLinkTriggersDisposeAndNavigatesBack() {
+  public void testLifeLikeWorkspaceBackLinkStopsPlaybackAndNavigatesBack() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           AtomicBoolean navigated = new AtomicBoolean(false);
@@ -298,27 +175,48 @@ public class WorkspaceScreensTest {
           LifeLikeWorkspace workspace =
               new LifeLikeWorkspace(imageService, () -> navigated.set(true));
 
-          Button playPauseButton = (Button) workspace.getToolbar().getChildren().get(0);
-          Button resetButton = (Button) workspace.getToolbar().getChildren().get(2);
-          Button saveButton = (Button) workspace.getToolbar().getChildren().get(3);
+          LifeLikeToolbar toolbar = findNode(workspace, LifeLikeToolbar.class, null);
+          Assert.assertNotNull(toolbar);
+
+          Button playPauseButton = (Button) toolbar.getChildren().get(0);
+          Button resetButton = (Button) toolbar.getChildren().get(2);
+          Button saveButton = (Button) toolbar.getChildren().get(3);
 
           // Start simulation playback
           playPauseButton.fire();
-          Assert.assertTrue(workspace.getToolbar().isPlaying());
+          Assert.assertTrue(toolbar.isPlaying());
           Assert.assertFalse(resetButton.isDisabled());
 
           Label backLink = (Label) workspace.lookup(".navigation-link");
           Assert.assertNotNull(backLink);
           Assert.assertEquals("← Back to Modules", backLink.getText());
 
-          // Clicking the back-link must invoke dispose() (stopping playback and clearing state)
-          // as well as running the navigation callback
+          // Clicking the back-link stops playback, resets transport controls, and navigates back
           backLink.getOnMouseClicked().handle(null);
           Assert.assertTrue(navigated.get());
-          Assert.assertFalse(workspace.getToolbar().isPlaying());
+          Assert.assertFalse(toolbar.isPlaying());
           Assert.assertTrue(resetButton.isDisabled());
           Assert.assertTrue(saveButton.isDisabled());
         });
+  }
+
+  private static <T extends Node> T findNode(
+      Node root, Class<T> clazz, java.util.function.Predicate<T> predicate) {
+    if (clazz.isInstance(root)) {
+      T cast = clazz.cast(root);
+      if (predicate == null || predicate.test(cast)) {
+        return cast;
+      }
+    }
+    if (root instanceof Parent parent) {
+      for (Node child : parent.getChildrenUnmodifiable()) {
+        T found = findNode(child, clazz, predicate);
+        if (found != null) {
+          return found;
+        }
+      }
+    }
+    return null;
   }
 
   private static <T extends Throwable> void assertThrows(
