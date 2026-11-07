@@ -149,6 +149,7 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
 - **`AutomataEngine`**: Responsible for cellular automata generation and simulation orchestration.
 - **`AutomatonImageUtils`**: Handles automaton image rendering from generation maps and grids, image resizing, and PNG file writing independently of UI controls and workspace naming policy.
 - **`AutomatonFileNameFormatter`**: Formats default export filenames from strongly typed module rules (`ElementaryRule`, `TotalisticRule`, `LifeLikeRule`) and automaton parameters in `ui`.
+- **`UiLayouts`**: Provides shared workspace layout construction helpers in `ui.shared` for creating display containers and configuring top-level workspace root layout constraints.
 
 ## Architectural Principles
 
@@ -196,7 +197,7 @@ cellular-automata/
 │   │       ├── panels/     # Major workspace layout regions (DisplayPanel, SidebarPanel, ParametersPanel, etc.)
 │   │       ├── screens/    # Top-level full-window screens (ModuleSelectionScreen, ElementaryWorkspace, etc.)
 │   │       ├── services/   # Application dialogs and image save coordination (DialogService, AutomatonImageService)
-│   │       ├── shared/     # Shared layout geometry, CSS class constants, and font registration (UiStyles, UiFonts)
+│   │       ├── shared/     # Shared layout geometry, workspace layout helpers, CSS class constants, and font registration (UiStyles, UiLayouts, UiFonts)
 │   │       └── simulation/ # Simulation lifecycle state, configuration, and scheduling (LifeLikeStateMachine, etc.)
 │   └── test/               # Tests mirroring production package structure
 ```

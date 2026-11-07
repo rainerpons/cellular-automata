@@ -8,6 +8,8 @@ import com.cellularautomata.ui.panels.SidebarPanel;
 import com.cellularautomata.ui.screens.ElementaryWorkspace;
 import com.cellularautomata.ui.screens.LifeLikeWorkspace;
 import com.cellularautomata.ui.screens.TotalisticWorkspace;
+import com.cellularautomata.ui.services.AutomatonImageService;
+import com.cellularautomata.ui.services.DialogService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -31,13 +33,19 @@ public class WorkspaceLayoutTest {
   public void testOneDimensionalWorkspacesShareTopLevelStructureAndIncludeCommandsPanel() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
+          DialogService dialogService = new DialogService();
+          AutomatonImageService imageService = new AutomatonImageService(dialogService);
           for (WorkspaceConfig config :
               new WorkspaceConfig[] {WorkspaceConfig.ELEMENTARY, WorkspaceConfig.TOTALISTIC}) {
             AtomicBoolean navigatedBack = new AtomicBoolean(false);
             HBox root =
                 switch (config) {
-                  case ELEMENTARY -> new ElementaryWorkspace(() -> navigatedBack.set(true));
-                  case TOTALISTIC -> new TotalisticWorkspace(() -> navigatedBack.set(true));
+                  case ELEMENTARY ->
+                      new ElementaryWorkspace(
+                          dialogService, imageService, () -> navigatedBack.set(true));
+                  case TOTALISTIC ->
+                      new TotalisticWorkspace(
+                          dialogService, imageService, () -> navigatedBack.set(true));
                   default -> throw new IllegalArgumentException("Unexpected config: " + config);
                 };
 
@@ -72,8 +80,10 @@ public class WorkspaceLayoutTest {
   public void testLifeLikeWorkspaceAlignsFooterToolbarWithBackLinkAndOmitsCommandsSection() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
+          DialogService dialogService = new DialogService();
+          AutomatonImageService imageService = new AutomatonImageService(dialogService);
           AtomicBoolean navigatedBack = new AtomicBoolean(false);
-          HBox root = new LifeLikeWorkspace(() -> navigatedBack.set(true));
+          HBox root = new LifeLikeWorkspace(imageService, () -> navigatedBack.set(true));
 
           Assert.assertEquals(2, root.getChildren().size());
           Assert.assertTrue(root.getChildren().get(0) instanceof VBox);
