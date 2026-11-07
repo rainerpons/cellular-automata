@@ -12,7 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,11 +39,18 @@ public class WorkspaceScreensTest {
           continueBtn.fire();
           Assert.assertNull(chosenConfig.get());
 
-          HBox cardsRow = (HBox) screen.getChildren().get(1);
-          Assert.assertEquals(3, cardsRow.getChildren().size());
-          ModuleCard elementaryCard = (ModuleCard) cardsRow.getChildren().get(0);
-          ModuleCard totalisticCard = (ModuleCard) cardsRow.getChildren().get(1);
-          ModuleCard lifeLikeCard = (ModuleCard) cardsRow.getChildren().get(2);
+          ModuleCard elementaryCard =
+              findNode(
+                  screen, ModuleCard.class, card -> card.getConfig() == WorkspaceConfig.ELEMENTARY);
+          ModuleCard totalisticCard =
+              findNode(
+                  screen, ModuleCard.class, card -> card.getConfig() == WorkspaceConfig.TOTALISTIC);
+          ModuleCard lifeLikeCard =
+              findNode(
+                  screen, ModuleCard.class, card -> card.getConfig() == WorkspaceConfig.LIFE_LIKE);
+          Assert.assertNotNull(elementaryCard);
+          Assert.assertNotNull(totalisticCard);
+          Assert.assertNotNull(lifeLikeCard);
 
           Assert.assertEquals(WorkspaceConfig.ELEMENTARY, elementaryCard.getConfig());
           Assert.assertEquals(WorkspaceConfig.TOTALISTIC, totalisticCard.getConfig());
@@ -178,9 +184,9 @@ public class WorkspaceScreensTest {
           LifeLikeToolbar toolbar = findNode(workspace, LifeLikeToolbar.class, null);
           Assert.assertNotNull(toolbar);
 
-          Button playPauseButton = (Button) toolbar.getChildren().get(0);
-          Button resetButton = (Button) toolbar.getChildren().get(2);
-          Button saveButton = (Button) toolbar.getChildren().get(3);
+          Button playPauseButton = playPauseButton(toolbar);
+          Button resetButton = resetButton(toolbar);
+          Button saveButton = saveButton(toolbar);
 
           // Start simulation playback
           playPauseButton.fire();
@@ -198,6 +204,34 @@ public class WorkspaceScreensTest {
           Assert.assertTrue(resetButton.isDisabled());
           Assert.assertTrue(saveButton.isDisabled());
         });
+  }
+
+  private static Button findToolbarButton(LifeLikeToolbar toolbar, String accessibleText) {
+    for (Node node : toolbar.getChildren()) {
+      if (node instanceof Button button && accessibleText.equals(button.getAccessibleText())) {
+        return button;
+      }
+    }
+    throw new AssertionError("Toolbar button not found for accessible text: " + accessibleText);
+  }
+
+  private static Button playPauseButton(LifeLikeToolbar toolbar) {
+    for (Node node : toolbar.getChildren()) {
+      if (node instanceof Button button
+          && ("Play".equals(button.getAccessibleText())
+              || "Pause".equals(button.getAccessibleText()))) {
+        return button;
+      }
+    }
+    throw new AssertionError("Play/Pause button not found in toolbar");
+  }
+
+  private static Button resetButton(LifeLikeToolbar toolbar) {
+    return findToolbarButton(toolbar, "Reset");
+  }
+
+  private static Button saveButton(LifeLikeToolbar toolbar) {
+    return findToolbarButton(toolbar, "Save");
   }
 
   private static <T extends Node> T findNode(

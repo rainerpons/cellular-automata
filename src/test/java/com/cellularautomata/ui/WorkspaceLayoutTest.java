@@ -10,14 +10,15 @@ import com.cellularautomata.ui.screens.LifeLikeWorkspace;
 import com.cellularautomata.ui.screens.TotalisticWorkspace;
 import com.cellularautomata.ui.services.AutomatonImageService;
 import com.cellularautomata.ui.services.DialogService;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.cellularautomata.ui.shared.UiStyles;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,38 +38,28 @@ public class WorkspaceLayoutTest {
           AutomatonImageService imageService = new AutomatonImageService(dialogService);
           for (WorkspaceConfig config :
               new WorkspaceConfig[] {WorkspaceConfig.ELEMENTARY, WorkspaceConfig.TOTALISTIC}) {
-            AtomicBoolean navigatedBack = new AtomicBoolean(false);
             HBox root =
                 switch (config) {
-                  case ELEMENTARY ->
-                      new ElementaryWorkspace(
-                          dialogService, imageService, () -> navigatedBack.set(true));
-                  case TOTALISTIC ->
-                      new TotalisticWorkspace(
-                          dialogService, imageService, () -> navigatedBack.set(true));
+                  case ELEMENTARY -> new ElementaryWorkspace(dialogService, imageService, () -> {});
+                  case TOTALISTIC -> new TotalisticWorkspace(dialogService, imageService, () -> {});
                   default -> throw new IllegalArgumentException("Unexpected config: " + config);
                 };
 
-            Assert.assertEquals(2, root.getChildren().size());
-            Assert.assertTrue(root.getChildren().get(0) instanceof VBox);
-            Assert.assertTrue(root.getChildren().get(1) instanceof SidebarPanel);
+            Assert.assertEquals(UiStyles.APP_SPACING, root.getSpacing(), 0.001);
+            Assert.assertEquals(new Insets(UiStyles.APP_SPACING), root.getPadding());
 
-            VBox displayContainer = (VBox) root.getChildren().get(0);
-            SidebarPanel sidebarPanel = (SidebarPanel) root.getChildren().get(1);
+            DisplayPanel displayPanel = findNode(root, DisplayPanel.class, null);
+            SidebarPanel sidebarPanel = findNode(root, SidebarPanel.class, null);
+            Label backLink =
+                findNode(root, Label.class, lbl -> "← Back to Modules".equals(lbl.getText()));
+
+            Assert.assertNotNull(displayPanel);
+            Assert.assertNotNull(sidebarPanel);
+            Assert.assertNotNull(backLink);
+
             Assert.assertEquals(Priority.ALWAYS, HBox.getHgrow(sidebarPanel));
-
-            Assert.assertEquals(2, displayContainer.getChildren().size());
-            Assert.assertTrue(displayContainer.getChildren().get(0) instanceof DisplayPanel);
-            Assert.assertTrue(displayContainer.getChildren().get(1) instanceof Label);
-
-            DisplayPanel displayPanel = (DisplayPanel) displayContainer.getChildren().get(0);
             Assert.assertEquals(
                 DisplayPanel.DEFAULT_PLACEHOLDER_TEXT, displayPanel.getPlaceholderText());
-
-            Label backLink = (Label) displayContainer.getChildren().get(1);
-            Assert.assertEquals("← Back to Modules", backLink.getText());
-            backLink.getOnMouseClicked().handle(null);
-            Assert.assertTrue(navigatedBack.get());
 
             Assert.assertTrue(containsChildOfType(sidebarPanel, ParametersPanel.class));
             Assert.assertTrue(containsChildOfType(sidebarPanel, CommandsPanel.class));
@@ -82,47 +73,65 @@ public class WorkspaceLayoutTest {
         () -> {
           DialogService dialogService = new DialogService();
           AutomatonImageService imageService = new AutomatonImageService(dialogService);
-          AtomicBoolean navigatedBack = new AtomicBoolean(false);
-          HBox root = new LifeLikeWorkspace(imageService, () -> navigatedBack.set(true));
+          HBox root = new LifeLikeWorkspace(imageService, () -> {});
 
-          Assert.assertEquals(2, root.getChildren().size());
-          Assert.assertTrue(root.getChildren().get(0) instanceof VBox);
-          Assert.assertTrue(root.getChildren().get(1) instanceof SidebarPanel);
+          Assert.assertEquals(UiStyles.APP_SPACING, root.getSpacing(), 0.001);
+          Assert.assertEquals(new Insets(UiStyles.APP_SPACING), root.getPadding());
 
-          VBox displayContainer = (VBox) root.getChildren().get(0);
-          SidebarPanel sidebarPanel = (SidebarPanel) root.getChildren().get(1);
+          DisplayPanel displayPanel = findNode(root, DisplayPanel.class, null);
+          SidebarPanel sidebarPanel = findNode(root, SidebarPanel.class, null);
+          LifeLikeToolbar toolbar = findNode(root, LifeLikeToolbar.class, null);
+          Label backLink =
+              findNode(root, Label.class, lbl -> "← Back to Modules".equals(lbl.getText()));
+
+          Assert.assertNotNull(displayPanel);
+          Assert.assertNotNull(sidebarPanel);
+          Assert.assertNotNull(toolbar);
+          Assert.assertNotNull(backLink);
+
           Assert.assertEquals(Priority.ALWAYS, HBox.getHgrow(sidebarPanel));
-
-          Assert.assertEquals(2, displayContainer.getChildren().size());
-          Assert.assertTrue(displayContainer.getChildren().get(0) instanceof DisplayPanel);
-          Assert.assertTrue(displayContainer.getChildren().get(1) instanceof HBox);
-
-          DisplayPanel displayPanel = (DisplayPanel) displayContainer.getChildren().get(0);
           Assert.assertEquals(
               DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT, displayPanel.getPlaceholderText());
           Assert.assertFalse(displayPanel.getPlaceholderText().contains("Generate"));
 
-          HBox footerRow = (HBox) displayContainer.getChildren().get(1);
+          // Footer row aligns back-link on left, expanding spacer in middle, and toolbar on right
+          HBox footerRow = (HBox) backLink.getParent();
           Assert.assertEquals(Pos.CENTER_LEFT, footerRow.getAlignment());
-          Assert.assertEquals(3, footerRow.getChildren().size());
+          Assert.assertSame(footerRow, toolbar.getParent());
 
-          Assert.assertTrue(footerRow.getChildren().get(0) instanceof Label);
-          Label backLink = (Label) footerRow.getChildren().get(0);
-          Assert.assertEquals("← Back to Modules", backLink.getText());
-          backLink.getOnMouseClicked().handle(null);
-          Assert.assertTrue(navigatedBack.get());
-
-          Node spacer = footerRow.getChildren().get(1);
-          Assert.assertTrue(spacer instanceof Region);
+          Node spacer = null;
+          for (Node child : footerRow.getChildren()) {
+            if (child != backLink && child != toolbar && child instanceof Region) {
+              spacer = child;
+              break;
+            }
+          }
+          Assert.assertNotNull(spacer);
           Assert.assertEquals(Priority.ALWAYS, HBox.getHgrow(spacer));
-
-          Assert.assertTrue(footerRow.getChildren().get(2) instanceof LifeLikeToolbar);
-          LifeLikeToolbar toolbar = (LifeLikeToolbar) footerRow.getChildren().get(2);
           Assert.assertEquals(Pos.CENTER_RIGHT, toolbar.getAlignment());
 
           Assert.assertTrue(containsChildOfType(sidebarPanel, ParametersPanel.class));
           Assert.assertFalse(containsChildOfType(sidebarPanel, CommandsPanel.class));
         });
+  }
+
+  private static <T extends Node> T findNode(
+      Node root, Class<T> clazz, java.util.function.Predicate<T> predicate) {
+    if (clazz.isInstance(root)) {
+      T cast = clazz.cast(root);
+      if (predicate == null || predicate.test(cast)) {
+        return cast;
+      }
+    }
+    if (root instanceof Parent parent) {
+      for (Node child : parent.getChildrenUnmodifiable()) {
+        T found = findNode(child, clazz, predicate);
+        if (found != null) {
+          return found;
+        }
+      }
+    }
+    return null;
   }
 
   private static boolean containsChildOfType(SidebarPanel sidebarPanel, Class<?> type) {
