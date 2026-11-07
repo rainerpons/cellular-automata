@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
@@ -40,20 +41,36 @@ public class LifeLikeControllerTest {
     JavaFxTestHelper.ensureToolkitInitialized();
   }
 
+  private static Button findToolbarButton(LifeLikeToolbar toolbar, String accessibleText) {
+    for (Node node : toolbar.getChildren()) {
+      if (node instanceof Button button && accessibleText.equals(button.getAccessibleText())) {
+        return button;
+      }
+    }
+    throw new AssertionError("Toolbar button not found for accessible text: " + accessibleText);
+  }
+
   private static Button playPauseButton(LifeLikeToolbar toolbar) {
-    return (Button) toolbar.getChildren().get(0);
+    for (Node node : toolbar.getChildren()) {
+      if (node instanceof Button button
+          && ("Play".equals(button.getAccessibleText())
+              || "Pause".equals(button.getAccessibleText()))) {
+        return button;
+      }
+    }
+    throw new AssertionError("Play/Pause button not found in toolbar");
   }
 
   private static Button stepButton(LifeLikeToolbar toolbar) {
-    return (Button) toolbar.getChildren().get(1);
+    return findToolbarButton(toolbar, "Step");
   }
 
   private static Button resetButton(LifeLikeToolbar toolbar) {
-    return (Button) toolbar.getChildren().get(2);
+    return findToolbarButton(toolbar, "Reset");
   }
 
   private static Button saveButton(LifeLikeToolbar toolbar) {
-    return (Button) toolbar.getChildren().get(3);
+    return findToolbarButton(toolbar, "Save");
   }
 
   @Test
@@ -495,9 +512,12 @@ public class LifeLikeControllerTest {
           LifeLikeController controller =
               new LifeLikeController(displayPanel, parametersPanel, toolbar, scheduler);
 
+          // 1. Dispose from RUNNING: stops scheduler, resets state, clears refs, and resets toolbar
           controller.togglePlayPause();
           Assert.assertTrue(scheduler.isRunning());
           Assert.assertTrue(controller.hasActiveSimulation());
+          Assert.assertTrue(toolbar.isPlaying());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
 
           controller.dispose();
           Assert.assertFalse(scheduler.isRunning());
@@ -505,6 +525,51 @@ public class LifeLikeControllerTest {
           Assert.assertNull(controller.getActiveSimulation());
           Assert.assertNull(controller.getActiveConfiguration());
           Assert.assertNull(controller.getActiveImage());
+          Assert.assertFalse(toolbar.isPlaying());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertTrue(resetButton(toolbar).isDisabled());
+          Assert.assertTrue(saveButton(toolbar).isDisabled());
+
+          // 2. Dispose from PAUSED: advances one step then disposes cleanly
+          stepButton(toolbar).fire();
+          Assert.assertEquals(LifeLikeStateMachine.State.PAUSED, controller.getState());
+          Assert.assertNotNull(controller.getActiveSimulation());
+          Assert.assertFalse(resetButton(toolbar).isDisabled());
+
+          controller.dispose();
+          Assert.assertFalse(scheduler.isRunning());
+          Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
+          Assert.assertNull(controller.getActiveSimulation());
+          Assert.assertNull(controller.getActiveConfiguration());
+          Assert.assertNull(controller.getActiveImage());
+          Assert.assertTrue(resetButton(toolbar).isDisabled());
+
+          // 3. Dispose from FIXED_POINT: reaching fixed point then disposing cleanly
+          parametersPanel.selectSeedType(SeedType.SPARSE);
+          stepButton(toolbar).fire();
+          stepButton(toolbar).fire();
+          Assert.assertEquals(LifeLikeStateMachine.State.FIXED_POINT, controller.getState());
+          Assert.assertTrue(playPauseButton(toolbar).isDisabled());
+          Assert.assertTrue(stepButton(toolbar).isDisabled());
+
+          controller.dispose();
+          Assert.assertFalse(scheduler.isRunning());
+          Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
+          Assert.assertNull(controller.getActiveSimulation());
+          Assert.assertFalse(playPauseButton(toolbar).isDisabled());
+          Assert.assertFalse(stepButton(toolbar).isDisabled());
+          Assert.assertTrue(resetButton(toolbar).isDisabled());
+
+          // 4. Idempotence & UNINITIALIZED: disposing when already uninitialized is safe
+          controller.dispose();
+          Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
+          Assert.assertFalse(scheduler.isRunning());
+
+          // 5. Stale tick post-dispose does not restart scheduler or throw
+          controller.tick();
+          Assert.assertFalse(scheduler.isRunning());
+          Assert.assertEquals(LifeLikeStateMachine.State.UNINITIALIZED, controller.getState());
         });
   }
 
