@@ -120,16 +120,15 @@ public final class UiStyles {
    *
    * @param onNavigateBack the callback to execute when clicked
    * @return the navigation back-link label
+   * @throws IllegalArgumentException if {@code onNavigateBack} is {@code null}
    */
   public static Label createBackLink(Runnable onNavigateBack) {
+    if (onNavigateBack == null) {
+      throw new IllegalArgumentException("onNavigateBack cannot be null.");
+    }
     Label backLink = new Label("← Back to Modules");
     backLink.getStyleClass().add("navigation-link");
-    backLink.setOnMouseClicked(
-        e -> {
-          if (onNavigateBack != null) {
-            onNavigateBack.run();
-          }
-        });
+    backLink.setOnMouseClicked(e -> onNavigateBack.run());
     return backLink;
   }
 }
