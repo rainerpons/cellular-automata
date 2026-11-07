@@ -115,6 +115,7 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
 - **Architectural contracts (invariants)**:
   - Permitted package dependency directions (enforced by ArchUnit).
   - Concrete module controllers in `ui.controllers` must implement `AutomatonController` (enforced by ArchUnit).
+  - UI subpackages (`components`, `controllers`, `panels`, `services`, `shared`, `simulation`) must not depend on top-level screens in `ui.screens` (enforced by ArchUnit).
   - Single source of truth for mathematical domain constraints in `engine.rules`.
   - Separation of UI-specific interaction caps (`LifeLikeRuleSelectionModel.MAX_SELECTED_COUNTS_PER_SET`) from mathematical domain bounds (`LifeLikeRule.MIN_NEIGHBOR_COUNT..MAX_NEIGHBOR_COUNT`).
   - JavaFX-free `engine`, `image`, and presentation state models (`LifeLikeRuleSelectionModel`, `WorkspaceConfig`, `AutomatonFileNameFormatter`).
@@ -131,7 +132,9 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
 - **`Grid2D`**: Represents an immutable two-dimensional finite lattice of binary cell states in `engine`, providing boundary-safe Moore neighborhood counting and next generation evolution.
 - **`Generator`**: Single owner of 1D and 2D initial state generation algorithms in `engine`.
 - **`LifeLikeSimulation`**: Manages the simulation lifecycle, stepping, and reset state for 2D Life-like cellular automata in `engine.automata`.
-- **`MainApp`**: Application composition root and navigation layer in `ui`. Assembles workspaces, initializes UI components, and connects controllers.
+- **`MainApp`**: Application composition root and navigation layer in `ui`. Manages window initialization and routes between module selection and dedicated workspace screens.
+- **`ModuleSelectionScreen`**: Application entry point screen in `ui.screens` for selecting a cellular automaton module.
+- **`ElementaryWorkspace` / `TotalisticWorkspace` / `LifeLikeWorkspace`**: Dedicated workspace screens in `ui.screens` that assemble module panels and components, wire per-module controllers, and manage workspace layout and simulation lifecycle.
 - **`AutomatonController`**: Common interface in `ui.controllers` defining the `save()` contract implemented by all concrete module controllers, establishing a uniform saving API across modules while preserving independent controller implementations.
 - **`ElementaryController`**: Coordinates UI actions for the Elementary workspace in `ui.controllers`, implementing `AutomatonController` and delegating fixed-bound rule validation, `ElementaryRule` construction, 2-state generation, rendering, and image export operations to their appropriate owners.
 - **`TotalisticController`**: Coordinates UI actions for the Totalistic workspace in `ui.controllers`, implementing `AutomatonController` and delegating state count validation, dynamic-bound rule validation, `TotalisticRule` construction, multi-state generation, rendering, and image export operations to their appropriate owners.
@@ -146,6 +149,7 @@ To keep reviews and maintenance focused, the project distinguishes between **arc
 - **`AutomataEngine`**: Responsible for cellular automata generation and simulation orchestration.
 - **`AutomatonImageUtils`**: Handles automaton image rendering from generation maps and grids, image resizing, and PNG file writing independently of UI controls and workspace naming policy.
 - **`AutomatonFileNameFormatter`**: Formats default export filenames from strongly typed module rules (`ElementaryRule`, `TotalisticRule`, `LifeLikeRule`) and automaton parameters in `ui`.
+- **`UiLayouts`**: Provides shared workspace layout construction helpers in `ui.shared` for creating display containers and configuring top-level workspace root layout constraints.
 
 ## Architectural Principles
 
@@ -191,8 +195,9 @@ cellular-automata/
 │   │       ├── components/ # Reusable self-contained UI controls (ModuleCard, LifeLikeToolbar, LabeledSlider)
 │   │       ├── controllers/# UI action and simulation coordination (ElementaryController, TotalisticController, LifeLikeController)
 │   │       ├── panels/     # Major workspace layout regions (DisplayPanel, SidebarPanel, ParametersPanel, etc.)
+│   │       ├── screens/    # Top-level full-window screens (ModuleSelectionScreen, ElementaryWorkspace, etc.)
 │   │       ├── services/   # Application dialogs and image save coordination (DialogService, AutomatonImageService)
-│   │       ├── shared/     # Shared layout geometry, CSS class constants, and font registration (UiStyles, UiFonts)
+│   │       ├── shared/     # Shared layout geometry, workspace layout helpers, CSS class constants, and font registration (UiStyles, UiLayouts, UiFonts)
 │   │       └── simulation/ # Simulation lifecycle state, configuration, and scheduling (LifeLikeStateMachine, etc.)
 │   └── test/               # Tests mirroring production package structure
 ```

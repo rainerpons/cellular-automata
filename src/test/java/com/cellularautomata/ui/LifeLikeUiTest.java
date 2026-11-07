@@ -8,11 +8,10 @@ import com.cellularautomata.engine.presets.LifeLikePreset;
 import com.cellularautomata.engine.rules.LifeLikeRule;
 import com.cellularautomata.ui.components.LifeLikeToolbar;
 import com.cellularautomata.ui.components.ModuleCard;
-import com.cellularautomata.ui.controllers.LifeLikeController;
 import com.cellularautomata.ui.panels.CommandsPanel;
 import com.cellularautomata.ui.panels.DisplayPanel;
-import com.cellularautomata.ui.panels.LifeLikeParametersPanel;
 import com.cellularautomata.ui.panels.ParametersPanel;
+import com.cellularautomata.ui.screens.LifeLikeWorkspace;
 import com.cellularautomata.ui.services.DialogService;
 import com.cellularautomata.ui.shared.UiStyles;
 import java.awt.image.BufferedImage;
@@ -28,6 +27,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
@@ -65,20 +65,36 @@ public class LifeLikeUiTest extends ApplicationTest {
     this.app.start(stage);
   }
 
+  private static Button findToolbarButton(LifeLikeToolbar toolbar, String accessibleText) {
+    for (Node node : toolbar.getChildren()) {
+      if (node instanceof Button button && accessibleText.equals(button.getAccessibleText())) {
+        return button;
+      }
+    }
+    throw new AssertionError("Toolbar button not found for accessible text: " + accessibleText);
+  }
+
   private static Button playPauseButton(LifeLikeToolbar toolbar) {
-    return (Button) toolbar.getChildren().get(0);
+    for (Node node : toolbar.getChildren()) {
+      if (node instanceof Button button
+          && ("Play".equals(button.getAccessibleText())
+              || "Pause".equals(button.getAccessibleText()))) {
+        return button;
+      }
+    }
+    throw new AssertionError("Play/Pause button not found in toolbar");
   }
 
   private static Button stepButton(LifeLikeToolbar toolbar) {
-    return (Button) toolbar.getChildren().get(1);
+    return findToolbarButton(toolbar, "Step");
   }
 
   private static Button resetButton(LifeLikeToolbar toolbar) {
-    return (Button) toolbar.getChildren().get(2);
+    return findToolbarButton(toolbar, "Reset");
   }
 
   private static Button saveButton(LifeLikeToolbar toolbar) {
-    return (Button) toolbar.getChildren().get(3);
+    return findToolbarButton(toolbar, "Save");
   }
 
   @Test
@@ -109,21 +125,24 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertFalse(displayPanel.isDisplayingError());
 
     // 5. Verify parameter controls can be selected
-    LifeLikeController controller = app.getActiveLifeLikeController();
-    Assert.assertNotNull(controller);
-    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
-    Assert.assertNotNull(parametersPanel);
+    Assert.assertTrue(stage.getScene().getRoot() instanceof LifeLikeWorkspace);
+    Slider sizeSlider = findSizeSlider();
+    ComboBox<LifeLikePreset> presetComboBox = findPresetComboBox();
+    ComboBox<SeedType> seedComboBox = findSeedComboBox();
+    Assert.assertNotNull(sizeSlider);
+    Assert.assertNotNull(presetComboBox);
+    Assert.assertNotNull(seedComboBox);
 
     interact(
         () -> {
-          parametersPanel.setSizeValue(16);
-          parametersPanel.selectPreset(LifeLikePreset.HIGH_LIFE);
-          parametersPanel.selectSeedType(SeedType.SPARSE);
+          sizeSlider.setValue(16);
+          presetComboBox.setValue(LifeLikePreset.HIGH_LIFE);
+          seedComboBox.setValue(SeedType.SPARSE);
         });
 
-    Assert.assertEquals(16, parametersPanel.getSizeValue());
-    Assert.assertEquals(LifeLikePreset.HIGH_LIFE, parametersPanel.getPreset());
-    Assert.assertEquals(SeedType.SPARSE, parametersPanel.getSeedType());
+    Assert.assertEquals(16, (int) Math.round(sizeSlider.getValue()));
+    Assert.assertEquals(LifeLikePreset.HIGH_LIFE, presetComboBox.getValue());
+    Assert.assertEquals(SeedType.SPARSE, seedComboBox.getValue());
 
     // 6. Navigate back to modules
     Label backLink = lookup(".navigation-link").queryAs(Label.class);
@@ -134,14 +153,76 @@ public class LifeLikeUiTest extends ApplicationTest {
   }
 
   @Test
+  public void testReenteringLifeLikeWorkspaceCreatesFreshInstanceWithDefaultStateAndNoPlayback() {
+    navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
+
+    LifeLikeToolbar toolbar = findLifeLikeToolbar();
+    Slider sizeSlider = findSizeSlider();
+    ComboBox<LifeLikePreset> presetComboBox = findPresetComboBox();
+    ComboBox<SeedType> seedComboBox = findSeedComboBox();
+    Spinner<Double> speedSpinner = findPlaybackSpeedSpinner();
+    DisplayPanel displayPanel = findDisplayPanel();
+
+    // 1. Modify parameters and initiate simulation playback
+    interact(
+        () -> {
+          sizeSlider.setValue(16);
+          presetComboBox.setValue(LifeLikePreset.HIGH_LIFE);
+          seedComboBox.setValue(SeedType.SPARSE);
+          speedSpinner.getValueFactory().setValue(1.50);
+          playPauseButton(toolbar).fire();
+        });
+
+    Assert.assertTrue(toolbar.isPlaying());
+    Assert.assertNotNull(displayPanel.getAutomatonImage());
+    Assert.assertFalse(resetButton(toolbar).isDisabled());
+
+    // 2. Navigate back to modules (which disposes running simulation and cancels playback)
+    Label backLink = lookup(".navigation-link").queryAs(Label.class);
+    interact(() -> backLink.getOnMouseClicked().handle(null));
+
+    Label moduleTitle = lookup(".h1").queryAs(Label.class);
+    Assert.assertEquals("Choose a module", moduleTitle.getText());
+
+    // 3. Re-enter Life-Like workspace
+    navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
+
+    LifeLikeToolbar freshToolbar = findLifeLikeToolbar();
+    Slider freshSizeSlider = findSizeSlider();
+    ComboBox<LifeLikePreset> freshPresetComboBox = findPresetComboBox();
+    ComboBox<SeedType> freshSeedComboBox = findSeedComboBox();
+    Spinner<Double> freshSpeedSpinner = findPlaybackSpeedSpinner();
+    DisplayPanel freshDisplayPanel = findDisplayPanel();
+
+    // 4. Verify clean initial defaults restored
+    Assert.assertEquals(8, (int) Math.round(freshSizeSlider.getValue()));
+    Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, freshPresetComboBox.getValue());
+    Assert.assertEquals("Conway's Game of Life", freshPresetComboBox.getButtonCell().getText());
+    Assert.assertEquals(SeedType.DENSITY, freshSeedComboBox.getValue());
+    Assert.assertEquals(1.00, freshSpeedSpinner.getValue(), 0.001);
+    Assert.assertEquals("1.00x", freshSpeedSpinner.getEditor().getText());
+
+    // 5. Verify no active simulation and no running playback
+    Assert.assertFalse(freshToolbar.isPlaying());
+    Assert.assertNull(freshDisplayPanel.getAutomatonImage());
+    Assert.assertEquals(
+        DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT, freshDisplayPanel.getPlaceholderText());
+    Assert.assertFalse(freshDisplayPanel.isDisplayingError());
+    Assert.assertFalse(playPauseButton(freshToolbar).isDisabled());
+    Assert.assertEquals("Play", playPauseButton(freshToolbar).getAccessibleText());
+    Assert.assertFalse(stepButton(freshToolbar).isDisabled());
+    Assert.assertTrue(resetButton(freshToolbar).isDisabled());
+    Assert.assertTrue(saveButton(freshToolbar).isDisabled());
+  }
+
+  @Test
   public void testToolbarInteractionsAndAccessibilityStates() {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     LifeLikeToolbar toolbar = findLifeLikeToolbar();
 
-    interact(() -> parametersPanel.selectSeedType(SeedType.ALTERNATING));
+    interact(() -> findSeedComboBox().setValue(SeedType.ALTERNATING));
 
     // 1. Uninitialized state
     Assert.assertFalse(toolbar.isPlaying());
@@ -211,14 +292,13 @@ public class LifeLikeUiTest extends ApplicationTest {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     LifeLikeToolbar toolbar = findLifeLikeToolbar();
 
     interact(
         () -> {
-          parametersPanel.setSizeValue(8);
-          parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
-          parametersPanel.selectSeedType(SeedType.SPARSE);
+          findSizeSlider().setValue(8);
+          findPresetComboBox().setValue(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+          findSeedComboBox().setValue(SeedType.SPARSE);
         });
 
     interact(() -> stepButton(toolbar).fire());
@@ -340,29 +420,28 @@ public class LifeLikeUiTest extends ApplicationTest {
   public void testCustomPresetDropdownPresentationAndVisibleTransitions() {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
-    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     LifeLikeToolbar toolbar = findLifeLikeToolbar();
     ComboBox<LifeLikePreset> presetComboBox = findPresetComboBox();
     Assert.assertNotNull(presetComboBox);
 
     // 1. Verify default "Conway's Game of Life" presentation
     Assert.assertEquals("Conway's Game of Life", presetComboBox.getButtonCell().getText());
-    Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, parametersPanel.getPreset());
+    Assert.assertEquals(LifeLikePreset.CONWAYS_GAME_OF_LIFE, presetComboBox.getValue());
 
     // 2. Toggle off survival 2 (producing custom B3/S3) and verify ComboBox button cell visibly
     // presents "Custom" (and specifically is NOT empty/blank)
-    interact(() -> parametersPanel.toggleSurvival(2));
+    interact(() -> findSurvivalToggle(2).fire());
     Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
     Assert.assertFalse(presetComboBox.getButtonCell().getText().isBlank());
-    Assert.assertNull(parametersPanel.getPreset());
+    Assert.assertNull(presetComboBox.getValue());
 
     // 3. Select a named preset (e.g., Seeds) and verify button cell updates to "Seeds"
     interact(() -> presetComboBox.setValue(LifeLikePreset.SEEDS));
     Assert.assertEquals("Seeds", presetComboBox.getButtonCell().getText());
-    Assert.assertEquals(LifeLikePreset.SEEDS, parametersPanel.getPreset());
+    Assert.assertEquals(LifeLikePreset.SEEDS, presetComboBox.getValue());
 
     // 4. Transition to Custom and verify Step/Reset preserves visible "Custom" display
-    interact(() -> parametersPanel.toggleBirth(6)); // Seeds (B2/S) + B6 -> Custom B26/S
+    interact(() -> findBirthToggle(6).fire()); // Seeds (B2/S) + B6 -> Custom B26/S
     Assert.assertEquals("Custom", presetComboBox.getButtonCell().getText());
 
     interact(() -> stepButton(toolbar).fire());
@@ -404,7 +483,6 @@ public class LifeLikeUiTest extends ApplicationTest {
     navigateToWorkspace(WorkspaceConfig.LIFE_LIKE);
 
     DisplayPanel displayPanel = findDisplayPanel();
-    LifeLikeParametersPanel parametersPanel = findLifeLikeParametersPanel();
     LifeLikeToolbar toolbar = findLifeLikeToolbar();
     ParametersPanel grid = findNode(stage.getScene().getRoot(), ParametersPanel.class, null);
     Spinner<Double> speedSpinner = findPlaybackSpeedSpinner();
@@ -482,7 +560,6 @@ public class LifeLikeUiTest extends ApplicationTest {
     // flush with right edge of DisplayPanel
     Label backLink = lookup(".navigation-link").queryAs(Label.class);
     Assert.assertEquals("← Back to Modules", backLink.getText());
-    Assert.assertEquals(4, toolbar.getChildren().size());
 
     Bounds displayBounds = displayPanel.localToScene(displayPanel.getBoundsInLocal());
     Bounds backBounds = backLink.localToScene(backLink.getBoundsInLocal());
@@ -492,27 +569,28 @@ public class LifeLikeUiTest extends ApplicationTest {
     Assert.assertTrue(toolbarBounds.getMaxX() < stage.getScene().getWidth() - 100.0);
 
     // 2. Verify default 1.00x and value changes across bounds (0.25x to 2.00x)
-    Assert.assertEquals(1.00, parametersPanel.getPlaybackSpeed(), 0.001);
-    Assert.assertEquals("1.00x", parametersPanel.getPlaybackSpeedDisplayText());
+    Assert.assertEquals(1.00, speedSpinner.getValue(), 0.001);
+    Assert.assertEquals("1.00x", speedSpinner.getEditor().getText());
 
-    interact(() -> parametersPanel.setPlaybackSpeed(0.25));
+    interact(() -> speedSpinner.getValueFactory().setValue(0.25));
     Assert.assertEquals("0.25x", speedSpinner.getEditor().getText());
     interact(() -> speedSpinner.decrement());
     Assert.assertEquals("0.25x", speedSpinner.getEditor().getText());
 
-    interact(() -> parametersPanel.setPlaybackSpeed(2.00));
+    interact(() -> speedSpinner.getValueFactory().setValue(2.00));
     Assert.assertEquals("2.00x", speedSpinner.getEditor().getText());
     interact(() -> speedSpinner.increment());
     Assert.assertEquals("2.00x", speedSpinner.getEditor().getText());
 
     // 3. Configure deterministic simulation, start playback, and change speed during playback
     // without losing generation state
+    ComboBox<LifeLikePreset> presetComboBox = findPresetComboBox();
     interact(
         () -> {
-          parametersPanel.setSizeValue(8);
-          parametersPanel.selectPreset(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
-          parametersPanel.selectSeedType(SeedType.ALTERNATING);
-          parametersPanel.setPlaybackSpeed(1.00);
+          findSizeSlider().setValue(8);
+          presetComboBox.setValue(LifeLikePreset.CONWAYS_GAME_OF_LIFE);
+          findSeedComboBox().setValue(SeedType.ALTERNATING);
+          speedSpinner.getValueFactory().setValue(1.00);
           playPauseButton(toolbar).fire();
         });
 
@@ -524,7 +602,7 @@ public class LifeLikeUiTest extends ApplicationTest {
           speedSpinner.increment(); // 1.50x
         });
 
-    Assert.assertEquals(1.50, parametersPanel.getPlaybackSpeed(), 0.001);
+    Assert.assertEquals(1.50, speedSpinner.getValue(), 0.001);
     Assert.assertEquals("1.50x", speedSpinner.getEditor().getText());
     Assert.assertTrue(toolbar.isPlaying());
 
@@ -573,7 +651,7 @@ public class LifeLikeUiTest extends ApplicationTest {
     // steps, disabling Play and Step while keeping Reset and Save enabled until Reset is clicked
     interact(
         () -> {
-          parametersPanel.selectSeedType(SeedType.SPARSE);
+          findSeedComboBox().setValue(SeedType.SPARSE);
           stepButton(toolbar).fire();
           stepButton(toolbar).fire();
         });
@@ -624,8 +702,47 @@ public class LifeLikeUiTest extends ApplicationTest {
     return findNode(stage.getScene().getRoot(), LifeLikeToolbar.class, null);
   }
 
-  private LifeLikeParametersPanel findLifeLikeParametersPanel() {
-    return app.getActiveLifeLikeParametersPanel();
+  private ToggleButton findSurvivalToggle(int count) {
+    return findNeighborToggle("Survival", count);
+  }
+
+  private ToggleButton findBirthToggle(int count) {
+    return findNeighborToggle("Birth", count);
+  }
+
+  private ToggleButton findNeighborToggle(String rowLabelText, int count) {
+    ParametersPanel panel = findNode(stage.getScene().getRoot(), ParametersPanel.class, null);
+    Label rowLabel = findNode(panel, Label.class, lbl -> rowLabelText.equals(lbl.getText()));
+    int row = GridPane.getRowIndex(rowLabel);
+    for (Node child : panel.getChildren()) {
+      if (GridPane.getRowIndex(child) != null
+          && GridPane.getRowIndex(child) == row
+          && child instanceof javafx.scene.layout.HBox hbox) {
+        for (Node toggleNode : hbox.getChildren()) {
+          if (toggleNode instanceof ToggleButton tb
+              && Integer.toString(count).equals(tb.getText())) {
+            return tb;
+          }
+        }
+      }
+    }
+    throw new AssertionError("Toggle " + count + " not found for row " + rowLabelText);
+  }
+
+  private Slider findSizeSlider() {
+    ParametersPanel panel = findNode(stage.getScene().getRoot(), ParametersPanel.class, null);
+    Label sizeLabel =
+        findNode(
+            panel, Label.class, lbl -> lbl.getText() != null && lbl.getText().startsWith("Size"));
+    int row = GridPane.getRowIndex(sizeLabel);
+    for (Node child : panel.getChildren()) {
+      if (GridPane.getRowIndex(child) != null
+          && GridPane.getRowIndex(child) == row
+          && child instanceof Slider slider) {
+        return slider;
+      }
+    }
+    throw new AssertionError("Size slider not found");
   }
 
   @SuppressWarnings("unchecked")

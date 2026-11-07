@@ -1,4 +1,5 @@
 module com.cellularautomata {
+  requires transitive java.desktop;
   requires javafx.controls;
   requires transitive javafx.graphics;
   requires javafx.swing;
@@ -9,6 +10,8 @@ module com.cellularautomata {
 
   exports com.cellularautomata.app;
   exports com.cellularautomata.ui;
+  exports com.cellularautomata.ui.screens;
+  exports com.cellularautomata.ui.services;
   exports com.cellularautomata.engine;
   exports com.cellularautomata.engine.automata;
   exports com.cellularautomata.engine.presets;
