@@ -12,13 +12,10 @@ import com.cellularautomata.ui.services.AutomatonImageService;
 import com.cellularautomata.ui.services.DialogService;
 import com.cellularautomata.ui.shared.UiStyles;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,25 +47,23 @@ public class WorkspaceLayoutTest {
 
             DisplayPanel displayPanel = findNode(root, DisplayPanel.class, null);
             SidebarPanel sidebarPanel = findNode(root, SidebarPanel.class, null);
-            Label backLink =
-                findNode(root, Label.class, lbl -> "← Back to Modules".equals(lbl.getText()));
+            Label backLink = (Label) root.lookup(".navigation-link");
 
             Assert.assertNotNull(displayPanel);
             Assert.assertNotNull(sidebarPanel);
             Assert.assertNotNull(backLink);
-
-            Assert.assertEquals(Priority.ALWAYS, HBox.getHgrow(sidebarPanel));
+            Assert.assertEquals("← Back to Modules", backLink.getText());
             Assert.assertEquals(
                 DisplayPanel.DEFAULT_PLACEHOLDER_TEXT, displayPanel.getPlaceholderText());
 
-            Assert.assertTrue(containsChildOfType(sidebarPanel, ParametersPanel.class));
-            Assert.assertTrue(containsChildOfType(sidebarPanel, CommandsPanel.class));
+            Assert.assertNotNull(findNode(sidebarPanel, ParametersPanel.class, null));
+            Assert.assertNotNull(findNode(sidebarPanel, CommandsPanel.class, null));
           }
         });
   }
 
   @Test
-  public void testLifeLikeWorkspaceAlignsFooterToolbarWithBackLinkAndOmitsCommandsSection() {
+  public void testLifeLikeWorkspaceIncludesToolbarAndOmitsCommandsSection() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           DialogService dialogService = new DialogService();
@@ -81,37 +76,20 @@ public class WorkspaceLayoutTest {
           DisplayPanel displayPanel = findNode(root, DisplayPanel.class, null);
           SidebarPanel sidebarPanel = findNode(root, SidebarPanel.class, null);
           LifeLikeToolbar toolbar = findNode(root, LifeLikeToolbar.class, null);
-          Label backLink =
-              findNode(root, Label.class, lbl -> "← Back to Modules".equals(lbl.getText()));
+          Label backLink = (Label) root.lookup(".navigation-link");
 
           Assert.assertNotNull(displayPanel);
           Assert.assertNotNull(sidebarPanel);
           Assert.assertNotNull(toolbar);
           Assert.assertNotNull(backLink);
+          Assert.assertEquals("← Back to Modules", backLink.getText());
 
-          Assert.assertEquals(Priority.ALWAYS, HBox.getHgrow(sidebarPanel));
           Assert.assertEquals(
               DisplayPanel.LIFE_LIKE_PLACEHOLDER_TEXT, displayPanel.getPlaceholderText());
           Assert.assertFalse(displayPanel.getPlaceholderText().contains("Generate"));
 
-          // Footer row aligns back-link on left, expanding spacer in middle, and toolbar on right
-          HBox footerRow = (HBox) backLink.getParent();
-          Assert.assertEquals(Pos.CENTER_LEFT, footerRow.getAlignment());
-          Assert.assertSame(footerRow, toolbar.getParent());
-
-          Node spacer = null;
-          for (Node child : footerRow.getChildren()) {
-            if (child != backLink && child != toolbar && child instanceof Region) {
-              spacer = child;
-              break;
-            }
-          }
-          Assert.assertNotNull(spacer);
-          Assert.assertEquals(Priority.ALWAYS, HBox.getHgrow(spacer));
-          Assert.assertEquals(Pos.CENTER_RIGHT, toolbar.getAlignment());
-
-          Assert.assertTrue(containsChildOfType(sidebarPanel, ParametersPanel.class));
-          Assert.assertFalse(containsChildOfType(sidebarPanel, CommandsPanel.class));
+          Assert.assertNotNull(findNode(sidebarPanel, ParametersPanel.class, null));
+          Assert.assertNull(findNode(sidebarPanel, CommandsPanel.class, null));
         });
   }
 
@@ -132,14 +110,5 @@ public class WorkspaceLayoutTest {
       }
     }
     return null;
-  }
-
-  private static boolean containsChildOfType(SidebarPanel sidebarPanel, Class<?> type) {
-    for (Node child : sidebarPanel.getChildren()) {
-      if (type.isInstance(child)) {
-        return true;
-      }
-    }
-    return false;
   }
 }

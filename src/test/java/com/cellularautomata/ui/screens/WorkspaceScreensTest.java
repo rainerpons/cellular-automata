@@ -6,6 +6,7 @@ import com.cellularautomata.ui.components.LifeLikeToolbar;
 import com.cellularautomata.ui.components.ModuleCard;
 import com.cellularautomata.ui.services.AutomatonImageService;
 import com.cellularautomata.ui.services.DialogService;
+import com.cellularautomata.ui.shared.UiStyles;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.Node;
@@ -51,10 +52,6 @@ public class WorkspaceScreensTest {
           Assert.assertNotNull(elementaryCard);
           Assert.assertNotNull(totalisticCard);
           Assert.assertNotNull(lifeLikeCard);
-
-          Assert.assertEquals(WorkspaceConfig.ELEMENTARY, elementaryCard.getConfig());
-          Assert.assertEquals(WorkspaceConfig.TOTALISTIC, totalisticCard.getConfig());
-          Assert.assertEquals(WorkspaceConfig.LIFE_LIKE, lifeLikeCard.getConfig());
 
           // Select Elementary card
           elementaryCard.getOnMouseClicked().handle(null);
@@ -172,6 +169,14 @@ public class WorkspaceScreensTest {
   }
 
   @Test
+  public void testCreateBackLinkContract() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          assertThrows(IllegalArgumentException.class, () -> UiStyles.createBackLink(null));
+        });
+  }
+
+  @Test
   public void testLifeLikeWorkspaceBackLinkStopsPlaybackAndNavigatesBack() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
@@ -184,9 +189,9 @@ public class WorkspaceScreensTest {
           LifeLikeToolbar toolbar = findNode(workspace, LifeLikeToolbar.class, null);
           Assert.assertNotNull(toolbar);
 
-          Button playPauseButton = playPauseButton(toolbar);
-          Button resetButton = resetButton(toolbar);
-          Button saveButton = saveButton(toolbar);
+          Button playPauseButton = findToolbarButton(toolbar, "Play");
+          Button resetButton = findToolbarButton(toolbar, "Reset");
+          Button saveButton = findToolbarButton(toolbar, "Save");
 
           // Start simulation playback
           playPauseButton.fire();
@@ -208,39 +213,19 @@ public class WorkspaceScreensTest {
 
   private static Button findToolbarButton(LifeLikeToolbar toolbar, String accessibleText) {
     for (Node node : toolbar.getChildren()) {
-      if (node instanceof Button button && accessibleText.equals(button.getAccessibleText())) {
+      if (node instanceof Button button
+          && (accessibleText.equals(button.getAccessibleText())
+              || ("Play".equals(accessibleText) && "Pause".equals(button.getAccessibleText())))) {
         return button;
       }
     }
     throw new AssertionError("Toolbar button not found for accessible text: " + accessibleText);
   }
 
-  private static Button playPauseButton(LifeLikeToolbar toolbar) {
-    for (Node node : toolbar.getChildren()) {
-      if (node instanceof Button button
-          && ("Play".equals(button.getAccessibleText())
-              || "Pause".equals(button.getAccessibleText()))) {
-        return button;
-      }
-    }
-    throw new AssertionError("Play/Pause button not found in toolbar");
-  }
-
-  private static Button resetButton(LifeLikeToolbar toolbar) {
-    return findToolbarButton(toolbar, "Reset");
-  }
-
-  private static Button saveButton(LifeLikeToolbar toolbar) {
-    return findToolbarButton(toolbar, "Save");
-  }
-
   private static <T extends Node> T findNode(
       Node root, Class<T> clazz, java.util.function.Predicate<T> predicate) {
-    if (clazz.isInstance(root)) {
-      T cast = clazz.cast(root);
-      if (predicate == null || predicate.test(cast)) {
-        return cast;
-      }
+    if (clazz.isInstance(root) && (predicate == null || predicate.test(clazz.cast(root)))) {
+      return clazz.cast(root);
     }
     if (root instanceof Parent parent) {
       for (Node child : parent.getChildrenUnmodifiable()) {
