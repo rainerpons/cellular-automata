@@ -7,12 +7,15 @@ import com.cellularautomata.ui.components.ModuleCard;
 import com.cellularautomata.ui.services.AutomatonImageService;
 import com.cellularautomata.ui.services.DialogService;
 import com.cellularautomata.ui.shared.UiStyles;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -77,6 +80,43 @@ public class WorkspaceScreensTest {
           // Setting onContinue to null safely handles clicks without throwing
           screen.setOnContinue(null);
           continueBtn.fire();
+        });
+  }
+
+  @Test
+  public void testModuleSelectionCardsDisplayLoadedImages() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          ModuleSelectionScreen screen = new ModuleSelectionScreen();
+          Assert.assertNull(screen.lookup(".placeholder"));
+
+          List<ModuleCard> cards =
+              List.of(
+                  findNode(
+                      screen,
+                      ModuleCard.class,
+                      card -> card.getConfig() == WorkspaceConfig.ELEMENTARY),
+                  findNode(
+                      screen,
+                      ModuleCard.class,
+                      card -> card.getConfig() == WorkspaceConfig.TOTALISTIC),
+                  findNode(
+                      screen,
+                      ModuleCard.class,
+                      card -> card.getConfig() == WorkspaceConfig.LIFE_LIKE));
+
+          for (ModuleCard card : cards) {
+            Assert.assertNotNull(card);
+            ImageView imageView = findNode(card, ImageView.class, null);
+            Assert.assertNotNull(imageView);
+            Assert.assertTrue(imageView.isPreserveRatio());
+
+            Image image = imageView.getImage();
+            Assert.assertNotNull(image);
+            Assert.assertFalse(image.isError());
+            Assert.assertTrue(image.getWidth() > 0);
+            Assert.assertTrue(image.getHeight() > 0);
+          }
         });
   }
 

@@ -5,6 +5,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -23,8 +25,10 @@ public class ModuleCard extends StackPane {
    * @param config the configuration of the workspace
    * @param titleText the title of the module
    * @param descText the description of the module
+   * @param imageResourcePath classpath resource path for the module preview image
    */
-  public ModuleCard(WorkspaceConfig config, String titleText, String descText) {
+  public ModuleCard(
+      WorkspaceConfig config, String titleText, String descText, String imageResourcePath) {
     this.config = config;
     getStyleClass().add("module-card");
 
@@ -36,9 +40,15 @@ public class ModuleCard extends StackPane {
     VBox content = new VBox();
     content.getStyleClass().add("module-card-content");
 
-    // Placeholder icon area
-    Region placeholder = new Region();
-    placeholder.getStyleClass().addAll("placeholder", "module-card-placeholder");
+    ImageView imageView =
+        new ImageView(new Image(ModuleCard.class.getResourceAsStream(imageResourcePath)));
+    imageView.setPreserveRatio(true);
+    imageView.getStyleClass().add("module-card-image");
+
+    StackPane imageContainer = new StackPane(imageView);
+    imageContainer.getStyleClass().add("module-card-image-container");
+    imageView.fitWidthProperty().bind(imageContainer.maxWidthProperty());
+    imageView.fitHeightProperty().bind(imageContainer.maxHeightProperty());
 
     Label title = new Label(titleText);
     title.getStyleClass().addAll("label", "h2");
@@ -48,7 +58,7 @@ public class ModuleCard extends StackPane {
     desc.setWrapText(true);
     desc.setMinHeight(Region.USE_PREF_SIZE);
 
-    content.getChildren().addAll(placeholder, title, desc);
+    content.getChildren().addAll(imageContainer, title, desc);
     getChildren().addAll(radio, content);
   }
 

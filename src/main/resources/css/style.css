@@ -344,7 +344,7 @@
     -fx-border-radius: 8;
     -fx-background-radius: 8;
     -fx-padding: 30;
-    -fx-pref-width: 260;
+    -fx-pref-width: 285;
     -fx-pref-height: 240;
     -fx-cursor: hand;
 }
@@ -394,11 +394,14 @@
     -fx-alignment: top-center;
 }
 
-.module-card-placeholder {
-    -fx-min-width: 64;
-    -fx-max-width: 64;
-    -fx-min-height: 64;
-    -fx-max-height: 64;
+.module-card-image-container {
+    -fx-min-width: 84;
+    -fx-max-width: 84;
+    -fx-min-height: 84;
+    -fx-max-height: 84;
+    -fx-border-color: -fx-control-border;
+    -fx-border-width: 1;
+    -fx-border-insets: -1;
 }
 
 /* Navigation */
