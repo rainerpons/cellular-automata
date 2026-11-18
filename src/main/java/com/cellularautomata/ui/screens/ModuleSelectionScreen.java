@@ -65,17 +65,20 @@ public final class ModuleSelectionScreen extends VBox {
         new ModuleCard(
             WorkspaceConfig.ELEMENTARY,
             "Elementary",
-            "Uses nearby cells to determine the next cell state.");
+            "Uses nearby cells to determine the next cell state.",
+            "/images/elementary-module.png");
     ModuleCard totalistic =
         new ModuleCard(
             WorkspaceConfig.TOTALISTIC,
             "Totalistic",
-            "Uses the sum of nearby cell states to determine the next cell state.");
+            "Uses the sum of nearby cell states to determine the next cell state.",
+            "/images/totalistic-module.png");
     ModuleCard lifeLike =
         new ModuleCard(
             WorkspaceConfig.LIFE_LIKE,
             "Life-Like",
-            "Uses birth and survival rules to determine the next cell state.");
+            "Uses birth and survival rules to determine the next cell state.",
+            "/images/life-like-module.png");
 
     cards.getChildren().addAll(elementary, totalistic, lifeLike);
 

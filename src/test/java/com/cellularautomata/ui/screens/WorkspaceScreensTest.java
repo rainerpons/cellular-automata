@@ -7,12 +7,15 @@ import com.cellularautomata.ui.components.ModuleCard;
 import com.cellularautomata.ui.services.AutomatonImageService;
 import com.cellularautomata.ui.services.DialogService;
 import com.cellularautomata.ui.shared.UiStyles;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -77,6 +80,85 @@ public class WorkspaceScreensTest {
           // Setting onContinue to null safely handles clicks without throwing
           screen.setOnContinue(null);
           continueBtn.fire();
+        });
+  }
+
+  @Test
+  public void testModuleSelectionCardsDisplayDistinctRepresentativeImages() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          ModuleSelectionScreen screen = new ModuleSelectionScreen();
+          Assert.assertNull(screen.lookup(".placeholder"));
+
+          List<ModuleCard> cards =
+              List.of(
+                  findNode(
+                      screen,
+                      ModuleCard.class,
+                      card -> card.getConfig() == WorkspaceConfig.ELEMENTARY),
+                  findNode(
+                      screen,
+                      ModuleCard.class,
+                      card -> card.getConfig() == WorkspaceConfig.TOTALISTIC),
+                  findNode(
+                      screen,
+                      ModuleCard.class,
+                      card -> card.getConfig() == WorkspaceConfig.LIFE_LIKE));
+
+          for (ModuleCard card : cards) {
+            Assert.assertNotNull(card);
+            ImageView imageView = findNode(card, ImageView.class, null);
+            Assert.assertNotNull(imageView);
+            Assert.assertTrue(imageView.isPreserveRatio());
+            Assert.assertEquals(64.0, imageView.getFitWidth(), 0.01);
+            Assert.assertEquals(64.0, imageView.getFitHeight(), 0.01);
+
+            Image image = imageView.getImage();
+            Assert.assertNotNull(image);
+            Assert.assertFalse(image.isError());
+            Assert.assertTrue(image.getWidth() > 0);
+            Assert.assertTrue(image.getHeight() > 0);
+          }
+
+          Image elementaryImage = findNode(cards.get(0), ImageView.class, null).getImage();
+          Image totalisticImage = findNode(cards.get(1), ImageView.class, null).getImage();
+          Image lifeLikeImage = findNode(cards.get(2), ImageView.class, null).getImage();
+          assertImagesDiffer(elementaryImage, totalisticImage);
+          assertImagesDiffer(elementaryImage, lifeLikeImage);
+          assertImagesDiffer(totalisticImage, lifeLikeImage);
+        });
+  }
+
+  private static void assertImagesDiffer(Image first, Image second) {
+    int width = (int) Math.min(first.getWidth(), second.getWidth());
+    int height = (int) Math.min(first.getHeight(), second.getHeight());
+    var firstReader = first.getPixelReader();
+    var secondReader = second.getPixelReader();
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        if (firstReader.getArgb(x, y) != secondReader.getArgb(x, y)) {
+          return;
+        }
+      }
+    }
+    Assert.fail("Expected module card images to be distinct");
+  }
+
+  @Test
+  public void testModuleCardRejectsBlankOrMissingImageResource() {
+    JavaFxTestHelper.runOnFxThread(
+        () -> {
+          assertThrows(
+              IllegalArgumentException.class,
+              () -> new ModuleCard(WorkspaceConfig.ELEMENTARY, "Title", "Desc", null));
+          assertThrows(
+              IllegalArgumentException.class,
+              () -> new ModuleCard(WorkspaceConfig.ELEMENTARY, "Title", "Desc", "   "));
+          assertThrows(
+              IllegalArgumentException.class,
+              () ->
+                  new ModuleCard(
+                      WorkspaceConfig.ELEMENTARY, "Title", "Desc", "/images/does-not-exist.png"));
         });
   }
 
