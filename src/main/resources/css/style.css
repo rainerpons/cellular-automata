@@ -344,7 +344,7 @@
     -fx-border-radius: 8;
     -fx-background-radius: 8;
     -fx-padding: 30;
-    -fx-pref-width: 260;
+    -fx-pref-width: 285;
     -fx-pref-height: 240;
     -fx-cursor: hand;
 }
@@ -395,10 +395,10 @@
 }
 
 .module-card-image-container {
-    -fx-min-width: 64;
-    -fx-max-width: 64;
-    -fx-min-height: 64;
-    -fx-max-height: 64;
+    -fx-min-width: 70;
+    -fx-max-width: 70;
+    -fx-min-height: 70;
+    -fx-max-height: 70;
     -fx-border-color: -fx-control-border;
     -fx-border-width: 1;
     -fx-border-insets: -1;

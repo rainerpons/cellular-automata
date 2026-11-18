@@ -1,9 +1,6 @@
 package com.cellularautomata.ui.components;
 
 import com.cellularautomata.ui.WorkspaceConfig;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -15,9 +12,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /** A visual card representing a module selection. */
-public final class ModuleCard extends StackPane {
+public class ModuleCard extends StackPane {
 
-  private static final double IMAGE_SIZE = 64;
   private static final Insets RADIO_BUTTON_MARGIN = new Insets(-15, 0, 0, -15);
 
   private final RadioButton radio;
@@ -44,9 +40,15 @@ public final class ModuleCard extends StackPane {
     VBox content = new VBox();
     content.getStyleClass().add("module-card-content");
 
-    ImageView imageView = createImageView(imageResourcePath);
+    ImageView imageView =
+        new ImageView(new Image(ModuleCard.class.getResourceAsStream(imageResourcePath)));
+    imageView.setPreserveRatio(true);
+    imageView.getStyleClass().add("module-card-image");
+
     StackPane imageContainer = new StackPane(imageView);
     imageContainer.getStyleClass().add("module-card-image-container");
+    imageView.fitWidthProperty().bind(imageContainer.maxWidthProperty());
+    imageView.fitHeightProperty().bind(imageContainer.maxHeightProperty());
 
     Label title = new Label(titleText);
     title.getStyleClass().addAll("label", "h2");
@@ -58,27 +60,6 @@ public final class ModuleCard extends StackPane {
 
     content.getChildren().addAll(imageContainer, title, desc);
     getChildren().addAll(radio, content);
-  }
-
-  private static ImageView createImageView(String imageResourcePath) {
-    if (imageResourcePath == null || imageResourcePath.isBlank()) {
-      throw new IllegalArgumentException("Module card image resource path must not be blank");
-    }
-    try (InputStream stream = ModuleCard.class.getResourceAsStream(imageResourcePath)) {
-      if (stream == null) {
-        throw new IllegalArgumentException(
-            "Module card image resource not found: %s".formatted(imageResourcePath));
-      }
-      ImageView imageView = new ImageView(new Image(stream));
-      imageView.setFitWidth(IMAGE_SIZE);
-      imageView.setFitHeight(IMAGE_SIZE);
-      imageView.setPreserveRatio(true);
-      imageView.getStyleClass().add("module-card-image");
-      return imageView;
-    } catch (IOException e) {
-      throw new UncheckedIOException(
-          "Failed to load module card image: %s".formatted(imageResourcePath), e);
-    }
   }
 
   /**

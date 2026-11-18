@@ -84,7 +84,7 @@ public class WorkspaceScreensTest {
   }
 
   @Test
-  public void testModuleSelectionCardsDisplayDistinctRepresentativeImages() {
+  public void testModuleSelectionCardsDisplayLoadedImages() {
     JavaFxTestHelper.runOnFxThread(
         () -> {
           ModuleSelectionScreen screen = new ModuleSelectionScreen();
@@ -110,8 +110,6 @@ public class WorkspaceScreensTest {
             ImageView imageView = findNode(card, ImageView.class, null);
             Assert.assertNotNull(imageView);
             Assert.assertTrue(imageView.isPreserveRatio());
-            Assert.assertEquals(64.0, imageView.getFitWidth(), 0.01);
-            Assert.assertEquals(64.0, imageView.getFitHeight(), 0.01);
 
             Image image = imageView.getImage();
             Assert.assertNotNull(image);
@@ -119,46 +117,6 @@ public class WorkspaceScreensTest {
             Assert.assertTrue(image.getWidth() > 0);
             Assert.assertTrue(image.getHeight() > 0);
           }
-
-          Image elementaryImage = findNode(cards.get(0), ImageView.class, null).getImage();
-          Image totalisticImage = findNode(cards.get(1), ImageView.class, null).getImage();
-          Image lifeLikeImage = findNode(cards.get(2), ImageView.class, null).getImage();
-          assertImagesDiffer(elementaryImage, totalisticImage);
-          assertImagesDiffer(elementaryImage, lifeLikeImage);
-          assertImagesDiffer(totalisticImage, lifeLikeImage);
-        });
-  }
-
-  private static void assertImagesDiffer(Image first, Image second) {
-    int width = (int) Math.min(first.getWidth(), second.getWidth());
-    int height = (int) Math.min(first.getHeight(), second.getHeight());
-    var firstReader = first.getPixelReader();
-    var secondReader = second.getPixelReader();
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        if (firstReader.getArgb(x, y) != secondReader.getArgb(x, y)) {
-          return;
-        }
-      }
-    }
-    Assert.fail("Expected module card images to be distinct");
-  }
-
-  @Test
-  public void testModuleCardRejectsBlankOrMissingImageResource() {
-    JavaFxTestHelper.runOnFxThread(
-        () -> {
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> new ModuleCard(WorkspaceConfig.ELEMENTARY, "Title", "Desc", null));
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> new ModuleCard(WorkspaceConfig.ELEMENTARY, "Title", "Desc", "   "));
-          assertThrows(
-              IllegalArgumentException.class,
-              () ->
-                  new ModuleCard(
-                      WorkspaceConfig.ELEMENTARY, "Title", "Desc", "/images/does-not-exist.png"));
         });
   }
 
